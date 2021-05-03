@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>cad_image_markup</name>
+    <version>1.0.0</version>
+    <description>Package for labeling CAD models with defects from an image</description>
+    <author email="nicholas.c.charron@gmail.com">Nick Charron</author>
+    <maintainer email="nicholas.c.charron@gmail.com">Nick Charron</maintainer>
+    <license>BSD</license>
+
+    <depend>eigen</depend>
+    <depend>boost</depend>
+
+</package>
