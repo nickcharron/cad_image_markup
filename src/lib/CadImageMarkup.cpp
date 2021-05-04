@@ -71,6 +71,9 @@ bool CadImageMarkup::LoadData() {
 }
 
 bool CadImageMarkup::Solve() {
+
+  Eigen::Matrix4d T_WORLD_CAMERA_init = utils::LoadInitialPose(inputs_.initial_pose_path);
+
   // TODO CAM: we should only need the pose from the camera to world, or camera
   // to structure. The world frame is just the cad image coordinate frame (top
   // left corner). If you're worried about that being different for each CAD
@@ -79,7 +82,7 @@ bool CadImageMarkup::Solve() {
   // case we just calculate that ourselves and store it. So optionally, we can
   // feed in a T that we calculate above.
   bool converged = solver_.Solve(input_cloud_CAD, input_cloud_camera,
-                                 inputs_.initial_pose_path);
+                                 T_WORLD_CAMERA_init);
 
   if (!converged) {
     LOG_ERROR("Solver failed, exiting.");

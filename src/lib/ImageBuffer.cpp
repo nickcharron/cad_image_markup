@@ -3,8 +3,6 @@
 #include <boost/filesystem.hpp>
 #include <nlohmann/json.hpp>
 
-#include <cad_image_markup/Utils.h>
-
 namespace cad_image_markup {
 
 bool ImageBuffer::ReadPoints(const std::string &filename,

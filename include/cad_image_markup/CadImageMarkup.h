@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cad_image_markup/ImageBuffer.h>
+#include <cad_image_markup/Solver.h>
+#include <cad_image_markup/Utils.h>
+
 namespace cad_image_markup {
 
 /**
@@ -16,7 +20,7 @@ class CadImageMarkup {
     std::string intrinsics_path;
     std::string config_path;
     std::string ceres_config_path;
-    std::string initial_pose_path; // T_WORLD_CAM
+    std::string initial_pose_path;  // T_WORLD_CAM
   };
 
   /**
@@ -49,7 +53,6 @@ class CadImageMarkup {
   bool Run();
 
  private:
-
   bool Setup();
 
   bool LoadData();
@@ -60,9 +63,13 @@ class CadImageMarkup {
   Params params_;
 
   ImageBuffer ImageBuffer;
+
+  // TODO CAM: Does the visualizer need to be here or can it be constructed in
+  // the solver only?
   std::shared_ptr<Visualizer> solver_visualizer_;
   std::unique_ptr<Solver> solver_;
-  // TODO: do these need to be XYZ?
+
+  // TODO: do these need to be XYZ or can we use XY?
   PointCloud::Ptr input_camera_points_;
   PointCloud::Ptr input_cad_points_;
 };

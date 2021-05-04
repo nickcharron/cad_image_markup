@@ -65,19 +65,20 @@ class ImageBuffer {
   /**
    * @brief Method for writing 2D point set data to an image by setting
    * corresponding pixels to a specified color
-   * @param points_ 2D point set
-   * @param src_file_name_ absolute name of unannotated image
-   * @param target_file_name_ absolute path of image annotated image to create
+   * @param points 2D point set
+   * @param src_file_name absolute name of unannotated image
+   * @param target_file_name absolute path of image annotated image to create
    * (unnanotated image with written data overlayed)
-   * @param color_ color to set pixels in output image (default = "black",
-   * options = "red", "green", "blue")
+   * @param r red uint8_t
+   * @param g green uint8_t
+   * @param b blue uint8_t
    * @return write success
    * @todo update to interpolate pixels (lines? splines?) to color between
    * points
    */
-  bool WriteToImage(std::vector<point>* points_, std::string src_file_name_,
-                    std::string target_file_name_,
-                    std::string color_ = "black");
+  bool WriteToImage(PointCloud::Ptr points, const std::string& src_file_name,
+                    const std::string& target_file_name,
+                    uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
 };
 
 }  // namespace cad_image_markup
