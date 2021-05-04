@@ -15,6 +15,8 @@ class CadImageMarkup {
     std::string image_path;
     std::string intrinsics_path;
     std::string config_path;
+    std::string ceres_config_path;
+    std::string initial_pose_path; // T_WORLD_CAM
   };
 
   /**
@@ -47,13 +49,22 @@ class CadImageMarkup {
   bool Run();
 
  private:
+
+  bool Setup();
+
+  bool LoadData();
+
+  bool Solve();
+
   Inputs inputs_;
+  Params params_;
 
   ImageBuffer ImageBuffer;
-  std::unique_ptr<Visualizer> solver_visualizer_;
+  std::shared_ptr<Visualizer> solver_visualizer_;
+  std::unique_ptr<Solver> solver_;
   // TODO: do these need to be XYZ?
-  pcl::PointCloud<pcl::PointXYZ>::Ptr input_camera_points_;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr input_cad_points_;
+  PointCloud::Ptr input_camera_points_;
+  PointCloud::Ptr input_cad_points_;
 };
 
 }  // namespace cad_image_markup

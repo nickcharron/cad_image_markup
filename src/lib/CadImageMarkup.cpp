@@ -22,13 +22,19 @@ void CadImageMarkup::Run() {
     return false;
   }
 
+  if (!Solve()) {
+    return false;
+  }
+
   return true;
 }
 
-bool Setup() {
-  solver_visualizer_ = std::make_unique<Visualizer>("solution visualizer");
-  input_camera_points_ = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-  input_cad_points_ = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+bool CadImageMarkup::Setup() {
+  solver_visualizer_ = std::make_shared<Visualizer>("solution visualizer");
+  input_camera_points_ = std::make_shared<PointCloud>();
+  input_cad_points_ = std::make_shared<PointCloud>();
+  solver_ =
+      std::make_unique<Solver>(solver_visualizer_, inputs_.ceres_config_path);
 
   if (!config_path.empty()) {
     if (!boost::filesystem::exists(inputs_.config_path)) {
@@ -55,8 +61,49 @@ bool CadImageMarkup::LoadData() {
   }
 
   // densify points
-  image_buffer_.DensifyPoints(input_camera_points_, params_.);
-  image_buffer_.DensifyPoints(input_camera_points_);
+  image_buffer_.DensifyPoints(input_camera_points_, params_.cam_density_index);
+  image_buffer_.DensifyPoints(input_cad_points_, params_.cad_density_index);
+
+  // TODO CAM: I don't understand why we'd need to do this?
+  utils::OriginCloudxy(input_cad_points_);
+
+  return true;
+}
+
+bool CadImageMarkup::Solve() {
+  // TODO CAM: we should only need the pose from the camera to world, or camera
+  // to structure. The world frame is just the cad image coordinate frame (top
+  // left corner). If you're worried about that being different for each CAD
+  // model and hard for an inspector to know, then we can set the world frame to
+  // the centroid of the structural element (e.g., center of column) in which
+  // case we just calculate that ourselves and store it. So optionally, we can
+  // feed in a T that we calculate above.
+  bool converged = solver_.Solve(input_cloud_CAD, input_cloud_camera,
+                                 inputs_.initial_pose_path);
+
+  if (!converged) {
+    LOG_ERROR("Solver failed, exiting.");
+    return false;
+  }
+  LOG_INFO("Solver successful.");
+
+  // TODO CAM: output results here? We can just create a new CAD image with the
+  // markups, and rename it using the orginal name. We should also output other
+  // things like:
+  // * T_WORLD_CAMERA_final
+  // * T_WORLD_CAMERA_initial
+  // * Intrinsics used
+  // * config copies (so we can go back and see the results that produced that)
+  // Overall structure would be:
+  // path_to_cad_in/cad_name.json
+  //               /cad_name_results/
+  //                                T_WORLD_CAMERA_final.json
+  //                                T_WORLD_CAMERA_initial.json
+  //                                intrinsics.json
+  //                                config.json
+  //                                ceres_config.json
+  Eigen::Matrix4d T_WORLD_CAMERA = solver.GetT_WORLD_CAMERA();
+  std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
 }
 
 }  // namespace cad_image_markup

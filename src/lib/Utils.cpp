@@ -6,11 +6,11 @@ std::shared_ptr<beam_calibration::CameraModel> Util::GetCameraModel() {
   return camera_model_;
 }
 
-void Util::ReadCameraModel(std::string intrinsics_file_path_) {
-  camera_model_ = beam_calibration::CameraModel::Create(intrinsics_file_path_);
+void Util::ReadCameraModel(std::string intrinsics_file_path) {
+  camera_model_ = beam_calibration::CameraModel::Create(intrinsics_file_path);
 }
 
-void Util::SetCameraID(uint8_t cam_ID_) { camera_model_->SetCameraID(cam_ID_); }
+void Util::SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
 
 void Util::OffsetCloudxy(PointCloud::Ptr cloud) {
   if (!center_image_called_) {
@@ -27,17 +27,17 @@ void Util::OffsetCloudxy(PointCloud::Ptr cloud) {
   }
 }
 
-void Util::originCloudxy(PointCloud::Ptr cloud_) {
-  uint16_t num_points = cloud_->size();
+void Util::OriginCloudxy(PointCloud::Ptr cloud) {
+  uint16_t num_points = cloud->size();
 
   // determine central x and y values
   float max_x = 0, max_y = 0, min_x = 2048, min_y = 2048;
   for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    if (cloud_->at(point_index).x > max_x) max_x = cloud_->at(point_index).x;
-    if (cloud_->at(point_index).y > max_y) max_y = cloud_->at(point_index).y;
+    if (cloud->at(point_index).x > max_x) max_x = cloud->at(point_index).x;
+    if (cloud->at(point_index).y > max_y) max_y = cloud->at(point_index).y;
 
-    if (cloud_->at(point_index).x < min_x) min_x = cloud_->at(point_index).x;
-    if (cloud_->at(point_index).y < min_y) min_y = cloud_->at(point_index).y;
+    if (cloud->at(point_index).x < min_x) min_x = cloud->at(point_index).x;
+    if (cloud->at(point_index).y < min_y) min_y = cloud->at(point_index).y;
   }
 
   float center_x = min_x + (max_x - min_x) / 2;
@@ -48,8 +48,8 @@ void Util::originCloudxy(PointCloud::Ptr cloud_) {
 
   // shift all points back to center on origin
   for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    cloud_->at(point_index).x -= (int)center_x;
-    cloud_->at(point_index).y -= (int)center_y;
+    cloud->at(point_index).x -= (int)center_x;
+    cloud->at(point_index).y -= (int)center_y;
   }
 
   center_image_called_ = true;

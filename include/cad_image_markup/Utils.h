@@ -46,7 +46,10 @@ using PointCloud = pcl::PointCloud<pcl::PointXYZ>;
 
 /**
  * @brief General utility class
- * Note: this has been implemented as a class in order to store a local
+ * @todo CAM: I don't think this should be a class, I think utils functions are
+ * good enough. You client code can easily keep track of the offesets and you
+ * can feed the camera model directly to the two or three functions that need
+ * it. Note: this has been implemented as a class in order to store a local
  * camera model as well as internally keep track of offsets that have been
  * applied to clouds
  */
@@ -73,14 +76,14 @@ class Util {
    * config file
    * @param intrinsics_file_path_ absolute path to the camera configuration file
    */
-  void ReadCameraModel(std::string intrinsics_file_path_);
+  void ReadCameraModel(std::string intrinsics_file_path);
 
   /**
    * @brief Setter method to set the camera ID used by the camera model
    * this is currently only applicable to the ladybug camera model
    * @param cam_ID_ ID of the camera intrinsics set to use
    */
-  void SetCameraID(uint8_t cam_ID_);
+  void SetCameraID(uint8_t cam_ID);
 
   /**
    * @brief Method to restore a cloud after it has been centered in x and y
@@ -93,17 +96,17 @@ class Util {
   /**
    * @brief Method to center a cloud on the origin in the xy plane
    * cloud is centered based on its maximum dimensions in x and y
-   * @param cloud_ cloud to be centered
+   * @param cloud cloud to be centered
    */
-  void originCloudxy(PointCloud::Ptr cloud_);
+  void OriginCloudxy(PointCloud::Ptr cloud);
 
   /**
    * @brief Method to use camera model to project a point cloud into the xy
    * plane
-   * @param cloud_ point cloud to project
+   * @param cloud point cloud to project
    * @return projected planar cloud in the xy plane
    */
-  PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud_);
+  PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
 
   /**
    * @brief Method to get correspondences between a CAD cloud projection and an
