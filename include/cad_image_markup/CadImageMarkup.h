@@ -14,6 +14,21 @@ class CadImageMarkup {
     std::string cad_path;
     std::string image_path;
     std::string intrinsics_path;
+    std::string config_path;
+  };
+
+  /**
+   * @brief Struct for containing all parameters needed for this class
+   */
+  struct Params {
+    /**
+     * @brief Loads params from a json file
+     * @param path full path to json
+     */
+    bool LoadFromJson(const std::string& path);
+
+    cad_density_index{2};
+    cam_density_index{10};
   };
 
   /**
@@ -33,6 +48,12 @@ class CadImageMarkup {
 
  private:
   Inputs inputs_;
+
+  ImageBuffer ImageBuffer;
+  std::unique_ptr<Visualizer> solver_visualizer_;
+  // TODO: do these need to be XYZ?
+  pcl::PointCloud<pcl::PointXYZ>::Ptr input_camera_points_;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr input_cad_points_;
 };
 
 }  // namespace cad_image_markup

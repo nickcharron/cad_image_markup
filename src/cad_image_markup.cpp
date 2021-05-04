@@ -10,6 +10,8 @@ DEFINE_string(intrinsics, "",
               "Full path to intrinsics file in json format (Required).");
 DEFINE_validator(intrinsics,
                  &cad_image_markup::gflags::ValidateJsonFileMustExist);
+DEFINE_string(config, "", "Full path to json config file (Required).");
+DEFINE_validator(config, &cad_image_markup::gflags::ValidateJsonFileMustExist);
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -17,9 +19,14 @@ int main(int argc, char **argv) {
   cad_image_markup::CadImageMarkup::Inputs inputs{
       .cad_path = FLAGS_cad,
       .image_path = FLAGS_image,
-      .intrinsics_path = FLAGS_intrinsics};
+      .intrinsics_path = FLAGS_intrinsics,
+      .config_path = FLAGS_config};
 
   cad_image_markup::CadImageMarkup markup(inputs);
-  markup.Run();
+  if (markup.Run()) {
+    LOG_INFO("Success completed CAD markup!");
+  } else {
+    LOG_ERROR("Failed CAD markup!");
+  }
   return 0;
 }
