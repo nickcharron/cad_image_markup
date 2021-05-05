@@ -66,11 +66,18 @@ bool CadImageMarkup::LoadData() {
   image_buffer_.DensifyPoints(input_cad_points_, params_.cad_density_index);
 
   // TODO CAM: I don't understand why we'd need to do this?
-  // Based on our convo: we want to calculate T_CAD_WORLD where the world frame
+  // Based on our convo: we want to calculate T_WORLD_CAD where the world frame
   // is the centroid of the object, and the cad frame is the top left corner. To
   // calculate this, just get the translation in x and y to the centroid. Then I
   // think we can remove this function
   utils::OriginCloudxy(input_cad_points_);
+  // Code would look something like this:
+  // Eigen::Vector2d centroid = utils::GetCentroid(input_cad_points_);
+  // T_WORLD_CAD = ...
+  // input_cad_points_transformed_ = std::make_shared<PointCloud>();->move to
+  // Setup
+  // pcl::transformPointCloud(*input_cad_points_,*input_cad_points_transformed_,
+  // T_WORLD_CAD);
 
   return true;
 }
@@ -86,8 +93,8 @@ bool CadImageMarkup::Solve() {
   // the centroid of the structural element (e.g., center of column) in which
   // case we just calculate that ourselves and store it. So optionally, we can
   // feed in a T that we calculate above.
-  bool converged =
-      solver_.Solve(input_cloud_CAD, input_cloud_camera, T_WORLD_CAMERA_init);
+  bool converged = solver_.Solve(input_cad_points_transformed_,
+                                 input_camera_points_, T_WORLD_CAMERA_init);
 
   if (!converged) {
     LOG_ERROR("Solver failed, exiting.");

@@ -70,8 +70,11 @@ class CadImageMarkup {
   std::unique_ptr<Solver> solver_;
 
   // TODO: do these need to be XYZ or can we use XY?
+  // Also, to make these more clear we could rename them:
+  // camera_points_CAMFRAME, cad_points_CADFRAME, cad_points_WORLDFRAME
   PointCloud::Ptr input_camera_points_;
   PointCloud::Ptr input_cad_points_;
+  PointCloud::Ptr input_cad_points_transformed_;
 };
 
 }  // namespace cad_image_markup
