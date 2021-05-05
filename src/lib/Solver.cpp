@@ -15,6 +15,8 @@ Solver::Solver(std::shared_ptr<Visualizer> visualizer,
 
 bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
            const Eigen::Matix4d& T_WORLD_CAMERA) {
+  cad_cloud_ = cad_cloud;
+  camera_cloud_ = camera_cloud;             
   // TODO CAM: update this:
   // ALSO: create a separate function for calculating correspondencs to make this more clear
 
@@ -163,6 +165,9 @@ void Solver::SolveCeresProblem() {
 
 bool Solver::HasConverged(){
     // TODO CAM: implement this. See params for more details.
+    // if(summary_.ceres_results.initial_losss - final_loss > amount){
+    //     return true;
+    // }
 }
 
 }  // namespace cad_image_markup

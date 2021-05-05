@@ -7,7 +7,8 @@ namespace cad_image_markup {
 bool CadImageMarkup::Params::LoadFromJson(const std::string& path) {
   LOG_INFO("Loading config file from: %s", path.c_str());
   // TODO CAM: add function for loading json config settings. Also add a
-  // ConfigDefault.json in the config folder of this repo
+  // ConfigDefault.json in the config folder of this repo. Look at examples in
+  // libbeam for parsing jsons
   return true;
 }
 
@@ -65,14 +66,18 @@ bool CadImageMarkup::LoadData() {
   image_buffer_.DensifyPoints(input_cad_points_, params_.cad_density_index);
 
   // TODO CAM: I don't understand why we'd need to do this?
+  // Based on our convo: we want to calculate T_CAD_WORLD where the world frame
+  // is the centroid of the object, and the cad frame is the top left corner. To
+  // calculate this, just get the translation in x and y to the centroid. Then I
+  // think we can remove this function
   utils::OriginCloudxy(input_cad_points_);
 
   return true;
 }
 
 bool CadImageMarkup::Solve() {
-
-  Eigen::Matrix4d T_WORLD_CAMERA_init = utils::LoadInitialPose(inputs_.initial_pose_path);
+  Eigen::Matrix4d T_WORLD_CAMERA_init =
+      utils::LoadInitialPose(inputs_.initial_pose_path);
 
   // TODO CAM: we should only need the pose from the camera to world, or camera
   // to structure. The world frame is just the cad image coordinate frame (top
@@ -81,8 +86,8 @@ bool CadImageMarkup::Solve() {
   // the centroid of the structural element (e.g., center of column) in which
   // case we just calculate that ourselves and store it. So optionally, we can
   // feed in a T that we calculate above.
-  bool converged = solver_.Solve(input_cloud_CAD, input_cloud_camera,
-                                 T_WORLD_CAMERA_init);
+  bool converged =
+      solver_.Solve(input_cloud_CAD, input_cloud_camera, T_WORLD_CAMERA_init);
 
   if (!converged) {
     LOG_ERROR("Solver failed, exiting.");

@@ -185,43 +185,12 @@ PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
  */
 void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
 
-////////////////////////////////////////////////////////////////////////////
-// TODO CAM: This is not the proper way to deal with coordinate frames. We
-// should have a chat about fixing these
 /**
- * @brief Method to load initial poses of the structure or robot
+ * @brief Method to load initial poses 
  * @param file_name_ absolute path to json file with initial pose
- * @param T_ transformation matrix to which the read pose is applied
- * @param inverted optional paramter, if set to true, the inverse of the
- * transform read in from the file will be applied to T_
- * @todo not sure if we really need this one, can just use the TransformPose,
- * they are pretty much identical
+ * @param T_WORLD_CAMERA transformation matrix to which the read pose is applied
  */
-void LoadInitialPose(std::string file_name_, Eigen::Matrix4d& T_,
-                     bool inverted = false);
-
-/**
- * @brief Method to load initial transformation and apply it to the given
- * matrix
- * @param file_name_ absolute path to json file with initial pose
- * @param T_ transformation matrix to which the read pose is applied
- * @param inverted optional paramter, if set to true, the inverse of the
- * transform read in from the file will be applied to T_
- */
-void TransformPose(std::string file_name_, Eigen::Matrix4d& T_,
-                   bool inverted = false);
-
-/**
- * @brief Method to perform rotations to convert from world -> camera
- * coordinate system
- * @param world_transform transformation matrix in the world coordinate system
- * (z+ axis up, x+ forward, y+ left )
- * @param camera_transform transformation matrix in the camera coordinate
- * system (z+ axis forward, x+ right, y+ down)
- */
-void RemapWorldtoCameraCoords(const double (&world_transform_)[6],
-                              double (&camera_transform_)[6]);
-////////////////////////////////////////////////////////////////////////////
+void LoadInitialPose(std::string file_name_, Eigen::Matrix4d& T_WORLD_CAMERA);
 
 /**
  * @brief Method to get the plane that best fits a cloud

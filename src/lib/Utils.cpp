@@ -72,7 +72,8 @@ PointCloud::Ptr Util::ProjectCloud(PointCloud::Ptr cloud) {
 
 void Util::CorrEst(PointCloud::ConstPtr CAD_cloud,
                    PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
-                   pcl::CorrespondencesPtr corrs, bool align_centroids, double max_corr_distance) {
+                   pcl::CorrespondencesPtr corrs, bool align_centroids,
+                   double max_corr_distance) {
   PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
   PointCloud::Ptr trans_cloud = std::make_shared<PointCloud>();
 
@@ -95,7 +96,7 @@ void Util::CorrEst(PointCloud::ConstPtr CAD_cloud,
   }
 
   // get correspondences
-    pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
+  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
       corr_est;
   corr_est.setInputSource(camera_cloud);
   corr_est.setInputTarget(proj_cloud);
@@ -162,58 +163,9 @@ void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale) {
 }
 
 //////////////////////////////////////////////////////////////////////
-// CHANGE THESE FUNCTIONS
+// Double check this
 
-void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_,
-                     bool inverted) {
-  // load file
-  nlohmann::json J;
-  std::ifstream file(file_name);
-  file >> J;
-
-  // initial pose
-  double w_initial_pose[6];  // x, y, z, alpha, beta, gamma
-  double c_initial_pose[6];  // x, y, z, alpha, beta, gamma
-
-  w_initial_pose[0] = J["pose"][0];
-  w_initial_pose[1] = J["pose"][1];
-  w_initial_pose[2] = J["pose"][2];
-  w_initial_pose[3] = J["pose"][3];
-  w_initial_pose[4] = J["pose"][4];
-  w_initial_pose[5] = J["pose"][5];
-
-  // remap translations and rotations
-  RemapWorldtoCameraCoords(w_initial_pose, c_initial_pose);
-
-  if (inverted == false) {
-    // load forward transform
-    Eigen::VectorXd perturbation(6, 1);
-    perturbation << -c_initial_pose[3], 0, 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, -c_initial_pose[4], 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, -c_initial_pose[5], 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, 0, -c_initial_pose[0], -c_initial_pose[1],
-        -c_initial_pose[2];
-    T = PerturbTransformDegM(T, perturbation);
-  } else {
-    // load inverse transform
-    Eigen::VectorXd perturbation(6, 1);
-    perturbation << c_initial_pose[3], 0, 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, c_initial_pose[4], 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, c_initial_pose[5], 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, 0, c_initial_pose[0], c_initial_pose[1],
-        c_initial_pose[2];
-    T = PerturbTransformDegM(T, perturbation);
-  }
-}
-
-void Util::TransformPose(std::string file_name, Eigen::Matrix4d& T,
-                         bool inverted) {
+void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
   // load file
   nlohmann::json J;
   std::ifstream file(file_name);
@@ -230,45 +182,18 @@ void Util::TransformPose(std::string file_name, Eigen::Matrix4d& T,
   w_pose[4] = J["pose"][4];
   w_pose[5] = J["pose"][5];
 
-  // remap translations and rotations
-  RemapWorldtoCameraCoords(w_pose, c_pose);
+  Eigen::Matrix3d R;
+  // TODO CAM: check order and put in README
+  R = AngleAxisf(utils::DegToRad(J["pose"][3]), Vector3f::UnitX()) *
+      AngleAxisf(utils::DegToRad(J["pose"][4]), Vector3f::UnitY()) *
+      AngleAxisf(utils::DegToRad(J["pose"][5]), Vector3f::UnitZ());
 
-  // construct the matrix describing the transformation
-  // from the world to the camera frame
-  if (inverted) {
-    Eigen::VectorXd perturbation(6, 1);
-    perturbation << -c_pose[3], 0, 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, -c_pose[4], 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, -c_pose[5], 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, 0, -c_pose[0], -c_pose[1], -c_pose[2];
-    T = PerturbTransformDegM(T, perturbation);
-  } else {
-    Eigen::VectorXd perturbation(6, 1);
-    perturbation << c_pose[3], 0, 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, c_pose[4], 0, 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, c_pose[5], 0, 0, 0;
-    T = PerturbTransformDegM(T, perturbation);
-    perturbation << 0, 0, 0, c_pose[0], c_pose[1], c_pose[2];
-    T = PerturbTransformDegM(T, perturbation);
-  }
+  T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
+  T_WORLD_CAMERA.block(0, 0, 3, 3) = R;
+  T_WORLD_CAMERA(0, 3) = J["pose"][0];
+  T_WORLD_CAMERA(1, 3) = J["pose"][1];
+  T_WORLD_CAMERA(2, 3) = J["pose"][2];
 }
-
-void Util::RemapWorldtoCameraCoords(const double (&world_transform_)[6],
-                                    double (&camera_transform_)[6]) {
-  // just a rotation
-  camera_transform_[0] = -world_transform_[1];  // y -> -x
-  camera_transform_[1] = -world_transform_[2];  // z -> -y
-  camera_transform_[2] = world_transform_[0];   // x -> z
-  camera_transform_[4] = world_transform_[5];   // beta -> alpha
-  camera_transform_[5] = -world_transform_[6];  // gamma ->
-  camera_transform_[6] = world_transform_[4];   // alpha -> gamma
-}
-//////////////////////////////////////////////////////////////////////
 
 pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
   pcl::ModelCoefficients::Ptr coefficients =
