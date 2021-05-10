@@ -32,10 +32,10 @@ void CadImageMarkup::Run() {
 
 bool CadImageMarkup::Setup() {
   
-  input_camera_points_ = std::make_shared<PointCloud>();
-  input_cad_points_ = std::make_shared<PointCloud>();
+  camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
+  cad_points_CADFRAME_ = std::make_shared<PointCloud>();
   solver_ =
-      std::make_unique<Solver>(solver_visualizer_, inputs_.ceres_config_path);
+      std::make_unique<Solver>(inputs_.ceres_config_path);
 
   if (!config_path.empty()) {
     if (!boost::filesystem::exists(inputs_.config_path)) {
@@ -50,33 +50,33 @@ bool CadImageMarkup::Setup() {
 
 bool CadImageMarkup::LoadData() {
   // read image points
-  if (!image_buffer_.ReadPoints(inputs_.image_path, input_camera_points_)) {
+  if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_)) {
     LOG_ERROR("Cannot read image file at: %s", inputs_.image_path.c_str());
     return false;
   }
 
   // read cad model points
-  if (!image_buffer_.ReadPoints(inputs_.cad_path, input_cad_points_)) {
+  if (!image_buffer_.ReadPoints(inputs_.cad_path, cad_points_CADFRAME_)) {
     LOG_ERROR("Cannot read CAD file at: %s", inputs_.cad_path.c_str());
     return false;
   }
 
   // densify points
-  image_buffer_.DensifyPoints(input_camera_points_, params_.cam_density_index);
-  image_buffer_.DensifyPoints(input_cad_points_, params_.cad_density_index);
+  image_buffer_.DensifyPoints(camera_points_CAMFRAME_, params_.cam_density_index);
+  image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
 
   // TODO CAM: I don't understand why we'd need to do this?
   // Based on our convo: we want to calculate T_WORLD_CAD where the world frame
   // is the centroid of the object, and the cad frame is the top left corner. To
   // calculate this, just get the translation in x and y to the centroid. Then I
   // think we can remove this function
-  utils::OriginCloudxy(input_cad_points_);
+  utils::OriginCloudxy(cad_points_CADFRAME_);
   // Code would look something like this:
-  // Eigen::Vector2d centroid = utils::GetCentroid(input_cad_points_);
+  // Eigen::Vector2d centroid = utils::GetCentroid(cad_points_CADFRAME_);
   // T_WORLD_CAD = ...
-  // input_cad_points_transformed_ = std::make_shared<PointCloud>();->move to
+  // cad_points_WORLDFRAME_ = std::make_shared<PointCloud>();->move to
   // Setup
-  // pcl::transformPointCloud(*input_cad_points_,*input_cad_points_transformed_,
+  // pcl::transformPointCloud(*cad_points_CADFRAME_,*cad_points_WORLDFRAME_,
   // T_WORLD_CAD);
 
   return true;
@@ -93,8 +93,8 @@ bool CadImageMarkup::Solve() {
   // the centroid of the structural element (e.g., center of column) in which
   // case we just calculate that ourselves and store it. So optionally, we can
   // feed in a T that we calculate above.
-  bool converged = solver_.Solve(input_cad_points_transformed_,
-                                 input_camera_points_, T_WORLD_CAMERA_init);
+  bool converged = solver_.Solve(cad_points_WORLDFRAME_,
+                                 camera_points_CAMFRAME_, T_WORLD_CAMERA_init);
 
   if (!converged) {
     LOG_ERROR("Solver failed, exiting.");

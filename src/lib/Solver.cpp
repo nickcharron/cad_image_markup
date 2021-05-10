@@ -6,12 +6,12 @@ Solver::Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model,
                const Params& params)
     : camera_model_(camera_model), params_(params) {
   ceres_params_ = optimization::CeresParams(params_.ceres_params_path);
-  solver_visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver
+  visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver
 }
 
 Solver::Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model, )
     : camera_model_(camera_model) {
-      solver_visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver 
+      visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver 
 }
 
 bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,

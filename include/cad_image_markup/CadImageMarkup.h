@@ -67,11 +67,12 @@ class CadImageMarkup {
   std::unique_ptr<Solver> solver_;
 
   // TODO: do these need to be XYZ or can we use XY?
-  // Also, to make these more clear we could rename them:
-  // camera_points_CAMFRAME, cad_points_CADFRAME, cad_points_WORLDFRAME
-  PointCloud::Ptr input_camera_points_;
-  PointCloud::Ptr input_cad_points_;
-  PointCloud::Ptr input_cad_points_transformed_;
+  // CAM NOTE: they could be XY for now, but for correspondences
+  //           and visualization they need to be converted at some point,
+  //           more intuitive to me to carry them through as pcl
+  PointCloud::Ptr camera_points_CAMFRAME_;
+  PointCloud::Ptr cad_points_CADFRAME_;
+  PointCloud::Ptr cad_points_WORLDFRAME_;
 };
 
 }  // namespace cad_image_markup
