@@ -31,7 +31,7 @@ void CadImageMarkup::Run() {
 }
 
 bool CadImageMarkup::Setup() {
-  solver_visualizer_ = std::make_shared<Visualizer>("solution visualizer");
+  
   input_camera_points_ = std::make_shared<PointCloud>();
   input_cad_points_ = std::make_shared<PointCloud>();
   solver_ =

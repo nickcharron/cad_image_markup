@@ -63,10 +63,7 @@ class CadImageMarkup {
   Params params_;
 
   ImageBuffer ImageBuffer;
-
-  // TODO CAM: Does the visualizer need to be here or can it be constructed in
-  // the solver only?
-  std::shared_ptr<Visualizer> solver_visualizer_;
+  
   std::unique_ptr<Solver> solver_;
 
   // TODO: do these need to be XYZ or can we use XY?

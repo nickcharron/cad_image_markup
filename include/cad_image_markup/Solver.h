@@ -51,23 +51,17 @@ class Solver {
 
   /**
    * @brief Constructor with custom params
-   * @param visualizer visualizer object that will be used by the solver to
-   * display the solution if visualization is enabled
    * @param camera_model
    * @param params params needed for this class
    */
-  Solver(std::shared_ptr<Visualizer> visualizer,
-         std::shared_ptr<beam_calibration::CameraModel> camera_model,
+  Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model,
          const Params& params);
 
   /**
    * @brief Constructor with default params
-   * @param visualizer visualizer object that will be used by the solver to
-   * display the solution if visualization is enabled
    * @param camera_model
    */
-  Solver(std::shared_ptr<Visualizer> visualizer,
-         std::shared_ptr<beam_calibration::CameraModel> camera_model);
+  Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model);
 
   /**
    * @brief Default destructor

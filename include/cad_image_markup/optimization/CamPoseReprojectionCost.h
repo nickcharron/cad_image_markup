@@ -28,7 +28,7 @@ struct CameraProjectionFunctor {
     opt<Eigen::Vector2d> pixel_projected =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig);
 
-    // get image dims in case projection fails
+    // get image dimensions in case projection fails
     uint16_t height =
         camera_model_->GetHeight() != 0 ? camera_model_->GetHeight() : 5000;
     uint16_t width =
@@ -95,7 +95,7 @@ struct CeresReprojectionCostFunction {
     P_STRUCT[1] = P_STRUCT_.cast<T>()[1];
     P_STRUCT[2] = P_STRUCT_.cast<T>()[2];
 
-    // rotate and translate point
+    // Rotate and translate point
     T P_CAMERA[3];
     ceres::QuaternionRotatePoint(T_CR, P_STRUCT, P_CAMERA);
     P_CAMERA[0] += T_CR[4];
@@ -117,22 +117,22 @@ struct CeresReprojectionCostFunction {
     residuals[0] = pixel_detected_.cast<T>()[0] - pixel_projected[0];
     residuals[1] = pixel_detected_.cast<T>()[1] - pixel_projected[1];
 
-    // check if projection is outside the domain of the camera model
+    // Check if projection is outside the domain of the camera model
     Eigen::Vector3d P_CAMERA_eig_check{*P_CAMERA_check_x, *P_CAMERA_check_y,
                                        *P_CAMERA_check_z};
     bool outside_domain = false;
     opt<Eigen::Vector2d> pixel_projected_check =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check, outside_domain);
 
-    //  need to handle outside domain failure differently for ladybug camera
-    //  model
+    // Need to handle outside domain failure differently for ladybug camera
+    // model
     // since all points projecting out of frame provoke this failure
     if (camera_model_->GetType() == cad_image_markup::camera_models::CameraType::LADYBUG)
-      return true;  // returning outside_domain here would crash many
+      return true;  // Returning outside_domain here would crash many
                     // viable solutions, error checking must be done in calling
                     // code
     else
-      return !outside_domain;  // all other camera models have valid
+      return !outside_domain;  // All other camera models have valid
                                // out-of-domain conditions that should be
                                // avoided
   }
