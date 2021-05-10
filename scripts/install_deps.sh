@@ -13,7 +13,7 @@ install_routine()
     sudo -v
     install_eigen3
     install_ceres
-    install_pcl
+    #install_pcl
     install_gflags
     install_catch2
     install_opencv
@@ -169,7 +169,6 @@ install_opencv()
   rm -rf opencv.zio
   
   # Create build directory
-  cd opencv
   mkdir -p build && cd build
   cmake  ../opencv-master
   cmake --build .
