@@ -112,7 +112,13 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
   return false;
 }
 
-Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() { return T_WORLD_CAMERA_; }
+Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() { 
+  
+  Eigen::Matrix4d T_WORLD_CAMERA_ = util::QuaternionAndTranslationToTransformMatrix(results);
+
+  return T_WORLD_CAMERA_; 
+  
+}
 
 ResultsSummary Solver::GetResultsSummary() { return summary_; }
 

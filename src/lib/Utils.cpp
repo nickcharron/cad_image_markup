@@ -2,11 +2,19 @@
 
 namespace cad_image_markup {
 
-std::shared_ptr<beam_calibration::CameraModel> Util::GetCameraModel() {
+namespace utils {
+
+// Provide default definitions for namespace variables
+image_offset_x_ = 0;
+image_offset_y_ = 0;
+center_image_called_ = false;
+camera_model_ = nullptr;
+
+std::shared_ptr<beam_calibration::CameraModel> GetCameraModel() {
   return camera_model_;
 }
 
-void Util::ReadCameraModel(std::string intrinsics_file_path) {
+void ReadCameraModel(std::string intrinsics_file_path) {
   camera_model_ = beam_calibration::CameraModel::Create(intrinsics_file_path);
 }
 
@@ -27,7 +35,7 @@ void Util::OffsetCloudxy(PointCloud::Ptr cloud) {
   }
 }
 
-void Util::OriginCloudxy(PointCloud::Ptr cloud) {
+void OriginCloudxy(PointCloud::Ptr cloud) {
   uint16_t num_points = cloud->size();
 
   // determine central x and y values
@@ -55,7 +63,7 @@ void Util::OriginCloudxy(PointCloud::Ptr cloud) {
   center_image_called_ = true;
 }
 
-PointCloud::Ptr Util::ProjectCloud(PointCloud::Ptr cloud) {
+PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
   PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
@@ -70,7 +78,7 @@ PointCloud::Ptr Util::ProjectCloud(PointCloud::Ptr cloud) {
   return proj_cloud;
 }
 
-void Util::CorrEst(PointCloud::ConstPtr CAD_cloud,
+void CorrespondenceEstimate(PointCloud::ConstPtr CAD_cloud,
                    PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
                    double max_corr_distance) {
@@ -103,9 +111,7 @@ void Util::CorrEst(PointCloud::ConstPtr CAD_cloud,
   corr_est.determineCorrespondences(*corrs, max_corr_distance);
 }
 
-namespace utils {
-
-Eigen::Matrix4d Util::QuaternionAndTranslationToTransformMatrix(
+Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
     const std::vector<double>& pose) {
   Eigen::Quaterniond q{pose[0], pose[1], pose[2], pose[3]};
   Eigen::Matrix4d T = Eigen::Matrix4d::Identity();

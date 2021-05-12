@@ -67,9 +67,10 @@ class CadImageMarkup {
   std::unique_ptr<Solver> solver_;
 
   // TODO: do these need to be XYZ or can we use XY?
-  // CAM NOTE: they could be XY for now, but for correspondences
-  //           and visualization they need to be converted at some point,
-  //           more intuitive to me to carry them through as pcl
+  // CAM NOTE: they could be XY for now, but they end up being converted 
+  //           for correspondences and visualization, I just found it more 
+  //           intuitive to carry them through as point clouds rather than 
+  //           switch back and forth
   PointCloud::Ptr camera_points_CAMFRAME_;
   PointCloud::Ptr cad_points_CADFRAME_;
   PointCloud::Ptr cad_points_WORLDFRAME_;

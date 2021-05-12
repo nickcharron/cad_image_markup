@@ -121,7 +121,6 @@ class Solver {
   // new member variables
   ResultsSummary summary_;
   std::vector<double> results_;
-  Eigen::Matrix4d T_WORLD_CAMERA_; // TODO CAM: do we need this because it's in results_ no?
   pcl::CorrespondencesPtr corrs_;
   std::shared_ptr<ceres::Problem> problem_;
 };
