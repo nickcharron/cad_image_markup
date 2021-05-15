@@ -140,8 +140,8 @@ bool Solver::HasConverged(){
 
     if(params_.convergence_type == cad_image_markup::LOSS_CONVERGENCE) {
       double differential_cost = summary_.ceres_results.final_cost - last_iteration_cost_; 
-      if (differential_cost < params_.converged_differential_cost 
-          || summary_.ceres_results.final_cost < params_.converged_absolute_cost)
+      if (differential_cost <+ params_.converged_differential_cost 
+          || summary_.ceres_results.final_cost <= params_.converged_absolute_cost)
         return true
     }
 
@@ -150,7 +150,11 @@ bool Solver::HasConverged(){
     // check all rotations in degrees (diff and absolute)
     else if (params_convergence_type = cad_image_markup::GEO_CONVERGENCE) {
 
-      Vector3f ea = m.eulerAngles(0, 1, 2); // use to check angle convergence 
+      Eigen::Quaterniond q{results[0], results[1], results[2], results[3]};
+
+      Eigen::Vector3f euler_angles = q.toRotationMatrix().eulerAngles(0, 1, 2);
+
+      if (euler_angles(0) <= )
 
     }
       
