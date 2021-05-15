@@ -30,8 +30,23 @@ class CadImageMarkup {
     /**
      * @brief Loads params from a json file
      * @param path full path to json
+     * TODO (figure out how calling this sets the members of this structure)
      */
     bool LoadFromJson(const std::string& path);
+
+    std::string ceres_params_path = inputs_.config_path;
+
+    // should be set from params files
+    double cad_cloud_scale; 
+
+    bool output_results;
+
+    double converged_differential_cost;
+    double converged_absolute_cost;
+    double converged_differential_translation;
+    double converged_absolute_translation;
+    double converged_differential_rotation;
+    double converged_absolute_rotation;
 
     cad_density_index{2};
     cam_density_index{10};

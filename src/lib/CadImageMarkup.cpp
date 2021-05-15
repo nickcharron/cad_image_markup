@@ -2,7 +2,12 @@
 
 #include <boost/filesystem.hpp>
 
+
 namespace cad_image_markup {
+
+#define LOSS_CONVERGENCE 0 
+#define GEO_CONVERGENCE 1
+
 
 bool CadImageMarkup::Params::LoadFromJson(const std::string& path) {
   LOG_INFO("Loading config file from: %s", path.c_str());

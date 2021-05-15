@@ -78,7 +78,7 @@ class Solver {
    * @return success boolean
    */
   bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-             const Eigen::Matix4d& T_WORLD_CAMERA);
+             const Eigen::Matix4d& T_WORLD_CAMERA, bool visualize);
 
   /**
    * @brief Accessor method to retrieve the final transform results
@@ -108,6 +108,13 @@ class Solver {
    */
   bool HasConverged();
 
+  /**
+   * @brief Method to update the visualization display
+   * @note Holds the solution until user enters 'n' to progress to the next iteration
+   *       or 'r' to cancel the solution
+   */
+  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+
   // options
   Params params_;
   optimization::CeresParams ceres_params_;
@@ -123,6 +130,9 @@ class Solver {
   std::vector<double> results_;
   pcl::CorrespondencesPtr corrs_;
   std::shared_ptr<ceres::Problem> problem_;
+  double last_iteration_cost_;
+  uint16_t solution_iterations_;
+  bool solution_stalled_;
 };
 
 }  // namespace cad_image_markup

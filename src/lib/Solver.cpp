@@ -9,49 +9,35 @@ Solver::Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model,
   visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver
 }
 
-Solver::Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model, )
+Solver::Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model)
     : camera_model_(camera_model) {
       visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver 
 }
 
 bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-           const Eigen::Matix4d& T_WORLD_CAMERA) {
+           Eigen::Matix4d& T_WORLD_CAMERA, bool visualize) {
   cad_cloud_ = cad_cloud;
   camera_cloud_ = camera_cloud;             
-  // TODO CAM: update this:
+  // TODO CAM: update this: 
+  // Remaining todo: 
+  //    update convergence checking and error estimation 
   // ALSO: create a separate function for calculating correspondencs to make this more clear
 
-  /*
+  iterations_ = 0;
+  last_iteration_cost_ = 0;
+  
   bool has_converged = false;
 
-  PointCloud::Ptr CAD_cloud_scaled = std::make_shared<PointCloud>();
-  PointCloud::Ptr trans_cloud = std::make_shared<PointCloud>();
-  PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
+  PointCloud::Ptr CAD_cloud_scaled = util::ScaleCloud(CAD_cloud_, params.cad_cloud_scale);
 
   // correspondence object tells the cost function which points to compare
   pcl::CorrespondencesPtr proj_corrs = std::make_shared<pcl::Correspondences>();
 
-  CAD_cloud_scaled = util->ScaleCloud(CAD_cloud_, cloud_scale_);
-
-  if (visualize_) vis->startVis();
-
   // transform, project, and get correspondences
-  util->CorrEst(CAD_cloud_scaled, camera_cloud_, T_CS, proj_corrs,
+  util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
                 offset_type_);
 
-  // transformed cloud is only for the visualizer,
-  // the actual ceres solution takes just the original
-  // CAD cloud and the iterative results
-  trans_cloud = util->TransformCloud(CAD_cloud_scaled, T_CS);
-
-  // project cloud for visualizer
-  proj_cloud = util->ProjectCloud(trans_cloud);
-
-  // blow up the transformed cloud for visualization
-  util->ScaleCloud(trans_cloud, (1 / cloud_scale_));
-
-  // set initial error before optimizing
-  SetInitialPixelError(proj_cloud, camera_cloud_, proj_corrs);
+  if (visualize_) visualizer_->startVis();
 
   // loop problem until it has converged
   while (!has_converged && solution_iterations_ < max_solution_iterations_) {
@@ -60,17 +46,7 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
     printf("Solver iteration %u \n", solution_iterations_);
 
     if (visualize_) {
-      vis->displayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
-                         "camera_cloud", "transformed_cloud",
-                         "projected_cloud");
-
-      char end = ' ';
-
-      while (end != 'n' && end != 'r') {
-        cin >> end;
-      }
-
-      if (end == 'r') return false;
+      UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
     }
 
     BuildCeresProblem(problem, proj_corrs, camera_model, camera_cloud_,
@@ -78,45 +54,32 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
 
     SolveCeresProblem(problem, minimizer_progress_to_stdout_);
 
-    T_CS = util->QuaternionAndTranslationToTransformMatrix(results);
+    T_WORLD_CAMERA = util::QuaternionAndTranslationToTransformMatrix(results_);
 
     if (transform_progress_to_stdout_) {
       std::string sep = "\n----------------------------------------\n";
-      std::cout << T_CS << sep;
+      std::cout << T_WORLD_CAMERA << sep;
     }
 
     // transform, project, and get correspondences
-    util->CorrEst(CAD_cloud_scaled, camera_cloud_, T_CS, proj_corrs, "none");
+    util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, "none");
 
-    // update the position of the transformed cloud based on
-    // the upated transformation matrix for visualization
-    trans_cloud = util->TransformCloud(CAD_cloud_scaled, T_CS);
+    solution_iterations_++;
 
-    // project cloud for visualizer
-    proj_cloud = util->ProjectCloud(trans_cloud);
-
-    // blow up the transformed CAD cloud for visualization
-    util->ScaleCloud(trans_cloud, (1 / cloud_scale_));
-
-    if (convergence_type_ == "PIXEL")
-      has_converged = CheckPixelConvergence(proj_cloud, camera_cloud_,
-                                            proj_corrs, convergence_limit_);
   }
 
-  if (visualize_) vis->endVis();
+  if (visualize_) visualizer_->endVis();
   if (has_converged)
     return true;
-  else
-    return false;
-  */
+  
   return false;
 }
 
 Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() { 
   
-  Eigen::Matrix4d T_WORLD_CAMERA_ = util::QuaternionAndTranslationToTransformMatrix(results);
+  Eigen::Matrix4d T_WORLD_CAMERA = util::QuaternionAndTranslationToTransformMatrix(results_);
 
-  return T_WORLD_CAMERA_; 
+  return T_WORLD_CAMERA; 
   
 }
 
@@ -131,7 +94,7 @@ void Solver::BuildCeresProblem() {
 
   std::unique_ptr<ceres::LocalParameterization> parameterization =
       ceres_params_.SE3QuatTransLocalParametrization();
-  problem_->AddParameterBlock(&(results[0]), 7, parameterization.get());
+  problem_->AddParameterBlock(&(results_[0]), 7, parameterization.get());
 
   // add residuals
   for (int i = 0; i < corrs_->size(); i++) {
@@ -149,7 +112,7 @@ void Solver::BuildCeresProblem() {
     std::unique_ptr<ceres::LossFunction> loss_function =
         ceres_params_.LossFunction();
     problem_->AddResidualBlock(cost_function.release(), loss_function.get(),
-                               &(results[0]));
+                               &(results_[0]));
   }
 }
 
@@ -172,9 +135,57 @@ void Solver::SolveCeresProblem() {
 
 bool Solver::HasConverged(){
     // TODO CAM: implement this. See params for more details.
-    // if(summary_.ceres_results.initial_losss - final_loss > amount){
+    if(solution_iterations <= 1)
+      return false;
+
+    if(params_.convergence_type == cad_image_markup::LOSS_CONVERGENCE) {
+      double differential_cost = summary_.ceres_results.final_cost - last_iteration_cost_; 
+      if (differential_cost < params_.converged_differential_cost 
+          || summary_.ceres_results.final_cost < params_.converged_absolute_cost)
+        return true
+    }
+
+    // check all translations against differential and absolute values in same unit as cloud scale 
+    // should inherently be in this unit 
+    // check all rotations in degrees (diff and absolute)
+    else if (params_convergence_type = cad_image_markup::GEO_CONVERGENCE) {
+
+      Vector3f ea = m.eulerAngles(0, 1, 2); // use to check angle convergence 
+
+    }
+      
+
+
+    if(summary_.ceres_results.initial_cost - summary_ceres_results.final_cost > amount){
     //     return true;
     // }
+}
+
+bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs) {
+
+  // update the position of the transformed cloud based on
+  // the upated transformation matrix for visualization
+  PointCloud::Ptr trans_cloud = util::TransformCloud(CAD_cloud_scaled, T_CS);
+
+  // project cloud for visualizer
+  PointCloud::Ptr proj_cloud = util::ProjectCloud(trans_cloud);
+
+  // blow up the transformed cloud for visualization
+  util::ScaleCloud(trans_cloud, (1 / params_.cad_cloud_scale));
+
+  visualizer_->displayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
+                         "camera_cloud", "transformed_cloud",
+                         "projected_cloud");
+
+  // wait on user input to continue or cancel the solution
+  char end = ' ';
+
+  while (end != 'n' && end != 'r') {
+    cin >> end;
+  }
+
+  if (end == 'r') return false;
+  return true 
 }
 
 }  // namespace cad_image_markup
