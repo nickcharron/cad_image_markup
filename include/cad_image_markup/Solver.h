@@ -128,6 +128,7 @@ class Solver {
   // new member variables
   ResultsSummary summary_;
   std::vector<double> results_;
+  std::vector<double> last_iteration_results_;
   pcl::CorrespondencesPtr corrs_;
   std::shared_ptr<ceres::Problem> problem_;
   double last_iteration_cost_;

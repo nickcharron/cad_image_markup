@@ -65,6 +65,7 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
     util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, "none");
 
     solution_iterations_++;
+    last_iteration_results_ = results_;
 
   }
 
@@ -134,27 +135,53 @@ void Solver::SolveCeresProblem() {
 }
 
 bool Solver::HasConverged(){
-    // TODO CAM: implement this. See params for more details.
+
+    // Cannot converge on first solver iteration
     if(solution_iterations <= 1)
       return false;
 
     if(params_.convergence_type == cad_image_markup::LOSS_CONVERGENCE) {
-      double differential_cost = summary_.ceres_results.final_cost - last_iteration_cost_; 
-      if (differential_cost <+ params_.converged_differential_cost 
-          || summary_.ceres_results.final_cost <= params_.converged_absolute_cost)
+      double differential_cost = std::abs(summary_.ceres_results.final_cost - last_iteration_cost_); 
+      if ((differential_cost <= params_.converged_differential_cost 
+          && params_.convergence_condition == cad_image_markup::DIFF_CONVERGENCE)
+          || (summary_.ceres_results.final_cost <= params_.converged_absolute_cost 
+          && params_.convergence_condition == cad_image_markup::ABS_CONVERGENCE))
         return true
     }
 
     // check all translations against differential and absolute values in same unit as cloud scale 
     // should inherently be in this unit 
     // check all rotations in degrees (diff and absolute)
-    else if (params_convergence_type = cad_image_markup::GEO_CONVERGENCE) {
+    else if (params_.convergence_type = cad_image_markup::GEO_CONVERGENCE) {
 
-      Eigen::Quaterniond q{results[0], results[1], results[2], results[3]};
+      Eigen::Quaterniond q_current{results[0], results[1], results[2], results[3]};
+      Eigen::Vector3f euler_angles_current = q.toRotationMatrix().eulerAngles(0, 1, 2);
 
-      Eigen::Vector3f euler_angles = q.toRotationMatrix().eulerAngles(0, 1, 2);
+      Eigen::Quaterniond q_last{last_iteration_results_[0], last_iteration_results_[1], last_iteration_results_[2], last_iteration_results_[3]};
+      Eigen::Vector3f euler_angles_last = q.toRotationMatrix().eulerAngles(0, 1, 2);
 
-      if (euler_angles(0) <= )
+      // check absolute conditions first
+      if (euler_angles_current(0) <= params_.converged_absolute_rotation
+          && euler_angles_current(1) <= params_.converged_absolute_rotation
+          && euler_angles_current(2) <= params_.converged_absolute_rotation
+          && results_[4] < params_.converged_absolute_translation
+          && results_[5] < params_.converged_absolute_translation
+          && results_[6] < params_.converged_absolute_translation
+          && params_.convergence_condition == cad_image_markup::ABS_CONVERGENCE)
+          return true;
+
+      // check differential condition 
+      if (std::abs(euler_angles_current(0)-euler_angles_last(0)) <= params_.converged_differential_rotation
+          && std::abs(euler_angles_current(1)-euler_angles_last(1)) <= params_.converged_differential_rotation
+          && std::abs(euler_angles_current(2)-euler_angles_last(2)) <= params_.converged_differential_rotation
+          && std::abs(results_[4] - last_iteration_results_[4]) < params_.converged_absolute_translation
+          && std::abs(results_[5] - last_iteration_results_[5]) < params_.converged_absolute_translation
+          && std::abs(results_[6] - last_iteration_results_[6]) < params_.converged_absolute_translation
+          && params_.convergence_condition == cad_image_markup::DIFF_CONVERGENCE)
+      
+      )
+
+      return false;
 
     }
       

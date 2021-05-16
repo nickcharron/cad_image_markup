@@ -41,6 +41,12 @@ class CadImageMarkup {
 
     bool output_results;
 
+    // Loss or geo
+    double convergence_type; 
+
+    // absolute or differential 
+    double convergence_condition;
+
     double converged_differential_cost;
     double converged_absolute_cost;
     double converged_differential_translation;
