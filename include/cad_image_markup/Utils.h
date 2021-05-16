@@ -98,7 +98,7 @@ void OriginCloudxy(PointCloud::Ptr cloud);
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
 
 /**
-  * @brief Method to get correspondences between a CAD cloud projection and an
+  * @brief Method to get single correspondences between a CAD cloud projection and an
   * image cloud given transformation matrix
   * @param CAD_cloud CAD structure cloud (centered, at correct scale,
   * untransformed)
@@ -106,11 +106,30 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
   * @param T transformation matrix to apply to CAD cloud before projecting
   * (usually T_CS)
   * @param corrs nearest-neighbor correspondences between the CAD cloud
-  * projection and the camera image cloud
+  * projection and the camera image cloud (image point to nearest structure point)
   * @param max_corr_distance
   * @param align_centroids
   */
 void CorrespondenceEstimate(PointCloud::ConstPtr CAD_cloud,
+             PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
+             pcl::CorrespondencesPtr corrs, bool align_centroids,
+             double max_corr_distance);
+
+
+/**
+  * @brief Method to get double correspondences between a CAD cloud projection and an
+  * image cloud given transformation matrix
+  * @param CAD_cloud CAD structure cloud (centered, at correct scale,
+  * untransformed)
+  * @param camera_cloud camera image label cloud
+  * @param T transformation matrix to apply to CAD cloud before projecting
+  * (usually T_CS)
+  * @param corrs nearest-neighbor correspondences between the CAD cloud
+  * projection and the camera image cloud (image point to nearest two structure points)
+  * @param max_corr_distance
+  * @param align_centroids
+  */
+void CorrespondenceEstimate2(PointCloud::ConstPtr CAD_cloud,
              PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
              pcl::CorrespondencesPtr corrs, bool align_centroids,
              double max_corr_distance);

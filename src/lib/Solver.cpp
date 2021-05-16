@@ -64,6 +64,8 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
     // transform, project, and get correspondences
     util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, "none");
 
+    has_converged = HasConverged();
+
     solution_iterations_++;
     last_iteration_results_ = results_;
 
@@ -136,10 +138,11 @@ void Solver::SolveCeresProblem() {
 
 bool Solver::HasConverged(){
 
-    // Cannot converge on first solver iteration
+    // Cannot converge on a single solver iteration
     if(solution_iterations <= 1)
       return false;
 
+    // Check ceres loss convergence conditions
     if(params_.convergence_type == cad_image_markup::LOSS_CONVERGENCE) {
       double differential_cost = std::abs(summary_.ceres_results.final_cost - last_iteration_cost_); 
       if ((differential_cost <= params_.converged_differential_cost 
@@ -149,9 +152,8 @@ bool Solver::HasConverged(){
         return true
     }
 
-    // check all translations against differential and absolute values in same unit as cloud scale 
-    // should inherently be in this unit 
-    // check all rotations in degrees (diff and absolute)
+    // Check physical geometric convergence conditions
+    // Assumes that conditions are provided in the same unit as the cloud scale
     else if (params_.convergence_type = cad_image_markup::GEO_CONVERGENCE) {
 
       Eigen::Quaterniond q_current{results[0], results[1], results[2], results[3]};
@@ -160,7 +162,7 @@ bool Solver::HasConverged(){
       Eigen::Quaterniond q_last{last_iteration_results_[0], last_iteration_results_[1], last_iteration_results_[2], last_iteration_results_[3]};
       Eigen::Vector3f euler_angles_last = q.toRotationMatrix().eulerAngles(0, 1, 2);
 
-      // check absolute conditions first
+      // Check absolute conditions first
       if (euler_angles_current(0) <= params_.converged_absolute_rotation
           && euler_angles_current(1) <= params_.converged_absolute_rotation
           && euler_angles_current(2) <= params_.converged_absolute_rotation
@@ -170,7 +172,7 @@ bool Solver::HasConverged(){
           && params_.convergence_condition == cad_image_markup::ABS_CONVERGENCE)
           return true;
 
-      // check differential condition 
+      // Check differential condition 
       if (std::abs(euler_angles_current(0)-euler_angles_last(0)) <= params_.converged_differential_rotation
           && std::abs(euler_angles_current(1)-euler_angles_last(1)) <= params_.converged_differential_rotation
           && std::abs(euler_angles_current(2)-euler_angles_last(2)) <= params_.converged_differential_rotation
@@ -185,11 +187,6 @@ bool Solver::HasConverged(){
 
     }
       
-
-
-    if(summary_.ceres_results.initial_cost - summary_ceres_results.final_cost > amount){
-    //     return true;
-    // }
 }
 
 bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs) {
