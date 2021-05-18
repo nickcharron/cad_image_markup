@@ -67,7 +67,19 @@ struct CameraProjectionFunctor {
       }
     }
 
+    if (pixel_projected2.has_value()) {
+      pixel2[0] = pixel_projected2.value()[0];
+      pixel2[1] = pixel_projected2.value()[1];
+    } else {
 
+      if (dist_u <= dist_v) {
+        pixel2[0] = near_u;
+        pixel2[1] = pixel_detected_[1];
+      } else {
+        pixel2[0] = pixel_detected_[0];
+        pixel2[1] = near_v;
+      }
+    }
 
     return true;
   }
@@ -90,7 +102,8 @@ struct CeresReprojectionCostFunction {
       Eigen::Vector2d pixel_detected, Eigen::Vector3d P_STRUCT1, Eigen::Vector3d P_STRUCT2
       std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model)
       : pixel_detected_(pixel_detected),
-        P_STRUCT_(P_STRUCT),
+        P_STRUCT1_(P_STRUCT1),
+        P_STRUCT2_(P_STRUCT2),
         camera_model_(camera_model) {
     compute_projection.reset(new ceres::CostFunctionToFunctor<2, 3>(
         new ceres::NumericDiffCostFunction<CameraProjectionFunctor,
