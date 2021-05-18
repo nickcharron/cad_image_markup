@@ -81,9 +81,12 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
 void CorrespondenceEstimate(PointCloud::ConstPtr CAD_cloud,
                    PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
-                   double max_corr_distance) {
+                   double max_corr_distance, int num_corrs) {
   PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
   PointCloud::Ptr trans_cloud = std::make_shared<PointCloud>();
+
+  //clear the previous correspondences 
+  corrs->clear();
 
   // transform the CAD cloud points to the camera frame
   trans_cloud = this->TransformCloud(CAD_cloud, T);
@@ -103,44 +106,49 @@ void CorrespondenceEstimate(PointCloud::ConstPtr CAD_cloud,
     pcl::transformPointCloud(*proj_cloud, proj_cloud, T);
   }
 
-  // get correspondences
+  // Get correspondences 
+
+  // Build kd tree from projected cloud
+  pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
+  kdtree.setInputCloud (proj_cloud);
+
+  for(uint16_t i = 0; i<camera_cloud->size(); i++) {
+    std::vector<int> target_neighbor_indices(num_corrs);
+    std::vector<float> target_neighbor_distances(num_corrs);
+    pcl::Correspondence corr1;
+    pcl::Correspondence corr2;
+
+    if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
+        target_neighbor_indices, target_neighbor_distances) >= num_corrs)
+    {
+      corr1.index_query = i;
+      corr1.index_match = target_neighbor_indices[0];
+
+      corrs->push_back(corr1);
+      
+      if (num_corrs == 2)
+      {
+        corr1.index_query = i;
+        corr1.index_match = target_neighbor_indices[1];
+
+        corrs->push_back(corr2);
+      }
+
+    }
+
+  }
+
+  // get correspondences (legacy)
+  /*
   pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
       corr_est;
   corr_est.setInputSource(camera_cloud);
   corr_est.setInputTarget(proj_cloud);
   corr_est.determineCorrespondences(*corrs, max_corr_distance);
+  */
 }
 
-void CorrespondenceEstimate2(PointCloud::ConstPtr CAD_cloud,
-             PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
-             pcl::CorrespondencesPtr corrs, bool align_centroids,
-             double max_corr_distance) {
-  PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
-  PointCloud::Ptr trans_cloud = std::make_shared<PointCloud>();
 
-  // transform the CAD cloud points to the camera frame
-  trans_cloud = this->TransformCloud(CAD_cloud, T);
-
-  // project the transformed points to the camera plane
-  proj_cloud = this->ProjectCloud(trans_cloud);
-
-  // merge centroids for correspondence estimation (projected -> camera)
-  if (align_centroids) {
-    pcl::PointXYZ camera_centroid = Util::GetCloudCentroid(camera_cloud);
-    pcl::PointXYZ proj_centroid = Util::GetCloudCentroid(proj_cloud);
-
-    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
-    T(0, 3) = camera_centroid.x - proj_centroid.x;
-    T(1, 3) = camera_centroid.y - proj_centroid.y;
-    T(2, 3) = camera_centroid.z - proj_centroid.z;
-    pcl::transformPointCloud(*proj_cloud, proj_cloud, T);
-  }
-
-  // CAM TODO
-  // generate kd tree for projected cloud 
-  // for each image point, find nearest two points in projected cloud
-  // manually populate corrs with two correspondences for each image point
-}
 
 Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
     const std::vector<double>& pose) {

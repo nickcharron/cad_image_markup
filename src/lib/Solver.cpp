@@ -35,7 +35,7 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
 
   // transform, project, and get correspondences
   util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
-                offset_type_);
+                params_.align_centroids, params_.correspondence_type);
 
   if (visualize_) visualizer_->startVis();
 
@@ -62,7 +62,8 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
     }
 
     // transform, project, and get correspondences
-    util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, "none");
+    util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, 
+                  params_.align_centroids, params_.correspondence_type);
 
     has_converged = HasConverged();
 
@@ -104,13 +105,33 @@ void Solver::BuildCeresProblem() {
     Eigen::Vector2d pixel(camera_cloud_->at(corrs_->at(i).index_query).x,
                           camera_cloud_->at(corrs_->at(i).index_query).y);
 
-    Eigen::Vector3d P_STRUCT(cad_cloud_->at(corrs_->at(i).index_match).x,
+    Eigen::Vector3d P_STRUCT1(cad_cloud_->at(corrs_->at(i).index_match).x,
                              cad_cloud_->at(corrs_->at(i).index_match).y,
                              cad_cloud_->at(corrs_->at(i).index_match).z);
+    
+    Eigen::Vector3d P_STRUCT2;
 
-    // TODO CAM: add point to plane cost function option
-    std::unique_ptr<ceres::CostFunction> cost_function(
-        CeresReprojectionCostFunction::Create(pixel, P_STRUCT, camera_model));
+    // If two correspondences have been specified, every second correspondence should 
+    // the second correspondence for the same source point
+    if (params_.correspondence_type == cam_image_markup::P2PLANE) {
+      i++;
+      P_STRUCT2(0) = cad_cloud_->at(corrs_->at(i).index_match).x;
+      P_STRUCT2(1) = cad_cloud_->at(corrs_->at(i).index_match).y;
+      P_STRUCT2(2) = cad_cloud_->at(corrs_->at(i).index_match).z;
+    }
+
+    // Generate the appropriate cost function
+    std::unique_ptr<ceres::CostFunction> cost_function();
+
+    if (params_.correspondence_type == cam_image_markup::P2POINT) {
+      *cost_function = cost_function(
+          CeresReprojectionCostFunction::Create(pixel, P_STRUCT1, camera_model));
+    }
+
+    else if (params_.correspondence_type == cam_image_markup::P2PLANE) {
+      *cost_function = cost_function(
+          CeresReprojectionCostFunctionPlane::Create(pixel, P_STRUCT1, P_STRUCT2, camera_model));
+    }
 
     std::unique_ptr<ceres::LossFunction> loss_function =
         ceres_params_.LossFunction();

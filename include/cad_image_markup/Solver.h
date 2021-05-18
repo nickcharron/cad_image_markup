@@ -10,6 +10,7 @@
 #include <Eigen/Geometry>
 #include <nlohmann/json.hpp>
 
+#include <cad_image_markup/CadImageMarkup.h>
 #include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
 #include <cad_image_markup/optimization/CeresParams.h>

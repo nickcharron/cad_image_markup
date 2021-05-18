@@ -42,7 +42,12 @@ class CadImageMarkup {
     bool output_results;
 
     // Loss or geo
-    double convergence_type; 
+    int convergence_type; 
+
+    // Single or double correspondence 
+    int correspondence_type;
+
+    bool align_centroids;
 
     // absolute or differential 
     double convergence_condition;

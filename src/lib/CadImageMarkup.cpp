@@ -8,6 +8,9 @@ namespace cad_image_markup {
 #define LOSS_CONVERGENCE 0 
 #define GEO_CONVERGENCE 1
 
+#define P2POINT 1
+#define P2PLANE 2
+
 #define DIFF_CONVERGENCE 0
 #define ABS_CONVERGENCE 1
 
