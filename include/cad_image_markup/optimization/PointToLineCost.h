@@ -113,39 +113,98 @@ struct CeresReprojectionCostFunction {
 
   template <typename T>
   bool operator()(const T* const T_CR, T* residuals) const {
-    T P_STRUCT[3];
-    P_STRUCT[0] = P_STRUCT_.cast<T>()[0];
-    P_STRUCT[1] = P_STRUCT_.cast<T>()[1];
-    P_STRUCT[2] = P_STRUCT_.cast<T>()[2];
 
-    // Rotate and translate point
-    T P_CAMERA[3];
-    ceres::QuaternionRotatePoint(T_CR, P_STRUCT, P_CAMERA);
-    P_CAMERA[0] += T_CR[4];
-    P_CAMERA[1] += T_CR[5];
-    P_CAMERA[2] += T_CR[6];
+   Eigen::Matrix<T,3,1> _P_REF1 = P_REF1_.cast<T>();
+   Eigen::Matrix<T,3,1> _P_REF2 = P_REF2_.cast<T>();
 
-    const T* P_CAMERA_const = &(P_CAMERA[0]);
+    // rotate and translate reference points into camera frame
+    T P_CAMERA1[3];
+    ceres::QuaternionRotatePoint(T_CR, _P_REF1, P_CAMERA1);
+    P_CAMERA1[0] += T_CR[4];
+    P_CAMERA1[1] += T_CR[5];
+    P_CAMERA1[2] += T_CR[6];
 
-    void* P_CAMERA_temp_x = &(P_CAMERA[0]);
-    void* P_CAMERA_temp_y = &(P_CAMERA[1]);
-    void* P_CAMERA_temp_z = &(P_CAMERA[2]);
-    double* P_CAMERA_check_x{static_cast<double*>(P_CAMERA_temp_x)};
-    double* P_CAMERA_check_y{static_cast<double*>(P_CAMERA_temp_y)};
-    double* P_CAMERA_check_z{static_cast<double*>(P_CAMERA_temp_z)};
+    // rotate and translate reference points into camera frame
+    T P_CAMERA2[3];
+    ceres::QuaternionRotatePoint(T_CR, _P_REF2, P_CAMERA2);
+    P_CAMERA2[0] += T_CR[4];
+    P_CAMERA2[1] += T_CR[5];
+    P_CAMERA2[2] += T_CR[6];
 
-    T pixel_projected[2];
-    (*compute_projection)(P_CAMERA_const, &(pixel_projected[0]));
+    // Project reference points in camera frame into camera plane
+    const T* P_CAMERA_const1 = &(P_CAMERA1[0]);
+    const T* P_CAMERA_const2 = &(P_CAMERA1[0]);
 
-    residuals[0] = pixel_detected_.cast<T>()[0] - pixel_projected[0];
-    residuals[1] = pixel_detected_.cast<T>()[1] - pixel_projected[1];
+    void* P_CAMERA_temp1_x = &(P_CAMERA1[0]);
+    void* P_CAMERA_temp1_y = &(P_CAMERA1[1]);
+    void* P_CAMERA_temp1_z = &(P_CAMERA1[2]);
+    double* P_CAMERA_check1_x{static_cast<double*>(P_CAMERA_temp1_x)};
+    double* P_CAMERA_check1_y{static_cast<double*>(P_CAMERA_temp1_y)};
+    double* P_CAMERA_check1_z{static_cast<double*>(P_CAMERA_temp1_z)};
 
-    // Check if projection is outside the domain of the camera model
-    Eigen::Vector3d P_CAMERA_eig_check{*P_CAMERA_check_x, *P_CAMERA_check_y,
-                                       *P_CAMERA_check_z};
+    T pixel_projected1[2];
+    (*compute_projection)(P_CAMERA_const1, &(pixel_projected1[0]));
+
+    void* P_CAMERA_temp2_x = &(P_CAMERA2[0]);
+    void* P_CAMERA_temp2_y = &(P_CAMERA2[1]);
+    void* P_CAMERA_temp2_z = &(P_CAMERA2[2]);
+    double* P_CAMERA_check2_x{static_cast<double*>(P_CAMERA_temp2_x)};
+    double* P_CAMERA_check2_y{static_cast<double*>(P_CAMERA_temp2_y)};
+    double* P_CAMERA_check2_z{static_cast<double*>(P_CAMERA_temp2_z)};
+
+    T pixel_projected1[2];
+    (*compute_projection)(P_CAMERA_const1, &(pixel_projected2[0]));
+
+    /*
+     * e = distance from point to line
+     *   = | (P_REF - P_REF1) x (P_REF - P_REF1) |
+     *     ---------------------------------------
+     *               | P_REF1 - P_REF2 |
+     *
+     *   = | d1 x d2 |
+     *     -----------
+     *       | d12 |
+     *
+     *   Where P_REF = T_REF_TGT * P_TGT
+     *
+     */
+    T d1[3], d2[3], d12[3];
+    d1[0] = pixel_detected_.cast<T>()[0] - pixel_projected1[0];
+    d1[1] = pixel_detected_.cast<T>()[1] - pixel_projected1[1];
+    d1[2] = (void*)(0);
+
+    d2[0] = pixel_detected_.cast<T>()[0] - pixel_projected2[0];
+    d2[1] = pixel_detected_.cast<T>()[01 - pixel_projected2[1];
+    d2[2] = (void*)(0);
+
+
+    d12[0] = pixel_projected1[0] - pixel_projected2[0];
+    d12[1] = pixel_projected1[1] - pixel_projected2[1];
+    d12[2] = (void*)(0);
+
+
+    T cross[3];
+    ceres::CrossProduct(d1, d2, cross);
+
+    T norm =
+        sqrt(cross[0] * cross[0] + cross[1] * cross[1] + cross[2] * cross[2]);
+    T norm12 = sqrt(d12[0] * d12[0] + d12[1] * d12[1] + d12[2] * d12[2]);
+
+    residuals[0] = norm / norm12;
+
+    // Check if either projection is outside the domain of the camera model
+    Eigen::Vector3d P_CAMERA_eig_check1{*P_CAMERA_check1_x, *P_CAMERA_check1_y,
+                                       *P_CAMERA_check1_z};
+
+    Eigen::Vector3d P_CAMERA_eig_check2{*P_CAMERA_check2_x, *P_CAMERA_check2_y,
+                                       *P_CAMERA_check2_z};
+    
     bool outside_domain = false;
-    opt<Eigen::Vector2d> pixel_projected_check =
-        camera_model_->ProjectPointPrecise(P_CAMERA_eig_check, outside_domain);
+    opt<Eigen::Vector2d> pixel_projected_check1 =
+        camera_model_->ProjectPointPrecise(P_CAMERA_eig_check1, outside_domain);
+
+    opt<Eigen::Vector2d> pixel_projected_check1 =
+        camera_model_->ProjectPointPrecise(P_CAMERA_eig_check2, outside_domain);
 
     // Need to handle outside domain failure differently for ladybug camera
     // model

@@ -78,26 +78,26 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
   return proj_cloud;
 }
 
-void CorrespondenceEstimate(PointCloud::ConstPtr CAD_cloud,
+void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                    PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
                    double max_corr_distance, int num_corrs) {
-  PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
-  PointCloud::Ptr trans_cloud = std::make_shared<PointCloud>();
+  
+  
 
   //clear the previous correspondences 
   corrs->clear();
 
   // transform the CAD cloud points to the camera frame
-  trans_cloud = this->TransformCloud(CAD_cloud, T);
+  PointCloud::Ptr trans_cloud = TransformCloud(cad_cloud, T);
 
   // project the transformed points to the camera plane
-  proj_cloud = this->ProjectCloud(trans_cloud);
+  PointCloud::Ptr proj_cloud = this->ProjectCloud(trans_cloud);
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
-    pcl::PointXYZ camera_centroid = Util::GetCloudCentroid(camera_cloud);
-    pcl::PointXYZ proj_centroid = Util::GetCloudCentroid(proj_cloud);
+    pcl::PointXYZ camera_centroid = util::GetCloudCentroid(camera_cloud);
+    pcl::PointXYZ proj_centroid = util::GetCloudCentroid(proj_cloud);
 
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T(0, 3) = camera_centroid.x - proj_centroid.x;
@@ -119,20 +119,23 @@ void CorrespondenceEstimate(PointCloud::ConstPtr CAD_cloud,
     pcl::Correspondence corr2;
 
     if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
-        target_neighbor_indices, target_neighbor_distances) >= num_corrs)
+        target_neighbor_indices, target_neighbor_distances) >= num_corrs
+        && target_neighbor_distances[0] <= max_corr_distance)
     {
       corr1.index_query = i;
       corr1.index_match = target_neighbor_indices[0];
 
       corrs->push_back(corr1);
       
-      if (num_corrs == 2)
+      if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
       {
         corr1.index_query = i;
         corr1.index_match = target_neighbor_indices[1];
 
         corrs->push_back(corr2);
       }
+
+      else corrs->pop_back();
 
     }
 

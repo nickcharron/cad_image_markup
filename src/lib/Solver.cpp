@@ -112,7 +112,7 @@ void Solver::BuildCeresProblem() {
     Eigen::Vector3d P_STRUCT2;
 
     // If two correspondences have been specified, every second correspondence should 
-    // the second correspondence for the same source point
+    // be the second correspondence for the same source point
     if (params_.correspondence_type == cam_image_markup::P2PLANE) {
       i++;
       P_STRUCT2(0) = cad_cloud_->at(corrs_->at(i).index_match).x;
@@ -120,22 +120,22 @@ void Solver::BuildCeresProblem() {
       P_STRUCT2(2) = cad_cloud_->at(corrs_->at(i).index_match).z;
     }
 
-    // Generate the appropriate cost function
-    std::unique_ptr<ceres::CostFunction> cost_function();
-
-    if (params_.correspondence_type == cam_image_markup::P2POINT) {
-      *cost_function = cost_function(
+    // Add the appropriate cost function and loss function
+    std::unique_ptr<ceres::CostFunction> cost_function1(
           CeresReprojectionCostFunction::Create(pixel, P_STRUCT1, camera_model));
-    }
 
-    else if (params_.correspondence_type == cam_image_markup::P2PLANE) {
-      *cost_function = cost_function(
+    std::unique_ptr<ceres::CostFunction> cost_function2(
           CeresReprojectionCostFunctionPlane::Create(pixel, P_STRUCT1, P_STRUCT2, camera_model));
-    }
 
     std::unique_ptr<ceres::LossFunction> loss_function =
         ceres_params_.LossFunction();
-    problem_->AddResidualBlock(cost_function.release(), loss_function.get(),
+
+    if (params_.correspondence_type == cam_image_markup::P2POINT)
+      problem_->AddResidualBlock(cost_function1.release(), loss_function.get(),
+                               &(results_[0]));
+
+    else if (params_.correspondence_type == cam_image_markup::P2PLANE) 
+      problem_->AddResidualBlock(cost_function2.release(), loss_function.get(),
                                &(results_[0]));
   }
 }
