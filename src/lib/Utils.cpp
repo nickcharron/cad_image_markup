@@ -186,17 +186,6 @@ void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
   std::ifstream file(file_name);
   file >> J;
 
-  // initial pose
-  double w_pose[6];  // x, y, z, alpha, beta, gamma
-  double c_pose[6];  // x, y, z, alpha, beta, gamma
-
-  w_pose[0] = J["pose"][0];
-  w_pose[1] = J["pose"][1];
-  w_pose[2] = J["pose"][2];
-  w_pose[3] = J["pose"][3];
-  w_pose[4] = J["pose"][4];
-  w_pose[5] = J["pose"][5];
-
   Eigen::Matrix3d R;
   // TODO CAM: check order and put in README
   R = AngleAxisf(utils::DegToRad(J["pose"][3]), Vector3f::UnitX()) *

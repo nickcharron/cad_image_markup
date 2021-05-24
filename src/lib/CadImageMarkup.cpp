@@ -140,13 +140,6 @@ bool CadImageMarkup::LoadData() {
   // the origin coodinates puts everything back in CAD frame
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_);
-  // Code would look something like this:
-  // Eigen::Vector2d centroid = utils::GetCentroid(cad_points_CADFRAME_);
-  // T_WORLD_CAD = ...
-  // cad_points_WORLDFRAME_ = std::make_shared<PointCloud>();->move to
-  // Setup
-  // pcl::transformPointCloud(*cad_points_CADFRAME_,*cad_points_WORLDFRAME_,
-  // T_WORLD_CAD);
 
   return true;
 }
@@ -155,13 +148,7 @@ bool CadImageMarkup::Solve() {
   Eigen::Matrix4d T_WORLD_CAMERA_init =
       utils::LoadInitialPose(inputs_.initial_pose_path);
 
-  // TODO CAM: we should only need the pose from the camera to world, or camera
-  // to structure. The world frame is just the cad image coordinate frame (top
-  // left corner). If you're worried about that being different for each CAD
-  // model and hard for an inspector to know, then we can set the world frame to
-  // the centroid of the structural element (e.g., center of column) in which
-  // case we just calculate that ourselves and store it. So optionally, we can
-  // feed in a T that we calculate above.
+
   bool converged = solver_.Solve(cad_points_WORLDFRAME_,
                                  camera_points_CAMFRAME_, T_WORLD_CAMERA_init);
 
