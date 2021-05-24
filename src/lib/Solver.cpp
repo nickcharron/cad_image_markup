@@ -37,15 +37,15 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
   util::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
                 params_.align_centroids, params_.correspondence_type);
 
-  if (visualize_) visualizer_->startVis();
+  if (params_.visualize) visualizer_->startVis();
 
   // loop problem until it has converged
-  while (!has_converged && solution_iterations_ < max_solution_iterations_) {
+  while (!has_converged && solution_iterations_ < params_.max_solution_iterations) {
     solution_iterations_++;
 
     printf("Solver iteration %u \n", solution_iterations_);
 
-    if (visualize_) {
+    if (params_.visualize) {
       UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
     }
 
@@ -72,7 +72,7 @@ bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
 
   }
 
-  if (visualize_) visualizer_->endVis();
+  if (params_.visualize) visualizer_->endVis();
   if (has_converged)
     return true;
   
@@ -183,7 +183,8 @@ bool Solver::HasConverged(){
       Eigen::Quaterniond q_last{last_iteration_results_[0], last_iteration_results_[1], last_iteration_results_[2], last_iteration_results_[3]};
       Eigen::Vector3f euler_angles_last = q.toRotationMatrix().eulerAngles(0, 1, 2);
 
-      // Check absolute conditions first
+      // Check absolute conditions - may not exist 
+      /*
       if (euler_angles_current(0) <= params_.converged_absolute_rotation
           && euler_angles_current(1) <= params_.converged_absolute_rotation
           && euler_angles_current(2) <= params_.converged_absolute_rotation
@@ -191,18 +192,18 @@ bool Solver::HasConverged(){
           && results_[5] < params_.converged_absolute_translation
           && results_[6] < params_.converged_absolute_translation
           && params_.convergence_condition == cad_image_markup::ABS_CONVERGENCE)
-          return true;
+        return true;
+      */
 
       // Check differential condition 
       if (std::abs(euler_angles_current(0)-euler_angles_last(0)) <= params_.converged_differential_rotation
           && std::abs(euler_angles_current(1)-euler_angles_last(1)) <= params_.converged_differential_rotation
           && std::abs(euler_angles_current(2)-euler_angles_last(2)) <= params_.converged_differential_rotation
-          && std::abs(results_[4] - last_iteration_results_[4]) < params_.converged_absolute_translation
-          && std::abs(results_[5] - last_iteration_results_[5]) < params_.converged_absolute_translation
-          && std::abs(results_[6] - last_iteration_results_[6]) < params_.converged_absolute_translation
+          && std::abs(results_[4] - last_iteration_results_[4]) < params_.converged_differential_translation
+          && std::abs(results_[5] - last_iteration_results_[5]) < params_.converged_differential_translation
+          && std::abs(results_[6] - last_iteration_results_[6]) < params_.converged_differential_translation
           && params_.convergence_condition == cad_image_markup::DIFF_CONVERGENCE)
-      
-      )
+        return true;
 
       return false;
 

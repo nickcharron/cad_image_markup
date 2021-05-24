@@ -20,47 +20,23 @@ void ReadCameraModel(std::string intrinsics_file_path) {
 
 void Util::SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
 
-void Util::OffsetCloudxy(PointCloud::Ptr cloud) {
-  if (!center_image_called_) {
-    printf(
-        "FAILED to restore image offset - originCloudxy not previously called "
-        "by this utility");
-    return;
-  }
+void Util::OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
 
   // restore offset to all points
   for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
-    cloud->at(point_index).x += static_cast<int>(image_offset_x_);
-    cloud->at(point_index).y += static_cast<int>(image_offset_y_);
+    cloud->at(point_index).x += static_cast<int>(offset(0));
+    cloud->at(point_index).y += static_cast<int>(offset(1));
   }
 }
 
-void OriginCloudxy(PointCloud::Ptr cloud) {
+void OriginCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d centroid) {
   uint16_t num_points = cloud->size();
-
-  // determine central x and y values
-  float max_x = 0, max_y = 0, min_x = 2048, min_y = 2048;
-  for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    if (cloud->at(point_index).x > max_x) max_x = cloud->at(point_index).x;
-    if (cloud->at(point_index).y > max_y) max_y = cloud->at(point_index).y;
-
-    if (cloud->at(point_index).x < min_x) min_x = cloud->at(point_index).x;
-    if (cloud->at(point_index).y < min_y) min_y = cloud->at(point_index).y;
-  }
-
-  float center_x = min_x + (max_x - min_x) / 2;
-  float center_y = min_y + (max_y - min_y) / 2;
-
-  image_offset_x_ = center_x;
-  image_offset_y_ = center_y;
 
   // shift all points back to center on origin
   for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    cloud->at(point_index).x -= (int)center_x;
-    cloud->at(point_index).y -= (int)center_y;
+    cloud->at(point_index).x -= (int)centroid(0);
+    cloud->at(point_index).y -= (int)centroid(1);
   }
-
-  center_image_called_ = true;
 }
 
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
@@ -140,15 +116,6 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     }
 
   }
-
-  // get correspondences (legacy)
-  /*
-  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
-      corr_est;
-  corr_est.setInputSource(camera_cloud);
-  corr_est.setInputTarget(proj_cloud);
-  corr_est.determineCorrespondences(*corrs, max_corr_distance);
-  */
 }
 
 

@@ -20,6 +20,58 @@ bool CadImageMarkup::Params::LoadFromJson(const std::string& path) {
   // TODO CAM: add function for loading json config settings. Also add a
   // ConfigDefault.json in the config folder of this repo. Look at examples in
   // libbeam for parsing jsons
+
+  nlohmann::json J;
+  std::ifstream file(file_name_);
+  file >> J;
+
+  cad_cloud_scale = J_solution_options["cad_cloud_scale"]; 
+  max_solution_iterations = J_solution_options["max_solution_iterations"];
+  visualize = J_solution_options["visualize"];
+  output_results = J_solution_options["output_results"];
+  align_centroids = J_solution_options["align centroids"];
+
+  if (J_solutions_options["correspondence_type"] == "P2POINT")
+    correspondence_type = P2POINT;
+  else if (J_solutions_options["correspondence_type"] == "P2PLANE")
+    correspondence_type = P2PLANE;
+  else{
+    LOG_ERROR("Invalid correspondence type specified. Exiting...");
+    return false;
+  }
+    
+
+
+  if (J_convergence_options["convergence_type"] == "LOSS_CONVERGENCE")
+    convergence_type = LOSS_CONVERGENCE;
+  else if (J_convergence_options["convergence_type"] == "GEO_CONVERGENCE")
+    convergence_type = GEO_CONVERGENCE;
+  else{
+    LOG_ERROR("Invalid convergence type speficied. Exiting...");
+    return false;
+  }
+    
+
+  if (J_convergence_options["convergence_condition"] == "ABS_CONVERGENCE" &&
+      convergence_type == GEO_CONVERGENCE){
+    LOG_ERROR("Absolute convergence condition is not available for geometric convergence type. Exiting...");
+    return false;
+  }
+  if (J_convergence_options["convergence_condition"] == "ABS_CONVERGENCE" &&
+      convergence_type != GEO_CONVERGENCE) {
+    convergence_condition = ABS_CONVERGENCE;
+  }
+  else if (J_convergence_options["convergence_condition"] == "DIFF_CONVERGENCE")
+    convergence_condition = DIFF_CONVERGENCE;
+  else 
+    LOG_ERROR("Invalid convergence condition speficied. Exiting...");
+
+  convergence_condition = J_convergence_options["convergence_condition"];
+  converged_differential_cost = J_convergence_options["converged_differential_cost"];
+  converged_absolute_cost = J_convergence_options["converged_absolute_cost"];
+  converged_differential_translation = J_convergence_options["converged_differential_translation"];
+  converged_differential_rotation = J_convergence_options["convergend_differential_rotation"];
+
   return true;
 }
 
@@ -81,6 +133,12 @@ bool CadImageMarkup::LoadData() {
   // is the centroid of the object, and the cad frame is the top left corner. To
   // calculate this, just get the translation in x and y to the centroid. Then I
   // think we can remove this function
+
+  // CAM NOTE: This is just how I am doing that, the T_WORLD_CAMERA needs to 
+  // operate initially on the cad cloud with its centroid aligned with the camera,
+  // when the cad cloud and back-projected defects are flattened, shifting back by
+  // the origin coodinates puts everything back in CAD frame
+  cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_);
   // Code would look something like this:
   // Eigen::Vector2d centroid = utils::GetCentroid(cad_points_CADFRAME_);

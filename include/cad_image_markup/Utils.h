@@ -76,19 +76,19 @@ void ReadCameraModel(std::string intrinsics_file_path);
 void SetCameraID(uint8_t cam_ID);
 
 /**
- * @brief Method to restore a cloud after it has been centered in x and y
- * this can only be used after having called originCloudxy with the same
- * utility object
+ * @brief Method to offset a cloud in x and y
  * @param cloud cloud to be offset
+ * @param offset x and y offset to ba applied to the cloud
  */
-void OffsetCloudxy(PointCloud::Ptr cloud);
+void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset);
 
 /**
  * @brief Method to center a cloud on the origin in the xy plane
- * cloud is centered based on its maximum dimensions in x and y
+ * cloud is centered by shifting its centroid to the origin
  * @param cloud cloud to be centered
+ * @param centroid centroid of could
  */
-void OriginCloudxy(PointCloud::Ptr cloud);
+void OriginCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d centroid);
 
 /**
  * @brief Method to use camera model to project a point cloud into the xy
