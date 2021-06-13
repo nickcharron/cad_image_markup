@@ -41,7 +41,7 @@ class ImageBuffer {
    * @todo update to handle points from multiple labels in an image
    */
   bool ReadPoints(const std::string& filename,
-                  PointCloud::Ptr points);
+                  pcl::PointCloud<pcl::PointXYZ>::Ptr points);
 
   /**
    * @brief Method for interpolating points for a more
@@ -51,7 +51,7 @@ class ImageBuffer {
    * @todo update to add interpolated points at equal intervals rather than at
    * fractions of the length between labelled points
    */
-  void DensifyPoints(PointCloud::Ptr points,
+  void DensifyPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points,
                      uint8_t density_index);
 
   /**
@@ -60,7 +60,7 @@ class ImageBuffer {
    * @param points pointcloud of feature points
    * @param scale scaling factor (output_point = input_point * scale_)
    */
-  void ScalePoints(PointCloud::Ptr points, float scale);
+  void ScalePoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, float scale);
 
   /**
    * @brief Method for writing 2D point set data to an image by setting
@@ -76,7 +76,7 @@ class ImageBuffer {
    * @todo update to interpolate pixels (lines? splines?) to color between
    * points
    */
-  bool WriteToImage(PointCloud::Ptr points, const std::string& src_file_name,
+  bool WriteToImage(pcl::PointCloud<pcl::PointXYZ>::Ptr points, const std::string& src_file_name,
                     const std::string& target_file_name,
                     uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
 };

@@ -19,13 +19,13 @@
  */
 struct CameraProjectionFunctor {
   CameraProjectionFunctor(
-      const std::shared_ptr<cad_image_markup::camera_models::CameraModel>& camera_model,
+      const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
       Eigen::Vector2d pixel_detected)
       : camera_model_(camera_model), pixel_detected_(pixel_detected) {}
 
   bool operator()(const double* P, double* pixel) const {
     Eigen::Vector3d P_CAMERA_eig{P[0], P[1], P[2]};
-    opt<Eigen::Vector2d> pixel_projected =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig);
 
     // get image dimensions in case projection fails
@@ -62,7 +62,7 @@ struct CameraProjectionFunctor {
     return true;
   }
 
-  std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model_;
+  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   Eigen::Vector2d pixel_detected_;
 };
 
@@ -78,7 +78,7 @@ struct CameraProjectionFunctor {
 struct CeresReprojectionCostFunction {
   CeresReprojectionCostFunction(
       Eigen::Vector2d pixel_detected, Eigen::Vector3d P_STRUCT,
-      std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model)
+      std::shared_ptr<cad_image_markup::CameraModel> camera_model)
       : pixel_detected_(pixel_detected),
         P_STRUCT_(P_STRUCT),
         camera_model_(camera_model) {
@@ -121,27 +121,18 @@ struct CeresReprojectionCostFunction {
     Eigen::Vector3d P_CAMERA_eig_check{*P_CAMERA_check_x, *P_CAMERA_check_y,
                                        *P_CAMERA_check_z};
     bool outside_domain = false;
-    opt<Eigen::Vector2d> pixel_projected_check =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected_check =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check, outside_domain);
 
-    // Need to handle outside domain failure differently for ladybug camera
-    // model
-    // since all points projecting out of frame provoke this failure
-    if (camera_model_->GetType() == cad_image_markup::camera_models::CameraType::LADYBUG)
-      return true;  // Returning outside_domain here would crash many
-                    // viable solutions, error checking must be done in calling
-                    // code
-    else
-      return !outside_domain;  // All other camera models have valid
-                               // out-of-domain conditions that should be
-                               // avoided
+    return !outside_domain;
+
   }
 
   // Factory to hide the construction of the CostFunction object from
   // the client code.
   static ceres::CostFunction* Create(
       const Eigen::Vector2d pixel_detected, const Eigen::Vector3d P_STRUCT,
-      const std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model) {
+      const std::shared_ptr<cad_image_markup::CameraModel> camera_model) {
     return (
         new ceres::AutoDiffCostFunction<CeresReprojectionCostFunction, 2, 7>(
             new CeresReprojectionCostFunction(pixel_detected, P_STRUCT,
@@ -150,14 +141,14 @@ struct CeresReprojectionCostFunction {
 
   Eigen::Vector2d pixel_detected_;
   Eigen::Vector3d P_STRUCT_;
-  std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model_;
+  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   std::unique_ptr<ceres::CostFunctionToFunctor<2, 3>> compute_projection;
 
  private:
   bool checkDomain(const double* P) {
     Eigen::Vector3d P_CAMERA_eig{P[0], P[1], P[2]};
     bool outside_domain = false;
-    opt<Eigen::Vector2d> pixel_projected =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig, outside_domain);
     return outside_domain;
   }

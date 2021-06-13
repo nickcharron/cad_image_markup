@@ -9,9 +9,9 @@
 #include <ceres/loss_function.h>
 #include <ceres/solver.h>
 #include <ceres/types.h>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/nlohmann/json.h>
 
-#include <cad_image_markup/Utils.h
+#include <cad_image_markup/Utils.h>
 
 namespace optimization {
 

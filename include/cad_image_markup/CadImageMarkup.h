@@ -59,7 +59,7 @@ class CadImageMarkup {
      */
     bool LoadFromJson(const std::string& path);
 
-    std::string ceres_params_path = inputs_.config_path;
+    std::string ceres_params_path;
 
     // Solution options 
     double cad_cloud_scale; // pixels/unit
@@ -77,8 +77,8 @@ class CadImageMarkup {
     double converged_differential_translation;
     double converged_differential_rotation;
 
-    cad_density_index{2};
-    cam_density_index{10};
+    double cad_density_index{2};
+    double cam_density_index{10};
   };
 
   /**
@@ -106,15 +106,15 @@ class CadImageMarkup {
   Inputs inputs_;
   Params params_;
 
-  ImageBuffer ImageBuffer;
+  ImageBuffer image_buffer_;
 
-  Eigen::Vector2d cad_centroid_;
+  pcl::PointXYZ cad_centroid_;
   
   std::unique_ptr<Solver> solver_;
 
-  PointCloud::Ptr camera_points_CAMFRAME_;
-  PointCloud::Ptr cad_points_CADFRAME_;
-  PointCloud::Ptr cad_points_WORLDFRAME_;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr camera_points_CAMFRAME_;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cad_points_CADFRAME_;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cad_points_WORLDFRAME_;
 };
 
 }  // namespace cad_image_markup

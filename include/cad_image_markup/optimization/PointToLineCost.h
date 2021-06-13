@@ -17,20 +17,23 @@
  * pixel is set to the nearest edge point to its corresponding
  * detected pixel in the image
  */
+
+namespace point_to_line_cost { 
+
 struct CameraProjectionFunctor {
   CameraProjectionFunctor(
-      const std::shared_ptr<cad_image_markup::camera_models::CameraModel>& camera_model,
+      const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
       Eigen::Vector2d pixel_detected)
       : camera_model_(camera_model), pixel_detected_(pixel_detected) {}
 
   bool operator()(const double* P1, double* pixel1, const double* P2, double* pixel2) const {
-    Eigen::Vector3d P1_CAMERA_eig{P1[0], P1[1], P1[2]}, 
+    Eigen::Vector3d P1_CAMERA_eig{P1[0], P1[1], P1[2]}; 
     Eigen::Vector3d P2_CAMERA_eig{P2[0], P2[1], P2[2]};
 
-    opt<Eigen::Vector2d> pixel_projected1 =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected1 =
         camera_model_->ProjectPointPrecise(P1_CAMERA_eig);
 
-    opt<Eigen::Vector2d> pixel_projected2 =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected2 =
         camera_model_->ProjectPointPrecise(P2_CAMERA_eig);
 
     // get image dimensions in case projection fails
@@ -84,7 +87,7 @@ struct CameraProjectionFunctor {
     return true;
   }
 
-  std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model_;
+  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   Eigen::Vector2d pixel_detected_;
 };
 
@@ -99,8 +102,8 @@ struct CameraProjectionFunctor {
  */
 struct CeresReprojectionCostFunction {
   CeresReprojectionCostFunction(
-      Eigen::Vector2d pixel_detected, Eigen::Vector3d P_STRUCT1, Eigen::Vector3d P_STRUCT2
-      std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model)
+      Eigen::Vector2d pixel_detected, Eigen::Vector3d P_STRUCT1, Eigen::Vector3d P_STRUCT2,
+      std::shared_ptr<cad_image_markup::CameraModel> camera_model)
       : pixel_detected_(pixel_detected),
         P_STRUCT1_(P_STRUCT1),
         P_STRUCT2_(P_STRUCT2),
@@ -114,8 +117,8 @@ struct CeresReprojectionCostFunction {
   template <typename T>
   bool operator()(const T* const T_CR, T* residuals) const {
 
-   Eigen::Matrix<T,3,1> _P_REF1 = P_REF1_.cast<T>();
-   Eigen::Matrix<T,3,1> _P_REF2 = P_REF2_.cast<T>();
+   Eigen::Matrix<T,3,1> _P_REF1 = P_STRUCT1_.cast<T>();
+   Eigen::Matrix<T,3,1> _P_REF2 = P_STRUCT2_.cast<T>();
 
     // rotate and translate reference points into camera frame
     T P_CAMERA1[3];
@@ -142,9 +145,6 @@ struct CeresReprojectionCostFunction {
     double* P_CAMERA_check1_y{static_cast<double*>(P_CAMERA_temp1_y)};
     double* P_CAMERA_check1_z{static_cast<double*>(P_CAMERA_temp1_z)};
 
-    T pixel_projected1[2];
-    (*compute_projection)(P_CAMERA_const1, &(pixel_projected1[0]));
-
     void* P_CAMERA_temp2_x = &(P_CAMERA2[0]);
     void* P_CAMERA_temp2_y = &(P_CAMERA2[1]);
     void* P_CAMERA_temp2_z = &(P_CAMERA2[2]);
@@ -153,7 +153,10 @@ struct CeresReprojectionCostFunction {
     double* P_CAMERA_check2_z{static_cast<double*>(P_CAMERA_temp2_z)};
 
     T pixel_projected1[2];
-    (*compute_projection)(P_CAMERA_const1, &(pixel_projected2[0]));
+    (*compute_projection)(P_CAMERA_const1, &(pixel_projected1[0]));
+
+    T pixel_projected2[2];
+    (*compute_projection)(P_CAMERA_const2, &(pixel_projected2[0]));
 
     /*
      * e = distance from point to line
@@ -174,7 +177,7 @@ struct CeresReprojectionCostFunction {
     d1[2] = (void*)(0);
 
     d2[0] = pixel_detected_.cast<T>()[0] - pixel_projected2[0];
-    d2[1] = pixel_detected_.cast<T>()[01 - pixel_projected2[1];
+    d2[1] = pixel_detected_.cast<T>()[0] - pixel_projected2[1];
     d2[2] = (void*)(0);
 
 
@@ -200,145 +203,34 @@ struct CeresReprojectionCostFunction {
                                        *P_CAMERA_check2_z};
     
     bool outside_domain = false;
-    opt<Eigen::Vector2d> pixel_projected_check1 =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected_check1 =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check1, outside_domain);
 
-    opt<Eigen::Vector2d> pixel_projected_check1 =
+    cad_image_markup::opt<Eigen::Vector2d> pixel_projected_check2 =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check2, outside_domain);
 
-    // Need to handle outside domain failure differently for ladybug camera
-    // model
-    // since all points projecting out of frame provoke this failure
-    if (camera_model_->GetType() == cad_image_markup::camera_models::CameraType::LADYBUG)
-      return true;  // Returning outside_domain here would crash many
-                    // viable solutions, error checking must be done in calling
-                    // code
-    else
-      return !outside_domain;  // All other camera models have valid
-                               // out-of-domain conditions that should be
-                               // avoided
+    return !outside_domain;
+
   }
 
   // Factory to hide the construction of the CostFunction object from
   // the client code.
   static ceres::CostFunction* Create(
-      const Eigen::Vector2d pixel_detected, const Eigen::Vector3d P_STRUCT,
-      const std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model) {
+      const Eigen::Vector2d pixel_detected, const Eigen::Vector3d P_STRUCT1,
+      const Eigen::Vector3d P_STRUCT2,
+      const std::shared_ptr<cad_image_markup::CameraModel> camera_model) {
     return (
         new ceres::AutoDiffCostFunction<CeresReprojectionCostFunction, 2, 7>(
-            new CeresReprojectionCostFunction(pixel_detected, P_STRUCT,
+            new CeresReprojectionCostFunction(pixel_detected, P_STRUCT1, P_STRUCT2,
                                               camera_model)));
   }
 
   Eigen::Vector2d pixel_detected_;
-  Eigen::Vector3d P_STRUCT_;
-  std::shared_ptr<cad_image_markup::camera_models::CameraModel> camera_model_;
+  Eigen::Vector3d P_STRUCT1_;
+  Eigen::Vector3d P_STRUCT2_;
+  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   std::unique_ptr<ceres::CostFunctionToFunctor<2, 3>> compute_projection;
 
- private:
-  bool checkDomain(const double* P) {
-    Eigen::Vector3d P_CAMERA_eig{P[0], P[1], P[2]};
-    bool outside_domain = false;
-    opt<Eigen::Vector2d> pixel_projected =
-        camera_model_->ProjectPointPrecise(P_CAMERA_eig, outside_domain);
-    return outside_domain;
-  }
 };
 
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-/**
- * @brief Ceres cost functor for a point to line error where the line is defined
- * by two 3D points
- */
-struct CeresPointToLineCostFunction {
-  /**
-   * @brief Constructor
-   * @param P_TGT point in question
-   * @param P_REF1 reference line point 1
-   * @param P_REF2 reference line point 2
-   */
-  CeresPointToLineCostFunction(const Eigen::Vector3d P_TGT,
-                               const Eigen::Vector3d P_REF1,
-                               const Eigen::Vector3d P_REF2)
-      : P_TGT_(P_TGT), P_REF1_(P_REF1), P_REF2_(P_REF2) {}
-
-  // T_REF_TGT is [qw, qx, qy, qz, tx, ty, tz]
-  template <typename T>
-  bool operator()(const T* const T_REF_TGT, T* residuals) const {
-    // cast member variables
-    Eigen::Matrix<T,3,1> _P_TGT = P_TGT_.cast<T>();
-    Eigen::Matrix<T,3,1> _P_REF1 = P_REF1_.cast<T>();
-    Eigen::Matrix<T,3,1> _P_REF2 = P_REF2_.cast<T>();
-
-    T P_TGT[3];
-    P_TGT[0] = _P_TGT[0];
-    P_TGT[1] = _P_TGT[1];
-    P_TGT[2] = _P_TGT[2];
-
-    // rotate and translate point
-    T P_REF[3];
-    ceres::QuaternionRotatePoint(T_REF_TGT, P_TGT, P_REF);
-    P_REF[0] += T_REF_TGT[4];
-    P_REF[1] += T_REF_TGT[5];
-    P_REF[2] += T_REF_TGT[6];
-
-    /*
-     * e = distance from point to line
-     *   = | (P_REF - P_REF1) x (P_REF - P_REF1) |
-     *     ---------------------------------------
-     *               | P_REF1 - P_REF2 |
-     *
-     *   = | d1 x d2 |
-     *     -----------
-     *       | d12 |
-     *
-     *   Where P_REF = T_REF_TGT * P_TGT
-     *
-     */
-    T d1[3], d2[3], d12[3];
-    d1[0] = P_REF[0] - _P_REF1[0];
-    d1[1] = P_REF[1] - _P_REF1[1];
-    d1[2] = P_REF[2] - _P_REF1[2];
-
-    d2[0] = P_REF[0] - _P_REF2[0];
-    d2[1] = P_REF[1] - _P_REF2[1];
-    d2[2] = P_REF[2] - _P_REF2[2];
-
-    d12[0] = _P_REF1[0] - _P_REF2[0];
-    d12[1] = _P_REF1[1] - _P_REF2[1];
-    d12[2] = _P_REF1[2] - _P_REF2[2];
-
-    T cross[3];
-    ceres::CrossProduct(d1, d2, cross);
-
-    T norm =
-        sqrt(cross[0] * cross[0] + cross[1] * cross[1] + cross[2] * cross[2]);
-    T norm12 = sqrt(d12[0] * d12[0] + d12[1] * d12[1] + d12[2] * d12[2]);
-
-    residuals[0] = norm / norm12;
-
-    return true;
-  }
-
-  // Factory to hide the construction of the CostFunction object from
-  // the client code.
-  static ceres::CostFunction* Create(const Eigen::Vector3d P_TGT,
-                                     const Eigen::Vector3d P_REF1,
-                                     const Eigen::Vector3d P_REF2) {
-    return (new ceres::AutoDiffCostFunction<CeresPointToLineCostFunction, 1, 7>(
-        new CeresPointToLineCostFunction(P_TGT, P_REF1, P_REF2)));
-  }
-
-  Eigen::Vector3d P_TGT_;
-  Eigen::Vector3d P_REF1_;
-  Eigen::Vector3d P_REF2_;
-};
+} // point_to_line_cost

@@ -4,7 +4,7 @@
 #include <ctime>
 
 #include <boost/filesystem.hpp>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/nlohmann/json.h>
 
 #include <cad_image_markup/Utils.h>
 

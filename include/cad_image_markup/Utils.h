@@ -11,17 +11,16 @@
 #include <pcl/ModelCoefficients.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/kdtree/kdtree_flann.h>
-#include <beam_calibration/CameraModel.h>
-#include <beam_calibration/Ladybug.h>
-#include <beam_calibration/Radtan.h>
-#include <beam_calibration/DoubleSphere.h>
-#include <beam_calibration/KannalaBrandt.h>
+#include <cad_image_markup/camera_models/CameraModel.h>
+#include <cad_image_markup/camera_models/Radtan.h>
+#include <cad_image_markup/camera_models/DoubleSphere.h>
+#include <cad_image_markup/camera_models/KannalaBrandt.h>
 #include <string>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <stdio.h>
-#include <optional>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/Optional.h>
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace cad_image_markup {
 
@@ -51,14 +50,14 @@ namespace utils {
 extern double image_offset_x_;
 extern double image_offset_y_;
 extern bool center_image_called_;
-extern std::shared_ptr<beam_calibration::CameraModel> camera_model_;
+extern std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
 
 /**
  * @brief Accessor method to retrieve camera model
  * @return camera model
  * CAM NOTE: not sure if this should return the utility camera model, or a copy (probably the pointer since you might need to change it)
  */
-std::shared_ptr<beam_calibration::CameraModel> GetCameraModel();
+std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel();
 
 /**
  * @brief Method to read the camera model used by the utility object from a
@@ -88,7 +87,7 @@ void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset);
  * @param cloud cloud to be centered
  * @param centroid centroid of could
  */
-void OriginCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d centroid);
+void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid);
 
 /**
  * @brief Method to use camera model to project a point cloud into the xy
@@ -199,7 +198,7 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
 PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
-    const std::shared_ptr<beam_calibration::CameraModel>& camera_model);
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
 

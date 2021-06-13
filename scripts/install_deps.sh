@@ -11,12 +11,12 @@ main()
 install_routine()
 {
     sudo -v
-    install_eigen3
-    install_ceres
-    #install_pcl
-    install_gflags
-    install_catch2
-    install_opencv
+    #install_eigen3
+    #install_ceres
+    install_pcl
+    #install_gflags
+    #install_catch2
+    #install_opencv
 }
 
 install_ceres()
@@ -59,6 +59,7 @@ install_pcl()
   PCL_DIR="pcl"
   BUILD_DIR="build"
 
+  mkdir -p $DEPS_DIR
   cd $DEPS_DIR
 
   if [ ! -d "$PCL_DIR" ]; then
@@ -74,11 +75,11 @@ install_pcl()
 
     PCL_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11"
     cmake .. ${PCL_CMAKE_ARGS} > /dev/null
-    make -j$(nproc)
+    make -j2
   fi
 
   cd $DEPS_DIR/$PCL_DIR/$BUILD_DIR
-  sudo make -j$(nproc) install
+  sudo make -j2 install
 }
 
 install_catch2()

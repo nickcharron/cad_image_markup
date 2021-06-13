@@ -8,7 +8,7 @@
 #include <ceres/rotation.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/nlohmann/json.h>
 
 #include <cad_image_markup/CadImageMarkup.h>
 #include <cad_image_markup/camera_models/CameraModel.h>
@@ -48,21 +48,21 @@ class Solver {
   struct ResultsSummary {
     ceres::Solver::Summary ceres_summary;
     uint8_t solution_iterations{0};
-  }
+  };
 
   /**
    * @brief Constructor with custom params
    * @param camera_model
    * @param params params needed for this class
    */
-  Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model,
+  Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model,
          const Params& params);
 
   /**
    * @brief Constructor with default params
    * @param camera_model
    */
-  Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model);
+  Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model);
 
   /**
    * @brief Default destructor
@@ -79,7 +79,7 @@ class Solver {
    * @return success boolean
    */
   bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-             const Eigen::Matix4d& T_WORLD_CAMERA, bool visualize);
+             const Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize);
 
   /**
    * @brief Accessor method to retrieve the final transform results
@@ -114,14 +114,14 @@ class Solver {
    * @note Holds the solution until user enters 'n' to progress to the next iteration
    *       or 'r' to cancel the solution
    */
-  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
 
   // options
   Params params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables
-  std::shared_ptr<beam_calibration::CameraModel> camera_model_;
+  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   std::shared_ptr<Visualizer> visualizer_;
   PointCloud::ConstPtr camera_cloud_;
   PointCloud::ConstPtr cad_cloud_;

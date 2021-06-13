@@ -57,6 +57,12 @@
         "core": "cpp",
         "numericaldiff": "cpp",
         "specialfunctions": "cpp",
-        "tensor": "cpp"
+        "tensor": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "string_view": "cpp",
+        "slist": "cpp",
+        "shared_mutex": "cpp",
+        "valarray": "cpp"
     }
 }
