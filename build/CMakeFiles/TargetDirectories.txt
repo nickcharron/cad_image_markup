@@ -1,8 +1,0 @@
-/home/cameron/Projects/cad_image_markup/build/CMakeFiles/rebuild_cache.dir
-/home/cameron/Projects/cad_image_markup/build/CMakeFiles/edit_cache.dir
-/home/cameron/Projects/cad_image_markup/build/CMakeFiles/cad_image_markup_main.dir
-/home/cameron/Projects/cad_image_markup/build/src/lib/CMakeFiles/rebuild_cache.dir
-/home/cameron/Projects/cad_image_markup/build/src/lib/CMakeFiles/edit_cache.dir
-/home/cameron/Projects/cad_image_markup/build/src/lib/CMakeFiles/cad_image_markup.dir
-/home/cameron/Projects/cad_image_markup/build/tests/CMakeFiles/rebuild_cache.dir
-/home/cameron/Projects/cad_image_markup/build/tests/CMakeFiles/edit_cache.dir

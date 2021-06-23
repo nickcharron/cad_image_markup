@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcad_image_markup.a CMakeFiles/cad_image_markup.dir/camera_models/CameraModel.cpp.o CMakeFiles/cad_image_markup.dir/camera_models/DoubleSphere.cpp.o CMakeFiles/cad_image_markup.dir/camera_models/KannalaBrandt.cpp.o CMakeFiles/cad_image_markup.dir/camera_models/Radtan.cpp.o CMakeFiles/cad_image_markup.dir/CadImageMarkup.cpp.o CMakeFiles/cad_image_markup.dir/Gflags.cpp.o
-/usr/bin/ranlib libcad_image_markup.a
