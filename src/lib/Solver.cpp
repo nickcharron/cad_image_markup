@@ -3,7 +3,7 @@
 namespace cad_image_markup {
 
 Solver::Solver(std::shared_ptr<beam_calibration::CameraModel> camera_model,
-               const Params& params)
+               const struct Params& params)
     : camera_model_(camera_model), params_(params) {
   ceres_params_ = optimization::CeresParams(params_.ceres_params_path);
   visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver

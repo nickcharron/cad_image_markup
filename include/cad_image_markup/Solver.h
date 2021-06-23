@@ -20,6 +20,8 @@
 
 namespace cad_image_markup {
 
+struct Params; //forward declaration of params struct type shared with CadImageMarkup.h
+
 using AlignVec2d = Eigen::aligned_allocator<Eigen::Vector2d>;
 
 /**
@@ -27,23 +29,6 @@ using AlignVec2d = Eigen::aligned_allocator<Eigen::Vector2d>;
  */
 class Solver {
  public:
-  struct Params {
-    uint32_t max_solution_iterations{15};
-    // TODO CAM: the ceres summary outputs the initial and final losses. These
-    // losses are essentially the same this as your pixel error. It would be a
-    // lot easier to just compare final loss to initial loss instead of your
-    // method. Also we should implement a change in pose option. See this code
-    // for an example:
-    // https://github.com/BEAMRobotics/libbeam/blob/d07569a86f427455a573f6190d5ae7e2b983b1d6/beam_matching/src/loam/LoamScanRegistration.cpp#L290
-    std::string convergence_type{
-        "FINALLOSS"};  // Options: FINALLOSS, POSECHANGE
-    bool transform_progress_to_stdout{false};
-    bool visualize{true};
-    double cloud_scale{1};
-    double convergence_limit{5};
-    bool output_results{true};
-    std::string ceres_params_path;
-  };
 
   struct ResultsSummary {
     ceres::Solver::Summary ceres_summary;
@@ -117,7 +102,7 @@ class Solver {
   bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
 
   // options
-  Params params_;
+  Params *params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables

@@ -6,23 +6,6 @@
 
 namespace cad_image_markup {
 
-/**
- * @brief TODO
- */
-class CadImageMarkup {
- public:
-  /**
-   * @brief Struct for containing all inputs needed for this class
-   */
-  struct Inputs {
-    std::string cad_path;
-    std::string image_path;
-    std::string intrinsics_path;
-    std::string config_path;
-    std::string ceres_config_path;
-    std::string initial_pose_path;  // T_WORLD_CAM
-  };
-
   /**
    * @brief Struct for containing all parameters needed for this class
    * @param cad_cloud_scale CAD drawing scale in pixels/working unit (meters, feet, etc.)
@@ -46,7 +29,7 @@ class CadImageMarkup {
    * @param converged_differential_translation converged differential translation in solution
    *                                           transform in all directions between overall
    *                                           solution iterations in working units
-   * @param converged_differential_rotationt converged differential rotation in solution
+   * @param converged_differential_rotation converged differential rotation in solution
    *                                         transform in all axis between overall solution
    *                                         iterations in degrees
    * @param cad_density_index number of points to interpolate between each point in input cad cloud
@@ -79,6 +62,23 @@ class CadImageMarkup {
 
     double cad_density_index{2};
     double cam_density_index{10};
+  };
+
+/**
+ * @brief TODO
+ */
+class CadImageMarkup {
+ public:
+  /**
+   * @brief Struct for containing all inputs needed for this class
+   */
+  struct Inputs {
+    std::string cad_path;
+    std::string image_path;
+    std::string intrinsics_path;
+    std::string config_path;
+    std::string ceres_config_path;
+    std::string initial_pose_path;  // T_WORLD_CAM
   };
 
   /**

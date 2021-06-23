@@ -26,9 +26,16 @@ struct CameraProjectionFunctor {
       Eigen::Vector2d pixel_detected)
       : camera_model_(camera_model), pixel_detected_(pixel_detected) {}
 
-  bool operator()(const double* P1, double* pixel1, const double* P2, double* pixel2) const {
-    Eigen::Vector3d P1_CAMERA_eig{P1[0], P1[1], P1[2]}; 
-    Eigen::Vector3d P2_CAMERA_eig{P2[0], P2[1], P2[2]};
+  bool operator()(const double* P, double* pixel) const {
+
+    // P [0..2] -> P1
+    // P [3..5] -> P2
+    // pixel [0,1] -> pixel1
+    // pixel [2,3] -> pixel2
+
+
+    Eigen::Vector3d P1_CAMERA_eig{P[0], P[1], P[2]}; 
+    Eigen::Vector3d P2_CAMERA_eig{P[3], P[4], P[5]};
 
     cad_image_markup::opt<Eigen::Vector2d> pixel_projected1 =
         camera_model_->ProjectPointPrecise(P1_CAMERA_eig);
@@ -57,30 +64,30 @@ struct CameraProjectionFunctor {
                       : pixel_detected_[1];
 
     if (pixel_projected1.has_value()) {
-      pixel1[0] = pixel_projected1.value()[0];
-      pixel1[1] = pixel_projected1.value()[1];
+      pixel[0] = pixel_projected1.value()[0];
+      pixel[1] = pixel_projected1.value()[1];
     } else {
 
       if (dist_u <= dist_v) {
-        pixel1[0] = near_u;
-        pixel1[1] = pixel_detected_[1];
+        pixel[0] = near_u;
+        pixel[1] = pixel_detected_[1];
       } else {
-        pixel1[0] = pixel_detected_[0];
-        pixel1[1] = near_v;
+        pixel[0] = pixel_detected_[0];
+        pixel[1] = near_v;
       }
     }
 
     if (pixel_projected2.has_value()) {
-      pixel2[0] = pixel_projected2.value()[0];
-      pixel2[1] = pixel_projected2.value()[1];
+      pixel[2] = pixel_projected2.value()[0];
+      pixel[3] = pixel_projected2.value()[1];
     } else {
 
       if (dist_u <= dist_v) {
-        pixel2[0] = near_u;
-        pixel2[1] = pixel_detected_[1];
+        pixel[2] = near_u;
+        pixel[3] = pixel_detected_[1];
       } else {
-        pixel2[0] = pixel_detected_[0];
-        pixel2[1] = near_v;
+        pixel[2] = pixel_detected_[0];
+        pixel[2] = near_v;
       }
     }
 
@@ -117,8 +124,19 @@ struct CeresReprojectionCostFunction {
   template <typename T>
   bool operator()(const T* const T_CR, T* residuals) const {
 
-   Eigen::Matrix<T,3,1> _P_REF1 = P_STRUCT1_.cast<T>();
-   Eigen::Matrix<T,3,1> _P_REF2 = P_STRUCT2_.cast<T>();
+    T _P_REF1[3];
+    _P_REF1[0] = P_STRUCT1_.cast<T>()[0];
+    _P_REF1[1] = P_STRUCT1_.cast<T>()[1];
+    _P_REF1[2] = P_STRUCT1_.cast<T>()[2];
+
+    T _P_REF2[3];
+    _P_REF2[0] = P_STRUCT2_.cast<T>()[0];
+    _P_REF2[1] = P_STRUCT2_.cast<T>()[1];
+    _P_REF2[2] = P_STRUCT2_.cast<T>()[2];
+
+
+   //Eigen::Matrix<T,3,1> _P_REF1 = P_STRUCT1_.cast<T>();
+   //Eigen::Matrix<T,3,1> _P_REF2 = P_STRUCT2_.cast<T>();
 
     // rotate and translate reference points into camera frame
     T P_CAMERA1[3];
@@ -174,16 +192,16 @@ struct CeresReprojectionCostFunction {
     T d1[3], d2[3], d12[3];
     d1[0] = pixel_detected_.cast<T>()[0] - pixel_projected1[0];
     d1[1] = pixel_detected_.cast<T>()[1] - pixel_projected1[1];
-    d1[2] = (void*)(0);
+    d1[2] = (T)0;
 
     d2[0] = pixel_detected_.cast<T>()[0] - pixel_projected2[0];
     d2[1] = pixel_detected_.cast<T>()[0] - pixel_projected2[1];
-    d2[2] = (void*)(0);
+    d2[2] = (T)0;
 
 
     d12[0] = pixel_projected1[0] - pixel_projected2[0];
     d12[1] = pixel_projected1[1] - pixel_projected2[1];
-    d12[2] = (void*)(0);
+    d12[2] = (T)0;
 
 
     T cross[3];

@@ -15,7 +15,7 @@ namespace cad_image_markup {
 #define ABS_CONVERGENCE 1
 
 
-bool CadImageMarkup::Params::LoadFromJson(const std::string& path) {
+bool Params::LoadFromJson(const std::string& path) {
   LOG_INFO("Loading config file from: %s", path.c_str());
   // TODO CAM: add function for loading json config settings. Also add a
   // ConfigDefault.json in the config folder of this repo. Look at examples in
@@ -73,7 +73,7 @@ bool CadImageMarkup::Params::LoadFromJson(const std::string& path) {
   converged_differential_translation = J_convergence_options["converged_differential_translation"];
   converged_differential_rotation = J_convergence_options["convergend_differential_rotation"];
 
-  std::string ceres_params_path = inputs_.ceres_config_path;
+  ceres_params_path = J["ceres_config_path"];
 
   return true;
 }
@@ -100,8 +100,8 @@ bool CadImageMarkup::Setup() {
   
   //camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
   //cad_points_CADFRAME_ = std::make_shared<PointCloud>();
-  solver_ =
-      std::make_unique<Solver>(inputs_.ceres_config_path);
+
+  std::shared_ptr<CameraModel> camera_model = CameraModel::Create(inputs_.intrinsics_path);
 
   if (!inputs_.config_path.empty()) {
     if (!boost::filesystem::exists(inputs_.config_path)) {
@@ -112,6 +112,9 @@ bool CadImageMarkup::Setup() {
       return false;
     }
   }
+
+  solver_ = std::make_unique<Solver>(camera_model,params_);
+
 }
 
 bool CadImageMarkup::LoadData() {
