@@ -8,7 +8,6 @@ find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PCL 1.8.0 REQUIRED)
 find_package(OpenCV REQUIRED)
-#find_package(nlohmann_json 3.2.0 REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Ceres REQUIRED)
 

@@ -14,6 +14,7 @@ namespace cad_image_markup {
 #define DIFF_CONVERGENCE 0
 #define ABS_CONVERGENCE 1
 
+//struct Params; //forward declaration of params struct type
 
 bool Params::LoadFromJson(const std::string& path) {
   LOG_INFO("Loading config file from: %s", path.c_str());
@@ -78,7 +79,7 @@ bool Params::LoadFromJson(const std::string& path) {
   return true;
 }
 
-CadImageMarkup::CadImageMarkup(const Inputs& inputs) : inputs_(inputs) {}
+CadImageMarkup::CadImageMarkup(const Inputs& inputs, Params& params) : inputs_(inputs), params_(params){}
 
 bool CadImageMarkup::Run() {
   if (!Setup()) {
@@ -99,7 +100,11 @@ bool CadImageMarkup::Run() {
 bool CadImageMarkup::Setup() {
   
   //camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
+  pcl::PointCloud<pcl::PointXYZ>::Ptr camera_points_CAMFRAME_ (new pcl::PointCloud<pcl::PointXYZ>);
   //cad_points_CADFRAME_ = std::make_shared<PointCloud>();
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cad_points_CADFRAME_ (new pcl::PointCloud<pcl::PointXYZ>);
+
+  params_.LoadFromJson(inputs_.config_path);
 
   std::shared_ptr<CameraModel> camera_model = CameraModel::Create(inputs_.intrinsics_path);
 

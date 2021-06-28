@@ -25,5 +25,4 @@ target_link_libraries(${PROJECT_NAME}
   ${OpenCV_LIBS}
   ${PCL_LIBRARIES}
   ceres
-  nlohmann_json::nlohmann_json
 )

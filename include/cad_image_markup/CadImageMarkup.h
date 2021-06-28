@@ -84,7 +84,7 @@ class CadImageMarkup {
   /**
    * @brief constructor
    */
-  CadImageMarkup(const Inputs& inputs);
+  CadImageMarkup(const Inputs& inputs, Params& params);
 
   /**
    * @brief default deconstructor
