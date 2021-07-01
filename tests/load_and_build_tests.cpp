@@ -1,7 +1,10 @@
 #define CATCH_CONFIG_MAIN
 
 #include <CadImageMarkup.h>
-#include <catch2/catch.hpp>
+
+//#include <catch2/catch.hpp>
+#include <cad_image_markup/Gflags.h>
+#include <gflags/gflags.h>
 
 DEFINE_string(cad, "", "Full path to CAD file in json format (Required).");
 DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
@@ -20,6 +23,7 @@ DEFINE_string(initial_pose, "",
               "The world frame is the centroid of the structural element in "
               "the CAD mode. (TODO CAM: Is this correct?)");
 
+
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
@@ -31,6 +35,7 @@ int main(int argc, char **argv) {
       .ceres_config_path = FLAGS_ceres_config,
       .initial_pose_path = FLAGS_initial_pose};
 
+/*
   cad_image_markup::CadImageMarkup markup(inputs);
   if (markup.Run()) {
     LOG_INFO("Success completed CAD markup!");
@@ -38,11 +43,23 @@ int main(int argc, char **argv) {
     LOG_ERROR("Failed CAD markup!");
   }
   return 0;
+*/
 }
 
-TEST_CASE {
+
+/*
+TEST_CASE("Initial test.") {
     
-    
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+  cad_image_markup::CadImageMarkup::Inputs inputs{
+      .cad_path = FLAGS_cad,
+      .image_path = FLAGS_image,
+      .intrinsics_path = FLAGS_intrinsics,
+      .config_path = FLAGS_config,
+      .ceres_config_path = FLAGS_ceres_config,
+      .initial_pose_path = FLAGS_initial_pose};
     
     REQUIRE(1);
 }
+*/

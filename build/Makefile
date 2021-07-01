@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named cad_image_markup_load_and_build_tests
+
+# Build rule for target.
+cad_image_markup_load_and_build_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cad_image_markup_load_and_build_tests
+.PHONY : cad_image_markup_load_and_build_tests
+
+# fast build rule for target.
+cad_image_markup_load_and_build_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cad_image_markup_load_and_build_tests.dir/build.make CMakeFiles/cad_image_markup_load_and_build_tests.dir/build
+.PHONY : cad_image_markup_load_and_build_tests/fast
+
+#=============================================================================
 # Target rules for targets named cad_image_markup_main
 
 # Build rule for target.
@@ -166,6 +179,30 @@ src/cad_image_markup.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cad_image_markup_main.dir/build.make CMakeFiles/cad_image_markup_main.dir/src/cad_image_markup.cpp.s
 .PHONY : src/cad_image_markup.cpp.s
 
+tests/load_and_build_tests.o: tests/load_and_build_tests.cpp.o
+.PHONY : tests/load_and_build_tests.o
+
+# target to build an object file
+tests/load_and_build_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cad_image_markup_load_and_build_tests.dir/build.make CMakeFiles/cad_image_markup_load_and_build_tests.dir/tests/load_and_build_tests.cpp.o
+.PHONY : tests/load_and_build_tests.cpp.o
+
+tests/load_and_build_tests.i: tests/load_and_build_tests.cpp.i
+.PHONY : tests/load_and_build_tests.i
+
+# target to preprocess a source file
+tests/load_and_build_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cad_image_markup_load_and_build_tests.dir/build.make CMakeFiles/cad_image_markup_load_and_build_tests.dir/tests/load_and_build_tests.cpp.i
+.PHONY : tests/load_and_build_tests.cpp.i
+
+tests/load_and_build_tests.s: tests/load_and_build_tests.cpp.s
+.PHONY : tests/load_and_build_tests.s
+
+# target to generate assembly for a file
+tests/load_and_build_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cad_image_markup_load_and_build_tests.dir/build.make CMakeFiles/cad_image_markup_load_and_build_tests.dir/tests/load_and_build_tests.cpp.s
+.PHONY : tests/load_and_build_tests.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -175,10 +212,14 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... cad_image_markup"
+	@echo "... cad_image_markup_load_and_build_tests"
 	@echo "... cad_image_markup_main"
 	@echo "... src/cad_image_markup.o"
 	@echo "... src/cad_image_markup.i"
 	@echo "... src/cad_image_markup.s"
+	@echo "... tests/load_and_build_tests.o"
+	@echo "... tests/load_and_build_tests.i"
+	@echo "... tests/load_and_build_tests.s"
 .PHONY : help
 
 

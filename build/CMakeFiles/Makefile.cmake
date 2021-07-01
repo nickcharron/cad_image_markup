@@ -196,6 +196,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/cad_image_markup_load_and_build_tests.dir/DependInfo.cmake"
   "CMakeFiles/cad_image_markup_main.dir/DependInfo.cmake"
   "src/lib/CMakeFiles/cad_image_markup.dir/DependInfo.cmake"
   )

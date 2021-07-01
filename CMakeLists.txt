@@ -28,16 +28,16 @@ target_link_libraries(${PROJECT_NAME}_main
 )
 
 ################## tests ##################
-#add_executable(${PROJECT_NAME}_TODO_tests
-#  tests/TODO.cpp
-#)
+add_executable(${PROJECT_NAME}_load_and_build_tests
+  tests/load_and_build_tests.cpp
+)
 
-#target_include_directories(${PROJECT_NAME}_TODO_tests
-#  PUBLIC
-#    include
-#)
+target_include_directories(${PROJECT_NAME}_load_and_build_tests
+  PUBLIC
+    include/cad_image_markup
+)
 
-#target_link_libraries(${PROJECT_NAME}_TODO_tests
-#  ${PROJECT_NAME}
-#  Catch2::Catch2
-#)
+target_link_libraries(${PROJECT_NAME}_load_and_build_tests
+  ${PROJECT_NAME}
+  Catch2::Catch2
+)
