@@ -8,6 +8,8 @@ add_library(${PROJECT_NAME}
   camera_models/Radtan.cpp
   CadImageMarkup.cpp
   Gflags.cpp
+  ImageBuffer.cpp
+  Utils.cpp
 )
 target_compile_options(${PROJECT_NAME}
   PUBLIC

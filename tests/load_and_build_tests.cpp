@@ -1,11 +1,13 @@
 #define CATCH_CONFIG_MAIN
 
 #include <CadImageMarkup.h>
+#include <ImageBuffer.h>
 
-//#include <catch2/catch.hpp>
-#include <cad_image_markup/Gflags.h>
-#include <gflags/gflags.h>
+#include <catch2/catch.hpp>
+//#include <cad_image_markup/Gflags.h>
+//#include <gflags/gflags.h>
 
+/*
 DEFINE_string(cad, "", "Full path to CAD file in json format (Required).");
 DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(image, "", "Full path to image (Required).");
@@ -22,44 +24,24 @@ DEFINE_string(initial_pose, "",
               "translation and rotation of the camera w.r.t. the world frame. "
               "The world frame is the centroid of the structural element in "
               "the CAD mode. (TODO CAM: Is this correct?)");
-
-
-int main(int argc, char **argv) {
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-
-  cad_image_markup::CadImageMarkup::Inputs inputs{
-      .cad_path = FLAGS_cad,
-      .image_path = FLAGS_image,
-      .intrinsics_path = FLAGS_intrinsics,
-      .config_path = FLAGS_config,
-      .ceres_config_path = FLAGS_ceres_config,
-      .initial_pose_path = FLAGS_initial_pose};
-
-/*
-  cad_image_markup::CadImageMarkup markup(inputs);
-  if (markup.Run()) {
-    LOG_INFO("Success completed CAD markup!");
-  } else {
-    LOG_ERROR("Failed CAD markup!");
-  }
-  return 0;
 */
-}
 
 
-/*
 TEST_CASE("Initial test.") {
-    
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+  // Define these at compile time for testing since catch has a hard time with command line arguments
   cad_image_markup::CadImageMarkup::Inputs inputs{
-      .cad_path = FLAGS_cad,
-      .image_path = FLAGS_image,
-      .intrinsics_path = FLAGS_intrinsics,
-      .config_path = FLAGS_config,
-      .ceres_config_path = FLAGS_ceres_config,
-      .initial_pose_path = FLAGS_initial_pose};
+      .cad_path = "/home/cameron/Projects/cad_image_markup/tests/test_data/labelled_images/sim_CAD.json",
+      .image_path = "/home/cameron/Projects/cad_image_markup/tests/test_data/labelled_images/-3.000000_0.000000.json",
+      .intrinsics_path = "/home/cameron/Projects/cad_image_markup/tests/test_data/Radtan_intrinsics.json",
+      .config_path = "/home/cameron/Projects/cad_image_markup/config/SolutionParamsDefault.json",
+      .ceres_config_path = "/home/cameron/Projects/cad_image_markup/config/CeresParamsDefault.json",
+      .initial_pose_path = "/home/cameron/Projects/cad_image_markup/tests/test_data/poses/-3.000000_0.000000.json"
+  };
+
+  cad_image_markup::Params params;
+
+  cad_image_markup::CadImageMarkup markup(inputs,params);
     
     REQUIRE(1);
 }
-*/

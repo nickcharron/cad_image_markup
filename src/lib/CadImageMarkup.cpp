@@ -90,9 +90,9 @@ bool CadImageMarkup::Run() {
     return false;
   }
 
-  if (!Solve()) {
-    return false;
-  }
+  //if (!Solve()) {
+  //  return false;
+  //}
 
   return true;
 }

@@ -1,12 +1,11 @@
 #include <cad_image_markup/ImageBuffer.h>
 
 #include <boost/filesystem.hpp>
-#include <nlohmann/json.hpp>
 
 namespace cad_image_markup {
 
 bool ImageBuffer::ReadPoints(const std::string &filename,
-                             PointCloud::Ptr points) {
+                             pcl::PointCloud<pcl::PointXYZ>::Ptr points) {
   points->clear();
 
   if (!boost::filesystem::exists(filename)) {
@@ -16,7 +15,7 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   LOG_INFO("Loading points file: %s", filename.c_str());
 
   nlohmann::json J;
-  std::ifstream file(file_location);
+  std::ifstream file(filename);
   file >> J;
 
   const auto &J_shapes = J["shapes"];
@@ -30,26 +29,26 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
       return false;
     }
     pcl::PointXYZ point_pcl(point_vec.at(0), point_vec.at(1), 0);
-    points->push_back(point_pcl)
+    points->push_back(point_pcl);
   }
 
   return true;
 }
 
-void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
+void ImageBuffer::DensifyPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, uint8_t density_index) {
   // TODO CAM: go over this function, I have not edited it to use PointCloud
   // instead of a vector.
 
-  /*
+  
   // add additional point between existing points according to scale
   // will help to converge solution
-  uint16_t init_length = points_->size();
+  uint16_t init_length = points->size();
 
   for (uint16_t point_index = 0; point_index < init_length; point_index++) {
-    point current_start_point = points_->at(0);
-    point current_end_point = points_->at(1);
+    pcl::PointXYZ current_start_point = points->at(0);
+    pcl::PointXYZ current_end_point = points->at(1);
 
-    points_->erase(points_->begin());
+    points->erase(points->begin());
 
     // determine angle between points
     float slope, theta;
@@ -73,7 +72,7 @@ void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
 
     // number of points added between each reference point should be the same
     // for both images for 1:1 mapping (in final solution)
-    float interval = inter_dist / (density_index_ + 1);
+    float interval = inter_dist / (density_index + 1);
 
     // determine delta x and y values based on quadrant
     float dx, dy;
@@ -104,7 +103,7 @@ void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
     }
 
     // push the start point first to conserve the order of the vector
-    points_->push_back(current_start_point);
+    points->push_back(current_start_point);
 
     // push the rest of the interpolated points, trending toward the current end
     // point
@@ -116,8 +115,8 @@ void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
         std::pow(std::abs(current_y_coord - current_start_point.y), 2));
 
     while (current_dist < dist) {
-      point current_inter_point(current_x_coord, current_y_coord);
-      points_->push_back(current_inter_point);
+      pcl::PointXYZ current_inter_point(current_x_coord, current_y_coord, 0);
+      points->push_back(current_inter_point);
 
       current_x_coord += dx;
       current_y_coord += dy;
@@ -127,10 +126,10 @@ void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
           std::pow(std::abs(current_y_coord - current_start_point.y), 2));
     }
   }
-  */
+  
 }
 
-void ImageBuffer::ScalePoints(PointCloud::Ptr points, float scale) {
+void ImageBuffer::ScalePoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, float scale) {
   // scale points based on image scale (for CAD images)
   PointCloud points_orig = *points;
   points->clear();
@@ -143,10 +142,10 @@ void ImageBuffer::ScalePoints(PointCloud::Ptr points, float scale) {
   }
 }
 
-bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
+bool ImageBuffer::WriteToImage(pcl::PointCloud<pcl::PointXYZ>::Ptr points,
                                const std::string &src_file_name,
                                const std::string &target_file_name,
-                               uint8_t r = 0, uint8_t g = 0, uint8_t b = 0) {
+                               uint8_t r, uint8_t g, uint8_t b) {
   // Note opencv use BGR not RGB
   cv::Vec3b color;
   color[0] = b;

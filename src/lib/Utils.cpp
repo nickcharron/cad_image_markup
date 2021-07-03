@@ -5,22 +5,22 @@ namespace cad_image_markup {
 namespace utils {
 
 // Provide default definitions for namespace variables
-image_offset_x_ = 0;
-image_offset_y_ = 0;
-center_image_called_ = false;
-camera_model_ = nullptr;
+double image_offset_x_ = 0;
+double image_offset_y_ = 0;
+bool center_image_called_ = false;
+std::shared_ptr<cad_image_markup::CameraModel> camera_model_ = nullptr;
 
-std::shared_ptr<beam_calibration::CameraModel> GetCameraModel() {
+std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel() {
   return camera_model_;
 }
 
 void ReadCameraModel(std::string intrinsics_file_path) {
-  camera_model_ = beam_calibration::CameraModel::Create(intrinsics_file_path);
+  camera_model_ = cad_image_markup::CameraModel::Create(intrinsics_file_path);
 }
 
-void Util::SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
+void SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
 
-void Util::OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
+void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
 
   // restore offset to all points
   for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
@@ -40,10 +40,10 @@ void OriginCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d centroid) {
 }
 
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
-  PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
+  PointCloud::Ptr proj_cloud (new pcl::PointCloud<pcl::PointXYZ>);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
-    std::optional<Eigen::Vector2d> pixel_projected;
+    cad_image_markup::optional<Eigen::Vector2d> pixel_projected;
     pixel_projected = camera_model_->ProjectPointPrecise(point);
     if (pixel_projected.has_value()) {
       pcl::PointXYZ proj_point(pixel_projected.value()(0),
@@ -65,10 +65,10 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   corrs->clear();
 
   // transform the CAD cloud points to the camera frame
-  PointCloud::Ptr trans_cloud = TransformCloud(cad_cloud, T);
+  PointCloud::Ptr trans_cloud = pcl::TransformPointCloud(cad_cloud, T);
 
   // project the transformed points to the camera plane
-  PointCloud::Ptr proj_cloud = this->ProjectCloud(trans_cloud);
+  PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
@@ -220,7 +220,7 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
 PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
-    const std::shared_ptr<beam_calibration::CameraModel>& camera_model) {
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
   PointCloud::Ptr back_projected_cloud = std::make_shared<PointCloud>();
 
   // get cad surface normal and point on the cad plane

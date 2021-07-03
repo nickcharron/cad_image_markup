@@ -14,6 +14,10 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/console/parse.h>
+#include <cad_image_markup/nlohmann/json.h>
+
+#include <cad_image_markup/Utils.h>
+
 
 namespace cad_image_markup {
 
