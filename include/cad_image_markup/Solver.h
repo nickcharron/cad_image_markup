@@ -75,7 +75,7 @@ class Solver {
   /**
    * @brief method for accessing results summary
    */
-  ResultsSummary GetResultsSummary();
+  //ceres::Solver::Summary::FullReport GetResultsSummary();
 
  private:
   /**
@@ -102,7 +102,7 @@ class Solver {
   bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
 
   // options
-  Params *params_;
+  Params params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables
@@ -112,7 +112,7 @@ class Solver {
   PointCloud::ConstPtr cad_cloud_;
 
   // new member variables
-  ResultsSummary summary_;
+  ceres::Solver::Summary summary_;
   std::vector<double> results_;
   std::vector<double> last_iteration_results_;
   pcl::CorrespondencesPtr corrs_;

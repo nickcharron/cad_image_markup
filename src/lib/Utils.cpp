@@ -86,7 +86,7 @@ void TransformCloud (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
 }
 
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
-                   PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
+                   PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
                    double max_corr_distance, int num_corrs) {
   
