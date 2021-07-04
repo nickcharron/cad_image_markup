@@ -10,6 +10,7 @@ add_library(${PROJECT_NAME}
   Gflags.cpp
   ImageBuffer.cpp
   Utils.cpp
+  Solver.cpp
 )
 target_compile_options(${PROJECT_NAME}
   PUBLIC

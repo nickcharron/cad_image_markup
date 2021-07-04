@@ -16,6 +16,7 @@
 #include <cad_image_markup/camera_models/DoubleSphere.h>
 #include <cad_image_markup/camera_models/KannalaBrandt.h>
 #include <string>
+#include <unsupported/Eigen/MatrixFunctions>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <stdio.h>
@@ -96,6 +97,22 @@ void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid);
  * @return projected planar cloud in the xy plane
  */
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
+
+/**
+ * @brief Method to apply a transform to a point cloud, same behavior as pcl transform function but
+ *        Easier to use with rest of project
+ * @param cloud_ original point cloud
+ * @param T_ transformation matrix 
+ * @return transformed point cloud
+ */
+pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, Eigen::Matrix4d &T);
+
+/**
+ * @brief Method to apply a transform to a point cloud by updating the original cloud
+ * @param cloud_ point cloud to transform
+ * @param T_ transformation matrix 
+ */
+void TransformCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, Eigen::Matrix4d &T);
 
 /**
   * @brief Method to get single correspondences between a CAD cloud projection and an

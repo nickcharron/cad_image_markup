@@ -54,6 +54,37 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
   return proj_cloud;
 }
 
+pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, Eigen::Matrix4d &T) {
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    
+    for(uint16_t i=0; i < cloud->size(); i++) {
+        Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
+        Eigen::Vector4d point_transformed = T*point; 
+        pcl::PointXYZ pcl_point_transformed (point_transformed(0), 
+            point_transformed(1), point_transformed(2));
+        trans_cloud->push_back(pcl_point_transformed);
+    }
+
+    return trans_cloud;
+
+}
+
+void TransformCloud (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, 
+                     Eigen::Matrix4d &T) {
+    
+    for(uint16_t i=0; i < cloud->size(); i++) {
+        Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, 
+            cloud->at(i).z, 1);
+        Eigen::Vector4d point_transformed = T*point; 
+        pcl::PointXYZ pcl_point_transformed (point_transformed(0), 
+            point_transformed(1), point_transformed(2));
+        cloud->at(i) = pcl_point_transformed;
+    }
+
+}
+
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                    PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
@@ -65,28 +96,29 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   corrs->clear();
 
   // transform the CAD cloud points to the camera frame
-  PointCloud::Ptr trans_cloud = pcl::TransformPointCloud(cad_cloud, T);
+  PointCloud::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  trans_cloud = TransformCloud(cad_cloud, T);
 
   // project the transformed points to the camera plane
   PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
-    pcl::PointXYZ camera_centroid = util::GetCloudCentroid(camera_cloud);
-    pcl::PointXYZ proj_centroid = util::GetCloudCentroid(proj_cloud);
+    pcl::PointXYZ camera_centroid = GetCloudCentroid(camera_cloud);
+    pcl::PointXYZ proj_centroid = GetCloudCentroid(proj_cloud);
 
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T(0, 3) = camera_centroid.x - proj_centroid.x;
     T(1, 3) = camera_centroid.y - proj_centroid.y;
     T(2, 3) = camera_centroid.z - proj_centroid.z;
-    pcl::transformPointCloud(*proj_cloud, proj_cloud, T);
+    TransformCloud(proj_cloud, T);
   }
 
   // Get correspondences 
 
   // Build kd tree from projected cloud
   pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
-  kdtree.setInputCloud (proj_cloud);
+  proj_kdtree.setInputCloud (proj_cloud);
 
   for(uint16_t i = 0; i<camera_cloud->size(); i++) {
     std::vector<int> target_neighbor_indices(num_corrs);
@@ -118,16 +150,14 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   }
 }
 
-
-
 Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
     const std::vector<double>& pose) {
   Eigen::Quaterniond q{pose[0], pose[1], pose[2], pose[3]};
   Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
   T.block(0, 0, 3, 3) = q.toRotationMatrix();
-  T(0, 3) = pose_[4];
-  T(1, 3) = pose_[5];
-  T(2, 3) = pose_[6];
+  T(0, 3) = pose[4];
+  T(1, 3) = pose[5];
+  T(2, 3) = pose[6];
   return T;
 }
 
@@ -159,7 +189,7 @@ void ScaleCloud(PointCloud::Ptr cloud, float scale) {
 }
 
 PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale) {
-  PointCloud::Ptr scaled_cloud = std::make_shared<PointCloud>();
+  pcl::PointCloud<pcl::PointXYZ>::Ptr scaled_cloud (new pcl::PointCloud<pcl::PointXYZ>);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     pcl::PointXYZ to_add;
     to_add.x = cloud->at(i).x * scale;
@@ -188,9 +218,9 @@ void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
 
   Eigen::Matrix3d R;
   // TODO CAM: check order and put in README
-  R = AngleAxisf(utils::DegToRad(J["pose"][3]), Vector3f::UnitX()) *
-      AngleAxisf(utils::DegToRad(J["pose"][4]), Vector3f::UnitY()) *
-      AngleAxisf(utils::DegToRad(J["pose"][5]), Vector3f::UnitZ());
+  R = Eigen::AngleAxisd(DegToRad(J["pose"][3]), Eigen::Vector3d::UnitX()) *
+      Eigen::AngleAxisd(DegToRad(J["pose"][4]), Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(DegToRad(J["pose"][5]), Eigen::Vector3d::UnitZ());
 
   T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
   T_WORLD_CAMERA.block(0, 0, 3, 3) = R;
@@ -200,9 +230,10 @@ void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
 }
 
 pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
-  pcl::ModelCoefficients::Ptr coefficients =
-      std::make_shared<pcl::ModelCoefficients>();
-  pcl::PointIndices::Ptr inliers = std::make_shared<pcl::PointIndice>();
+  pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+      //std::make_shared<pcl::ModelCoefficients>();
+  pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+  //= std::make_shared<pcl::PointIndice>();
 
   // Create the segmentation object
   pcl::SACSegmentation<pcl::PointXYZ> seg;
@@ -221,7 +252,7 @@ PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
-  PointCloud::Ptr back_projected_cloud = std::make_shared<PointCloud>();
+  PointCloud::Ptr back_projected_cloud (new pcl::PointCloud<pcl::PointXYZ>);
 
   // get cad surface normal and point on the cad plane
   Eigen::Vector3d cad_normal(target_plane->values[0], target_plane->values[1],
@@ -255,16 +286,6 @@ pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud) {
   pcl::computeCentroid(*cloud, centroid);
   centroid.z = 0;
   return centroid;
-}
-
-void GetCorrespondences(pcl::CorrespondencesPtr corrs,
-                        PointCloud::ConstPtr source_coud,
-                        PointCloud::ConstPtr target_cloud, uint16_t max_dist_) {
-  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
-      corr_est;
-  corr_est.setInputSource(source_coud_);
-  corr_est.setInputTarget(target_cloud_);
-  corr_est.determineCorrespondences(*corrs, max_dist);
 }
 
 Eigen::Matrix4d PerturbTransformRadM(const Eigen::Matrix4d& T,
