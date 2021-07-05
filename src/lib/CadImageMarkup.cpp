@@ -42,6 +42,7 @@ bool Params::LoadFromJson(const std::string& path) {
     return false;
   }
     
+  max_corr_distance = J_solution_options["max_corr_distance"];
 
   nlohmann::json J_convergence_options = J["solver_options"];
   if (J_convergence_options["convergence_type"] == "LOSS_CONVERGENCE")
@@ -118,7 +119,11 @@ bool CadImageMarkup::Setup() {
     }
   }
 
-  solver_ = std::make_unique<Solver>(camera_model,params_);
+  Params* params_ptr = std::make_shared<Params>;
+
+  params_ptr = &params_;
+
+  solver_ = std::make_unique<Solver>(camera_model,params_ptr);
 
 }
 

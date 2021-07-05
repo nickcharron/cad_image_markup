@@ -55,7 +55,7 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
 }
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, Eigen::Matrix4d &T) {
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, const Eigen::Matrix4d &T) {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
     
@@ -72,7 +72,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
 }
 
 void TransformCloud (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, 
-                     Eigen::Matrix4d &T) {
+                     const Eigen::Matrix4d &T) {
     
     for(uint16_t i=0; i < cloud->size(); i++) {
         Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, 

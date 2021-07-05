@@ -12,9 +12,9 @@ namespace cad_image_markup {
 #define ABS_CONVERGENCE 1
 
 Solver::Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model,
-               const struct Params& params)
+               const struct Params* params)
     : camera_model_(camera_model), params_(params) {
-  ceres_params_ = optimization::CeresParams(params_.ceres_params_path);
+  ceres_params_ = optimization::CeresParams(params_->ceres_params_path);
   visualizer_ = std::make_shared<Visualizer>("solution visualizer"); // Initialize visualizer directly in Solver
 }
 
@@ -37,25 +37,30 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_c
   
   bool has_converged = false;
 
-  PointCloud::Ptr CAD_cloud_scaled = utils::ScaleCloud(cad_cloud, params_.cad_cloud_scale);
+  PointCloud::Ptr CAD_cloud_scaled = utils::ScaleCloud(cad_cloud, params_->cad_cloud_scale);
 
   // correspondence object tells the cost function which points to compare
   pcl::CorrespondencesPtr proj_corrs (new pcl::Correspondences);
 
   // transform, project, and get correspondences
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
-                params_.align_centroids, params_.correspondence_type);
+                params_->align_centroids, params_->max_corr_distance, params_->correspondence_type);
 
-  if (params_.visualize) visualizer_->startVis();
+  void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
+                   PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
+                   pcl::CorrespondencesPtr corrs, bool align_centroids,
+                   double max_corr_distance, int num_corrs) {
+
+  if (params_->visualize) visualizer_->StartVis();
 
   // loop problem until it has converged
-  while (!has_converged && solution_iterations_ < params_.max_solution_iterations) {
+  while (!has_converged && solution_iterations_ < params_->max_solution_iterations) {
     solution_iterations_++;
 
     printf("Solver iteration %u \n", solution_iterations_);
 
-    if (params_.visualize) {
-      UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+    if (params_->visualize) {
+      bool success = UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
     }
 
     BuildCeresProblem(problem_, proj_corrs, camera_model_, camera_cloud_,
@@ -65,14 +70,9 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_c
 
     T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
-    if (transform_progress_to_stdout_) {
-      std::string sep = "\n----------------------------------------\n";
-      std::cout << T_WORLD_CAMERA << sep;
-    }
-
     // transform, project, and get correspondences
     utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, 
-                  params_.align_centroids, params_.correspondence_type);
+                  params_->align_centroids, params_->correspondence_type);
 
     has_converged = HasConverged();
 
@@ -81,7 +81,7 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_c
 
   }
 
-  if (params_.visualize) visualizer_->endVis();
+  if (params_->visualize) visualizer_->EndVis();
   if (has_converged)
     return true;
   
@@ -99,7 +99,7 @@ Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() {
 //Solver::Summary::FullReport Solver::GetResultsSummary() { return summary_; }
 
 void Solver::BuildCeresProblem() {
-  if (params_.output_results) {
+  if (params_->output_results) {
     LOG_INFO("Building ceres problem...");
   }
   // initialize problem
@@ -122,7 +122,7 @@ void Solver::BuildCeresProblem() {
 
     // If two correspondences have been specified, every second correspondence should 
     // be the second correspondence for the same source point
-    if (params_.correspondence_type == P2PLANE) {
+    if (params_->correspondence_type == P2PLANE) {
       i++;
       P_STRUCT2(0) = cad_cloud_->at(corrs_->at(i).index_match).x;
       P_STRUCT2(1) = cad_cloud_->at(corrs_->at(i).index_match).y;
@@ -139,11 +139,11 @@ void Solver::BuildCeresProblem() {
     std::unique_ptr<ceres::LossFunction> loss_function =
         ceres_params_.LossFunction();
 
-    if (params_.correspondence_type == P2POINT)
+    if (params_->correspondence_type == P2POINT)
       problem_->AddResidualBlock(cost_function1.release(), loss_function.get(),
                                &(results_[0]));
 
-    else if (params_.correspondence_type == P2PLANE) 
+    else if (params_->correspondence_type == P2PLANE) 
       problem_->AddResidualBlock(cost_function2.release(), loss_function.get(),
                                &(results_[0]));
   }
@@ -152,7 +152,7 @@ void Solver::BuildCeresProblem() {
 void Solver::SolveCeresProblem() {
   //ceres::Solver::Summary ceres_summary;
 
-  if (params_.output_results) {
+  if (params_->output_results) {
     LOG_INFO("Solving ceres problem...");
     ceres::Solve(ceres_params_.SolverOptions(), problem_.get(),
                  &summary_);
@@ -173,45 +173,45 @@ bool Solver::HasConverged(){
       return false;
 
     // Check ceres loss convergence conditions
-    if(params_.convergence_type == LOSS_CONVERGENCE) {
+    if(params_->convergence_type == LOSS_CONVERGENCE) {
       double differential_cost = std::abs(summary_.ceres_results.final_cost - last_iteration_cost_); 
-      if ((differential_cost <= params_.converged_differential_cost 
-          && params_.convergence_condition == DIFF_CONVERGENCE)
-          || (summary_.ceres_results.final_cost <= params_.converged_absolute_cost 
-          && params_.convergence_condition == ABS_CONVERGENCE))
+      if ((differential_cost <= params_->converged_differential_cost 
+          && params_->convergence_condition == DIFF_CONVERGENCE)
+          || (summary_.ceres_results.final_cost <= params_->converged_absolute_cost 
+          && params_->convergence_condition == ABS_CONVERGENCE))
         return true
     }
 
     // Check physical geometric convergence conditions
     // Assumes that conditions are provided in the same unit as the cloud scale
-    else if (params_.convergence_type = GEO_CONVERGENCE) {
+    else if (params_->convergence_type = GEO_CONVERGENCE) {
 
       Eigen::Quaterniond q_current{results_[0], results_[1], results_[2], results_[3]};
-      Eigen::Vector3f euler_angles_current = q.toRotationMatrix().eulerAngles(0, 1, 2);
+      Eigen::Vector3d euler_angles_current = q_current.toRotationMatrix().eulerAngles(0, 1, 2);
 
       Eigen::Quaterniond q_last{last_iteration_results_[0], last_iteration_results_[1], last_iteration_results_[2], last_iteration_results_[3]};
-      Eigen::Vector3f euler_angles_last = q.toRotationMatrix().eulerAngles(0, 1, 2);
+      Eigen::Vector3d euler_angles_last = q_last.toRotationMatrix().eulerAngles(0, 1, 2);
 
       // Check absolute conditions - may not exist 
       /*
-      if (euler_angles_current(0) <= params_.converged_absolute_rotation
-          && euler_angles_current(1) <= params_.converged_absolute_rotation
-          && euler_angles_current(2) <= params_.converged_absolute_rotation
-          && results_[4] < params_.converged_absolute_translation
-          && results_[5] < params_.converged_absolute_translation
-          && results_[6] < params_.converged_absolute_translation
-          && params_.convergence_condition == ABS_CONVERGENCE)
+      if (euler_angles_current(0) <= params_->converged_absolute_rotation
+          && euler_angles_current(1) <= params_->converged_absolute_rotation
+          && euler_angles_current(2) <= params_->converged_absolute_rotation
+          && results_[4] < params_->converged_absolute_translation
+          && results_[5] < params_->converged_absolute_translation
+          && results_[6] < params_->converged_absolute_translation
+          && params_->convergence_condition == ABS_CONVERGENCE)
         return true;
       */
 
       // Check differential condition 
-      if (std::abs(euler_angles_current(0)-euler_angles_last(0)) <= params_.converged_differential_rotation
-          && std::abs(euler_angles_current(1)-euler_angles_last(1)) <= params_.converged_differential_rotation
-          && std::abs(euler_angles_current(2)-euler_angles_last(2)) <= params_.converged_differential_rotation
-          && std::abs(results_[4] - last_iteration_results_[4]) < params_.converged_differential_translation
-          && std::abs(results_[5] - last_iteration_results_[5]) < params_.converged_differential_translation
-          && std::abs(results_[6] - last_iteration_results_[6]) < params_.converged_differential_translation
-          && params_.convergence_condition == DIFF_CONVERGENCE)
+      if (std::abs(euler_angles_current(0)-euler_angles_last(0)) <= params_->converged_differential_rotation
+          && std::abs(euler_angles_current(1)-euler_angles_last(1)) <= params_->converged_differential_rotation
+          && std::abs(euler_angles_current(2)-euler_angles_last(2)) <= params_->converged_differential_rotation
+          && std::abs(results_[4] - last_iteration_results_[4]) < params_->converged_differential_translation
+          && std::abs(results_[5] - last_iteration_results_[5]) < params_->converged_differential_translation
+          && std::abs(results_[6] - last_iteration_results_[6]) < params_->converged_differential_translation
+          && params_->convergence_condition == DIFF_CONVERGENCE)
         return true;
 
       return false;
@@ -224,13 +224,13 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d&
 
   // update the position of the transformed cloud based on
   // the upated transformation matrix for visualization
-  PointCloud::Ptr trans_cloud = utils::TransformCloud(CAD_cloud_scaled, T_CS);
+  PointCloud::Ptr trans_cloud = utils::TransformCloud(CAD_cloud_scaled, T_WORLD_CAMERA);
 
   // project cloud for visualizer
   PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud);
 
   // blow up the transformed cloud for visualization
-  utils::ScaleCloud(trans_cloud, (1 / params_.cad_cloud_scale));
+  utils::ScaleCloud(trans_cloud, (1 / params_->cad_cloud_scale));
 
   visualizer_->displayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
                          "camera_cloud", "transformed_cloud",

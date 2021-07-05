@@ -16,6 +16,7 @@ namespace cad_image_markup {
    *                       at each iteration
    * @param correspondence_type correspondence type for point-to-point solution or point-
    *                            to-plane solution - options are "P2POINT" or "P2PLANE"
+   * @param max_corr_distance maximum distance for the solver to generate a correspondence (in pixels)
    * @param align_centroids option to align target and source centroids during correspondence
    *                        estimation
    * @param convergence_type convergence based on problem loss or transform geometry - options
@@ -51,6 +52,7 @@ namespace cad_image_markup {
     bool output_results;
     int correspondence_type; // "P2POINT" or "P2PLANE" 
     bool align_centroids;
+    double max_corr_distance;
 
     // Convergence options
     int convergence_type; // "LOSS_CONVERGENCE" or "GEO_CONVERGENCE"
@@ -59,6 +61,7 @@ namespace cad_image_markup {
     double converged_absolute_cost;
     double converged_differential_translation;
     double converged_differential_rotation;
+
 
     double cad_density_index{2};
     double cam_density_index{10};

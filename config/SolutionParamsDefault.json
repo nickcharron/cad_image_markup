@@ -6,7 +6,8 @@
     "visualize": true,
     "output_results": true, 
     "align_centroids": true,
-    "correspondence_type": "P2POINT"
+    "correspondence_type": "P2POINT",
+    "max_corr_distance": 1000
   },
   "convergence_options":
   {

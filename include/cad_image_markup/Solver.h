@@ -102,7 +102,7 @@ class Solver {
   bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
 
   // options
-  Params params_;
+  Params *params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables
