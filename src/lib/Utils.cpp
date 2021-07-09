@@ -111,7 +111,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     T(0, 3) = camera_centroid.x - proj_centroid.x;
     T(1, 3) = camera_centroid.y - proj_centroid.y;
     T(2, 3) = camera_centroid.z - proj_centroid.z;
-    TransformCloud(proj_cloud, T);
+    TransformCloudUpdate(proj_cloud, T);
   }
 
   // Get correspondences 

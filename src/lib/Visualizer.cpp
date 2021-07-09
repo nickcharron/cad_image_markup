@@ -18,7 +18,7 @@ Visualizer::~Visualizer() {}
 
 void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_ =
-      boost::make_shared<pcl::visualization::PCLVisualizer>(display_name);
+      boost::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
   point_cloud_display_->setBackgroundColor(0, 0, 0);
   point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
@@ -26,7 +26,7 @@ void Visualizer::StartVis(uint16_t coord_size) {
   continue_flag_.test_and_set(std::memory_order_relaxed);
 
   // start the visualizer spinning in its own thread
-  vis_thread_ = std::thread(&Visualizer::spin, this);
+  vis_thread_ = std::thread(&Visualizer::Spin, this);
 }
 
 void Visualizer::EndVis() {

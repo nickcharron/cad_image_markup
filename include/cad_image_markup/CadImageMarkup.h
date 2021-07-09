@@ -53,6 +53,7 @@ namespace cad_image_markup {
     int correspondence_type; // "P2POINT" or "P2PLANE" 
     bool align_centroids;
     double max_corr_distance;
+    bool minimizer_progress_to_stdout;
 
     // Convergence options
     int convergence_type; // "LOSS_CONVERGENCE" or "GEO_CONVERGENCE"

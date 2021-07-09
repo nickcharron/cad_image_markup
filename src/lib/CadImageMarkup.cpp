@@ -119,7 +119,7 @@ bool CadImageMarkup::Setup() {
     }
   }
 
-  Params* params_ptr = std::make_shared<Params>;
+  Params* params_ptr;
 
   params_ptr = &params_;
 

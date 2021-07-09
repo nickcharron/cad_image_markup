@@ -112,7 +112,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud(pcl::PointCloud<pcl::PointXYZ
  * @param cloud_ point cloud to transform
  * @param T_ transformation matrix 
  */
-void TransformCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const Eigen::Matrix4d &T);
+void TransformCloudUpdate(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const Eigen::Matrix4d &T);
 
 /**
   * @brief Method to get single correspondences between a CAD cloud projection and an

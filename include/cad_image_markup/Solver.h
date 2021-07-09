@@ -41,7 +41,7 @@ class Solver {
    * @param params params needed for this class
    */
   Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model,
-         const Params& params);
+         const Params* params);
 
   /**
    * @brief Constructor with default params
@@ -64,7 +64,7 @@ class Solver {
    * @return success boolean
    */
   bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-             const Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize);
+             Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize);
 
   /**
    * @brief Accessor method to retrieve the final transform results
@@ -81,7 +81,8 @@ class Solver {
   /**
    * @brief Method for building the Ceres problem by adding the residual blocks
    */
-  void BuildCeresProblem();
+  void BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
+                         PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud);
 
   /**
    * @brief Method to call the ceres solver on the individual ceres problem
@@ -102,7 +103,7 @@ class Solver {
   bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
 
   // options
-  Params *params_;
+  const Params *params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables

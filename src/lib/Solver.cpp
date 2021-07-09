@@ -24,7 +24,7 @@ Solver::Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model)
 }
 
 bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-           const Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize) {
+          Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize) {
   //cad_cloud_ = cad_cloud;
   //camera_cloud_ = camera_cloud;             
   // TODO CAM: update this: 
@@ -47,9 +47,9 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_c
                 params_->align_centroids, params_->max_corr_distance, params_->correspondence_type);
 
   void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
-                   PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
-                   pcl::CorrespondencesPtr corrs, bool align_centroids,
-                   double max_corr_distance, int num_corrs) {
+             PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
+             pcl::CorrespondencesPtr corrs, bool align_centroids,
+             double max_corr_distance, int num_corrs);
 
   if (params_->visualize) visualizer_->StartVis();
 
@@ -60,19 +60,25 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_c
     printf("Solver iteration %u \n", solution_iterations_);
 
     if (params_->visualize) {
-      bool success = UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+      if (!UpdateVisualizer(CAD_cloud_scaled, T_WORLD_CAMERA, proj_corrs))
+        return false;
     }
 
-    BuildCeresProblem(problem_, proj_corrs, camera_model_, camera_cloud_,
+    BuildCeresProblem(proj_corrs, camera_model_, camera_cloud_,
                       CAD_cloud_scaled);
 
-    SolveCeresProblem(problem_, minimizer_progress_to_stdout_);
+    SolveCeresProblem();
 
     T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
     // transform, project, and get correspondences
     utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs, 
-                  params_->align_centroids, params_->correspondence_type);
+                  params_->align_centroids, params_->max_corr_distance, params_->correspondence_type);
+
+                  void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
+             PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
+             pcl::CorrespondencesPtr corrs, bool align_centroids,
+             double max_corr_distance, int num_corrs);
 
     has_converged = HasConverged();
 
@@ -98,7 +104,9 @@ Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() {
 
 //Solver::Summary::FullReport Solver::GetResultsSummary() { return summary_; }
 
-void Solver::BuildCeresProblem() {
+void Solver::BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, 
+                               std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
+                               PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud) {
   if (params_->output_results) {
     LOG_INFO("Building ceres problem...");
   }
@@ -110,13 +118,13 @@ void Solver::BuildCeresProblem() {
   problem_->AddParameterBlock(&(results_[0]), 7, parameterization.get());
 
   // add residuals
-  for (int i = 0; i < corrs_->size(); i++) {
-    Eigen::Vector2d pixel(camera_cloud_->at(corrs_->at(i).index_query).x,
-                          camera_cloud_->at(corrs_->at(i).index_query).y);
+  for (int i = 0; i < proj_corrs->size(); i++) {
+    Eigen::Vector2d pixel(camera_cloud->at(proj_corrs->at(i).index_query).x,
+                          camera_cloud->at(proj_corrs->at(i).index_query).y);
 
-    Eigen::Vector3d P_STRUCT1(cad_cloud_->at(corrs_->at(i).index_match).x,
-                             cad_cloud_->at(corrs_->at(i).index_match).y,
-                             cad_cloud_->at(corrs_->at(i).index_match).z);
+    Eigen::Vector3d P_STRUCT1(cad_cloud->at(proj_corrs->at(i).index_match).x,
+                             cad_cloud->at(proj_corrs->at(i).index_match).y,
+                             cad_cloud->at(proj_corrs->at(i).index_match).z);
     
     Eigen::Vector3d P_STRUCT2;
 
@@ -124,9 +132,9 @@ void Solver::BuildCeresProblem() {
     // be the second correspondence for the same source point
     if (params_->correspondence_type == P2PLANE) {
       i++;
-      P_STRUCT2(0) = cad_cloud_->at(corrs_->at(i).index_match).x;
-      P_STRUCT2(1) = cad_cloud_->at(corrs_->at(i).index_match).y;
-      P_STRUCT2(2) = cad_cloud_->at(corrs_->at(i).index_match).z;
+      P_STRUCT2(0) = cad_cloud->at(proj_corrs->at(i).index_match).x;
+      P_STRUCT2(1) = cad_cloud->at(proj_corrs->at(i).index_match).y;
+      P_STRUCT2(2) = cad_cloud->at(proj_corrs->at(i).index_match).z;
     }
 
     // Add the appropriate cost function and loss function
@@ -134,7 +142,7 @@ void Solver::BuildCeresProblem() {
           CeresReprojectionCostFunction::Create(pixel, P_STRUCT1, camera_model_));
 
     std::unique_ptr<ceres::CostFunction> cost_function2(
-          CeresReprojectionCostFunctionPlane::Create(pixel, P_STRUCT1, P_STRUCT2, camera_model_));
+          point_to_line_cost::CeresReprojectionCostFunction::Create(pixel, P_STRUCT1, P_STRUCT2, camera_model_));
 
     std::unique_ptr<ceres::LossFunction> loss_function =
         ceres_params_.LossFunction();
@@ -169,7 +177,7 @@ void Solver::SolveCeresProblem() {
 bool Solver::HasConverged(){
 
     // Cannot converge on a single solver iteration
-    if(solution_iterations <= 1)
+    if(solution_iterations_ <= 1)
       return false;
 
     // Check ceres loss convergence conditions
@@ -184,7 +192,7 @@ bool Solver::HasConverged(){
 
     // Check physical geometric convergence conditions
     // Assumes that conditions are provided in the same unit as the cloud scale
-    else if (params_->convergence_type = GEO_CONVERGENCE) {
+    else if (params_->convergence_type == GEO_CONVERGENCE) {
 
       Eigen::Quaterniond q_current{results_[0], results_[1], results_[2], results_[3]};
       Eigen::Vector3d euler_angles_current = q_current.toRotationMatrix().eulerAngles(0, 1, 2);
@@ -232,7 +240,7 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d&
   // blow up the transformed cloud for visualization
   utils::ScaleCloud(trans_cloud, (1 / params_->cad_cloud_scale));
 
-  visualizer_->displayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
+  visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
                          "camera_cloud", "transformed_cloud",
                          "projected_cloud");
 
@@ -244,7 +252,7 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d&
   }
 
   if (end == 'r') return false;
-  return true 
+  return true;
 }
 
 }  // namespace cad_image_markup
