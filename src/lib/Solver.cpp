@@ -27,10 +27,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_c
           Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize) {
   //cad_cloud_ = cad_cloud;
   //camera_cloud_ = camera_cloud;             
-  // TODO CAM: update this: 
-  // Remaining todo: 
-  //    update convergence checking and error estimation 
-  // ALSO: create a separate function for calculating correspondencs to make this more clear
 
   solution_iterations_ = 0;
   last_iteration_cost_ = 0;
@@ -182,12 +178,12 @@ bool Solver::HasConverged(){
 
     // Check ceres loss convergence conditions
     if(params_->convergence_type == LOSS_CONVERGENCE) {
-      double differential_cost = std::abs(summary_.ceres_results.final_cost - last_iteration_cost_); 
+      double differential_cost = std::abs(summary_.final_cost - last_iteration_cost_); 
       if ((differential_cost <= params_->converged_differential_cost 
           && params_->convergence_condition == DIFF_CONVERGENCE)
-          || (summary_.ceres_results.final_cost <= params_->converged_absolute_cost 
+          || (summary_.final_cost <= params_->converged_absolute_cost 
           && params_->convergence_condition == ABS_CONVERGENCE))
-        return true
+        return true;
     }
 
     // Check physical geometric convergence conditions

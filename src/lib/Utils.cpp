@@ -29,13 +29,13 @@ void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
   }
 }
 
-void OriginCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d centroid) {
+void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid) {
   uint16_t num_points = cloud->size();
 
   // shift all points back to center on origin
   for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    cloud->at(point_index).x -= (int)centroid(0);
-    cloud->at(point_index).y -= (int)centroid(1);
+    cloud->at(point_index).x -= centroid.x;
+    cloud->at(point_index).y -= centroid.y;
   }
 }
 
@@ -71,7 +71,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
 
 }
 
-void TransformCloud (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, 
+void TransformCloudUpdate (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, 
                      const Eigen::Matrix4d &T) {
     
     for(uint16_t i=0; i < cloud->size(); i++) {

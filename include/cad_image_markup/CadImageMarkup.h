@@ -68,6 +68,8 @@ namespace cad_image_markup {
     double cam_density_index{10};
   };
 
+  class Solver; //Forward declaration of Solver Class
+
 /**
  * @brief TODO
  */
