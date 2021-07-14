@@ -10,17 +10,18 @@
 #include <pcl/registration/correspondence_estimation.h>
 #include <pcl/ModelCoefficients.h>
 #include <pcl/segmentation/sac_segmentation.h>
-#include <beam_calibration/CameraModel.h>
-#include <beam_calibration/Ladybug.h>
-#include <beam_calibration/Radtan.h>
-#include <beam_calibration/DoubleSphere.h>
-#include <beam_calibration/KannalaBrandt.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <cad_image_markup/camera_models/CameraModel.h>
+#include <cad_image_markup/camera_models/Radtan.h>
+#include <cad_image_markup/camera_models/DoubleSphere.h>
+#include <cad_image_markup/camera_models/KannalaBrandt.h>
 #include <string>
+#include <unsupported/Eigen/MatrixFunctions>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <stdio.h>
-#include <optional>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/Optional.h>
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace cad_image_markup {
 
@@ -44,96 +45,95 @@ namespace cad_image_markup {
 
 using PointCloud = pcl::PointCloud<pcl::PointXYZ>;
 
-/**
- * @brief General utility class
- * @todo CAM: I don't think this should be a class, I think utils functions are
- * good enough. You client code can easily keep track of the offesets and you
- * can feed the camera model directly to the two or three functions that need
- * it. Note: this has been implemented as a class in order to store a local
- * camera model as well as internally keep track of offsets that have been
- * applied to clouds
- */
-class Util {
- public:
-  /**
-   * @brief Constructor
-   */
-  Util() = default;
-
-  /**
-   * @brief Default destructor
-   */
-  ~Util() = default;
-
-  /**
-   * @brief Accessor method to retrieve camera model
-   * @return camera model
-   */
-  std::shared_ptr<beam_calibration::CameraModel> GetCameraModel();
-
-  /**
-   * @brief Method to read the camera model used by the utility object from a
-   * config file
-   * @param intrinsics_file_path_ absolute path to the camera configuration file
-   */
-  void ReadCameraModel(std::string intrinsics_file_path);
-
-  /**
-   * @brief Setter method to set the camera ID used by the camera model
-   * this is currently only applicable to the ladybug camera model
-   * @param cam_ID_ ID of the camera intrinsics set to use
-   */
-  void SetCameraID(uint8_t cam_ID);
-
-  /**
-   * @brief Method to restore a cloud after it has been centered in x and y
-   * this can only be used after having called originCloudxy with the same
-   * utility object
-   * @param cloud cloud to be offset
-   */
-  void OffsetCloudxy(PointCloud::Ptr cloud);
-
-  /**
-   * @brief Method to center a cloud on the origin in the xy plane
-   * cloud is centered based on its maximum dimensions in x and y
-   * @param cloud cloud to be centered
-   */
-  void OriginCloudxy(PointCloud::Ptr cloud);
-
-  /**
-   * @brief Method to use camera model to project a point cloud into the xy
-   * plane
-   * @param cloud point cloud to project
-   * @return projected planar cloud in the xy plane
-   */
-  PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
-
-  /**
-   * @brief Method to get correspondences between a CAD cloud projection and an
-   * image cloud given transformation matrix
-   * @param CAD_cloud CAD structure cloud (centered, at correct scale,
-   * untransformed)
-   * @param camera_cloud camera image label cloud
-   * @param T transformation matrix to apply to CAD cloud before projecting
-   * (usually T_CS)
-   * @param corrs nearest-neighbor correspondences between the CAD cloud
-   * projection and the camera image cloud
-   * @param max_corr_distance
-   * @param align_centroids
-   */
-  void CorrEst(PointCloud::ConstPtr CAD_cloud,
-               PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
-               pcl::CorrespondencesPtr corrs, bool align_centroids,
-               double max_corr_distance);
-
- private:
-  std::shared_ptr<beam_calibration::CameraModel> camera_model_;
-  double image_offset_x_;
-  double image_offset_y_;
-  bool center_image_called_{false};
-};
 
 namespace utils {
+
+extern double image_offset_x_;
+extern double image_offset_y_;
+extern bool center_image_called_;
+extern std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
+
+/**
+ * @brief Accessor method to retrieve camera model
+ * @return camera model
+ * CAM NOTE: not sure if this should return the utility camera model, or a copy (probably the pointer since you might need to change it)
+ */
+std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel();
+
+/**
+ * @brief Method to read the camera model used by the utility object from a
+ * config file
+ * @param intrinsics_file_path_ absolute path to the camera configuration file
+ * @note There can exist only one utility camera model at a time 
+ */
+void ReadCameraModel(std::string intrinsics_file_path);
+
+/**
+ * @brief Method to set the camera ID used by the camera model
+ * this is currently only applicable to the ladybug camera model
+ * @param cam_ID_ ID of the camera intrinsics set to use
+ */
+void SetCameraID(uint8_t cam_ID);
+
+/**
+ * @brief Method to offset a cloud in x and y
+ * @param cloud cloud to be offset
+ * @param offset x and y offset to ba applied to the cloud
+ */
+void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset);
+
+/**
+ * @brief Method to center a cloud on the origin in the xy plane
+ * cloud is centered by shifting its centroid to the origin
+ * @param cloud cloud to be centered
+ * @param centroid centroid of could
+ */
+void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid);
+
+/**
+ * @brief Method to use camera model to project a point cloud into the xy
+ * plane
+ * @param cloud point cloud to project
+ * @return projected planar cloud in the xy plane
+ */
+PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
+
+/**
+ * @brief Method to apply a transform to a point cloud, same behavior as pcl transform function but
+ *        Easier to use with rest of project
+ * @param cloud_ original point cloud
+ * @param T_ transformation matrix 
+ * @return transformed point cloud
+ */
+pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, const Eigen::Matrix4d &T);
+
+/**
+ * @brief Method to apply a transform to a point cloud by updating the original cloud
+ * @param cloud_ point cloud to transform
+ * @param T_ transformation matrix 
+ */
+void TransformCloudUpdate(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const Eigen::Matrix4d &T);
+
+/**
+  * @brief Method to get single correspondences between a CAD cloud projection and an
+  * image cloud given transformation matrix
+  * @param cad_cloud CAD structure cloud (centered, at correct scale,
+  * untransformed)
+  * @param camera_cloud camera image label cloud
+  * @param T transformation matrix to apply to CAD cloud before projecting
+  * (usually T_CS)
+  * @param corrs nearest-neighbor correspondences between the CAD cloud
+  * projection and the camera image cloud (image point to nearest structure point)
+  * @param max_corr_distance
+  * @param num_corrs number of targets points for each source point(1 or 2)
+  * @param align_centroids
+  */
+void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
+             PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
+             pcl::CorrespondencesPtr corrs, bool align_centroids,
+             double max_corr_distance, int num_corrs);
+
+
 /**
  * @brief Method to convert a vector of quaternions and translations to a
  * transformation matrix
@@ -215,7 +215,7 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
 PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
-    const std::shared_ptr<beam_calibration::CameraModel>& camera_model);
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
 

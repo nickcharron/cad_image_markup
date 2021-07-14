@@ -1,0 +1,205 @@
+TEST ONE RESULTS: 
+
+inital pose: (-1,-1)
+
+solving with 5 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 76.000000
+average solver iterations for successful solutions: 6.000000
+level 2:
+percent of solutions completed successfully: 65.000000
+average solver iterations for successful solutions: 8.092308
+level 3:
+percent of solutions completed successfully: 73.000000
+average solver iterations for successful solutions: 12.301370
+level 4:
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+W1209 18:11:32.161772  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:11:32.161934  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 48.000000
+average solver iterations for successful solutions: 14.062500
+
+solving with 10 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 74.000000
+average solver iterations for successful solutions: 7.635135
+level 2:
+percent of solutions completed successfully: 72.000000
+average solver iterations for successful solutions: 15.388889
+level 3:
+percent of solutions completed successfully: 70.000000
+average solver iterations for successful solutions: 14.100000
+level 4:
+W1209 18:15:48.979130  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:15:48.979198  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 58.000000
+average solver iterations for successful solutions: 19.655172
+
+solving with 15 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 74.000000
+average solver iterations for successful solutions: 7.810811
+level 2:
+percent of solutions completed successfully: 71.000000
+average solver iterations for successful solutions: 13.760563
+level 3:
+percent of solutions completed successfully: 72.000000
+average solver iterations for successful solutions: 16.208333
+level 4:
+W1209 18:20:07.700446  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:20:07.700516  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 57.000000
+average solver iterations for successful solutions: 21.192982
+
+solving with 20 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 75.000000
+average solver iterations for successful solutions: 7.986667
+level 2:
+percent of solutions completed successfully: 72.000000
+average solver iterations for successful solutions: 14.527778
+level 3:
+percent of solutions completed successfully: 72.000000
+average solver iterations for successful solutions: 16.152778
+level 4:
+W1209 18:24:26.697576  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:24:26.697659  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 57.000000
+average solver iterations for successful solutions: 21.473684
+
+solving with 25 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 75.000000
+average solver iterations for successful solutions: 7.920000
+level 2:
+percent of solutions completed successfully: 73.000000
+average solver iterations for successful solutions: 15.575342
+level 3:
+percent of solutions completed successfully: 73.000000
+average solver iterations for successful solutions: 16.397260
+level 4:
+W1209 18:28:48.417270  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:28:48.417351  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 58.000000
+average solver iterations for successful solutions: 21.982759
+
+solving with 30 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 74.000000
+average solver iterations for successful solutions: 7.959459
+level 2:
+percent of solutions completed successfully: 71.000000
+average solver iterations for successful solutions: 13.732394
+level 3:
+percent of solutions completed successfully: 72.000000
+average solver iterations for successful solutions: 16.222222
+level 4:
+W1209 18:33:19.967990  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:33:19.968056  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 57.000000
+average solver iterations for successful solutions: 21.175439
+
+solving with 35 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 74.000000
+average solver iterations for successful solutions: 6.837838
+level 2:
+percent of solutions completed successfully: 68.000000
+average solver iterations for successful solutions: 11.485294
+level 3:
+percent of solutions completed successfully: 71.000000
+average solver iterations for successful solutions: 15.084507
+level 4:
+W1209 18:38:19.155179  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:38:19.155278  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 53.000000
+average solver iterations for successful solutions: 18.000000
+
+solving with 40 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 73.000000
+average solver iterations for successful solutions: 6.767123
+level 2:
+percent of solutions completed successfully: 69.000000
+average solver iterations for successful solutions: 12.434783
+level 3:
+percent of solutions completed successfully: 71.000000
+average solver iterations for successful solutions: 15.084507
+level 4:
+W1209 18:43:53.243352  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:43:53.243451  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 53.000000
+average solver iterations for successful solutions: 17.962264
+
+solving with 45 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 74.000000
+average solver iterations for successful solutions: 6.810811
+level 2:
+percent of solutions completed successfully: 68.000000
+average solver iterations for successful solutions: 11.661765
+level 3:
+percent of solutions completed successfully: 71.000000
+average solver iterations for successful solutions: 15.098592
+level 4:
+W1209 18:49:38.759214  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:49:38.759297  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 50.000000
+average solver iterations for successful solutions: 16.320000
+
+solving with 50 max ceres iterations: 
+-------------------------------------
+level 0:
+percent of solutions completed successfully: 100.000000
+average solver iterations for successful solutions: 1.000000
+level 1:
+percent of solutions completed successfully: 73.000000
+average solver iterations for successful solutions: 6.698630
+level 2:
+percent of solutions completed successfully: 68.000000
+average solver iterations for successful solutions: 11.941176
+level 3:
+percent of solutions completed successfully: 71.000000
+average solver iterations for successful solutions: 15.140845
+level 4:
+W1209 18:55:58.222733  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+W1209 18:55:58.222831  9648 trust_region_minimizer.cc:733] Step failed to evaluate. Treating it as a step with infinite cost
+percent of solutions completed successfully: 52.000000
+average solver iterations for successful solutions: 18.384615
+

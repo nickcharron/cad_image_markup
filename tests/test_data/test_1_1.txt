@@ -1,0 +1,190 @@
+Started... 
+camera data read success
+CAD data read success
+points scaled 
+clouds populated 
+
+
+TEST ONE RESULTS: 
+
+inital pose: (-1,-1)
+
+solving with 5 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 32
+average solver iterations for successful solutions: 5.375
+level 3
+percent of solutions completed successfully: 37
+average solver iterations for successful solutions: 26.6757
+level 4
+percent of solutions completed successfully: 2
+average solver iterations for successful solutions: 17.5
+level 5
+percent of solutions completed successfully: 12
+average solver iterations for successful solutions: 4.16667
+
+solving with 10 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 36
+average solver iterations for successful solutions: 11.6111
+level 3
+percent of solutions completed successfully: 16
+average solver iterations for successful solutions: 66.25
+level 4
+percent of solutions completed successfully: 3
+average solver iterations for successful solutions: 10.6667
+level 5
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 6
+
+solving with 15 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 34
+average solver iterations for successful solutions: 7.11765
+level 3
+percent of solutions completed successfully: 16
+average solver iterations for successful solutions: 74.0625
+level 4
+percent of solutions completed successfully: 3
+average solver iterations for successful solutions: 12
+level 5
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 7
+
+solving with 20 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 35
+average solver iterations for successful solutions: 7.31429
+level 3
+percent of solutions completed successfully: 16
+average solver iterations for successful solutions: 71.875
+level 4
+percent of solutions completed successfully: 0
+average solver iterations for successful solutions: -nan
+level 5
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 8
+
+solving with 25 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 36
+average solver iterations for successful solutions: 8.05556
+level 3
+percent of solutions completed successfully: 19
+average solver iterations for successful solutions: 68.8421
+level 4
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 10
+level 5
+percent of solutions completed successfully: 2
+average solver iterations for successful solutions: 10
+
+solving with 30 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 35
+average solver iterations for successful solutions: 7.14286
+level 3
+percent of solutions completed successfully: 20
+average solver iterations for successful solutions: 63.8
+level 4
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 10
+level 5
+percent of solutions completed successfully: 2
+average solver iterations for successful solutions: 9
+
+solving with 35 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 35
+average solver iterations for successful solutions: 7.71429
+level 3
+percent of solutions completed successfully: 13
+average solver iterations for successful solutions: 54
+level 4
+percent of solutions completed successfully: 0
+average solver iterations for successful solutions: -nan
+level 5
+percent of solutions completed successfully: 0
+average solver iterations for successful solutions: -nan
+
+solving with 40 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 34
+average solver iterations for successful solutions: 7.61765
+level 3
+percent of solutions completed successfully: 12
+average solver iterations for successful solutions: 52.1667
+level 4
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 11
+level 5
+percent of solutions completed successfully: 0
+average solver iterations for successful solutions: -nan
+
+solving with 45 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 33
+average solver iterations for successful solutions: 6.72727
+level 3
+percent of solutions completed successfully: 12
+average solver iterations for successful solutions: 52.4167
+level 4
+percent of solutions completed successfully: 2
+average solver iterations for successful solutions: 11
+level 5
+percent of solutions completed successfully: 0
+average solver iterations for successful solutions: -nan
+
+solving with 50 max ceres iterations: 
+-------------------------------------
+level 1
+percent of solutions completed successfully: 100
+average solver iterations for successful solutions: 1
+level 2
+percent of solutions completed successfully: 35
+average solver iterations for successful solutions: 7.17143
+level 3
+percent of solutions completed successfully: 14
+average solver iterations for successful solutions: 53.9286
+level 4
+percent of solutions completed successfully: 2
+average solver iterations for successful solutions: 11
+level 5
+percent of solutions completed successfully: 1
+average solver iterations for successful solutions: 9

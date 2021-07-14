@@ -8,8 +8,9 @@
 #include <ceres/rotation.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/nlohmann/json.h>
 
+#include <cad_image_markup/CadImageMarkup.h>
 #include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
 #include <cad_image_markup/optimization/CeresParams.h>
@@ -19,6 +20,8 @@
 
 namespace cad_image_markup {
 
+struct Params; //forward declaration of params struct type shared with CadImageMarkup.h
+
 using AlignVec2d = Eigen::aligned_allocator<Eigen::Vector2d>;
 
 /**
@@ -26,48 +29,25 @@ using AlignVec2d = Eigen::aligned_allocator<Eigen::Vector2d>;
  */
 class Solver {
  public:
-  struct Params {
-    uint32_t max_solution_iterations{15};
-    // TODO CAM: the ceres summary outputs the initial and final losses. These
-    // losses are essentially the same this as your pixel error. It would be a
-    // lot easier to just compare final loss to initial loss instead of your
-    // method. Also we should implement a change in pose option. See this code
-    // for an example:
-    // https://github.com/BEAMRobotics/libbeam/blob/d07569a86f427455a573f6190d5ae7e2b983b1d6/beam_matching/src/loam/LoamScanRegistration.cpp#L290
-    std::string convergence_type{
-        "FINALLOSS"};  // Options: FINALLOSS, POSECHANGE
-    bool transform_progress_to_stdout{false};
-    bool visualize{true};
-    double cloud_scale{1};
-    double convergence_limit{5};
-    bool output_results{true};
-    std::string ceres_params_path;
-  };
 
   struct ResultsSummary {
     ceres::Solver::Summary ceres_summary;
     uint8_t solution_iterations{0};
-  }
+  };
 
   /**
    * @brief Constructor with custom params
-   * @param visualizer visualizer object that will be used by the solver to
-   * display the solution if visualization is enabled
    * @param camera_model
    * @param params params needed for this class
    */
-  Solver(std::shared_ptr<Visualizer> visualizer,
-         std::shared_ptr<beam_calibration::CameraModel> camera_model,
-         const Params& params);
+  Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model,
+         const Params* params);
 
   /**
    * @brief Constructor with default params
-   * @param visualizer visualizer object that will be used by the solver to
-   * display the solution if visualization is enabled
    * @param camera_model
    */
-  Solver(std::shared_ptr<Visualizer> visualizer,
-         std::shared_ptr<beam_calibration::CameraModel> camera_model);
+  Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model);
 
   /**
    * @brief Default destructor
@@ -84,7 +64,7 @@ class Solver {
    * @return success boolean
    */
   bool Solve(PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-             const Eigen::Matix4d& T_WORLD_CAMERA);
+             Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize);
 
   /**
    * @brief Accessor method to retrieve the final transform results
@@ -95,13 +75,14 @@ class Solver {
   /**
    * @brief method for accessing results summary
    */
-  ResultsSummary GetResultsSummary();
+  //ceres::Solver::Summary::FullReport GetResultsSummary();
 
  private:
   /**
    * @brief Method for building the Ceres problem by adding the residual blocks
    */
-  void BuildCeresProblem();
+  void BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
+                         PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud);
 
   /**
    * @brief Method to call the ceres solver on the individual ceres problem
@@ -114,22 +95,32 @@ class Solver {
    */
   bool HasConverged();
 
+  /**
+   * @brief Method to update the visualization display
+   * @note Holds the solution until user enters 'n' to progress to the next iteration
+   *       or 'r' to cancel the solution
+   */
+  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+
   // options
-  Params params_;
+  const Params *params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables
-  std::shared_ptr<beam_calibration::CameraModel> camera_model_;
+  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   std::shared_ptr<Visualizer> visualizer_;
   PointCloud::ConstPtr camera_cloud_;
   PointCloud::ConstPtr cad_cloud_;
 
   // new member variables
-  ResultsSummary summary_;
+  ceres::Solver::Summary summary_;
   std::vector<double> results_;
-  Eigen::Matrix4d T_WORLD_CAMERA_; // TODO CAM: do we need this because it's in results_ no?
+  std::vector<double> last_iteration_results_;
   pcl::CorrespondencesPtr corrs_;
   std::shared_ptr<ceres::Problem> problem_;
+  double last_iteration_cost_;
+  uint16_t solution_iterations_;
+  bool solution_stalled_;
 };
 
 }  // namespace cad_image_markup

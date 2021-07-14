@@ -10,7 +10,7 @@
 #include <thread>
 
 #include <boost/make_shared.hpp>
-#include <nlohmann/json.hpp>
+#include <cad_image_markup/nlohmann/json.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>

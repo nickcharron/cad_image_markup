@@ -2,64 +2,48 @@
 
 namespace cad_image_markup {
 
-std::shared_ptr<beam_calibration::CameraModel> Util::GetCameraModel() {
+namespace utils {
+
+// Provide default definitions for namespace variables
+double image_offset_x_ = 0;
+double image_offset_y_ = 0;
+bool center_image_called_ = false;
+std::shared_ptr<cad_image_markup::CameraModel> camera_model_ = nullptr;
+
+std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel() {
   return camera_model_;
 }
 
-void Util::ReadCameraModel(std::string intrinsics_file_path) {
-  camera_model_ = beam_calibration::CameraModel::Create(intrinsics_file_path);
+void ReadCameraModel(std::string intrinsics_file_path) {
+  camera_model_ = cad_image_markup::CameraModel::Create(intrinsics_file_path);
 }
 
-void Util::SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
+void SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
 
-void Util::OffsetCloudxy(PointCloud::Ptr cloud) {
-  if (!center_image_called_) {
-    printf(
-        "FAILED to restore image offset - originCloudxy not previously called "
-        "by this utility");
-    return;
-  }
+void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
 
   // restore offset to all points
   for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
-    cloud->at(point_index).x += static_cast<int>(image_offset_x_);
-    cloud->at(point_index).y += static_cast<int>(image_offset_y_);
+    cloud->at(point_index).x += static_cast<int>(offset(0));
+    cloud->at(point_index).y += static_cast<int>(offset(1));
   }
 }
 
-void Util::OriginCloudxy(PointCloud::Ptr cloud) {
+void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid) {
   uint16_t num_points = cloud->size();
-
-  // determine central x and y values
-  float max_x = 0, max_y = 0, min_x = 2048, min_y = 2048;
-  for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    if (cloud->at(point_index).x > max_x) max_x = cloud->at(point_index).x;
-    if (cloud->at(point_index).y > max_y) max_y = cloud->at(point_index).y;
-
-    if (cloud->at(point_index).x < min_x) min_x = cloud->at(point_index).x;
-    if (cloud->at(point_index).y < min_y) min_y = cloud->at(point_index).y;
-  }
-
-  float center_x = min_x + (max_x - min_x) / 2;
-  float center_y = min_y + (max_y - min_y) / 2;
-
-  image_offset_x_ = center_x;
-  image_offset_y_ = center_y;
 
   // shift all points back to center on origin
   for (uint16_t point_index = 0; point_index < num_points; point_index++) {
-    cloud->at(point_index).x -= (int)center_x;
-    cloud->at(point_index).y -= (int)center_y;
+    cloud->at(point_index).x -= centroid.x;
+    cloud->at(point_index).y -= centroid.y;
   }
-
-  center_image_called_ = true;
 }
 
-PointCloud::Ptr Util::ProjectCloud(PointCloud::Ptr cloud) {
-  PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
+PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
+  PointCloud::Ptr proj_cloud (new pcl::PointCloud<pcl::PointXYZ>);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
-    std::optional<Eigen::Vector2d> pixel_projected;
+    cad_image_markup::optional<Eigen::Vector2d> pixel_projected;
     pixel_projected = camera_model_->ProjectPointPrecise(point);
     if (pixel_projected.has_value()) {
       pcl::PointXYZ proj_point(pixel_projected.value()(0),
@@ -70,49 +54,110 @@ PointCloud::Ptr Util::ProjectCloud(PointCloud::Ptr cloud) {
   return proj_cloud;
 }
 
-void Util::CorrEst(PointCloud::ConstPtr CAD_cloud,
-                   PointCloud::ConstPtr camera_cloud, Eigen::Matrix4d& T,
+pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, const Eigen::Matrix4d &T) {
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    
+    for(uint16_t i=0; i < cloud->size(); i++) {
+        Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
+        Eigen::Vector4d point_transformed = T*point; 
+        pcl::PointXYZ pcl_point_transformed (point_transformed(0), 
+            point_transformed(1), point_transformed(2));
+        trans_cloud->push_back(pcl_point_transformed);
+    }
+
+    return trans_cloud;
+
+}
+
+void TransformCloudUpdate (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, 
+                     const Eigen::Matrix4d &T) {
+    
+    for(uint16_t i=0; i < cloud->size(); i++) {
+        Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, 
+            cloud->at(i).z, 1);
+        Eigen::Vector4d point_transformed = T*point; 
+        pcl::PointXYZ pcl_point_transformed (point_transformed(0), 
+            point_transformed(1), point_transformed(2));
+        cloud->at(i) = pcl_point_transformed;
+    }
+
+}
+
+void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
+                   PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
-                   double max_corr_distance) {
-  PointCloud::Ptr proj_cloud = std::make_shared<PointCloud>();
-  PointCloud::Ptr trans_cloud = std::make_shared<PointCloud>();
+                   double max_corr_distance, int num_corrs) {
+  
+  
+
+  //clear the previous correspondences 
+  corrs->clear();
 
   // transform the CAD cloud points to the camera frame
-  trans_cloud = this->TransformCloud(CAD_cloud, T);
+  PointCloud::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  trans_cloud = TransformCloud(cad_cloud, T);
 
   // project the transformed points to the camera plane
-  proj_cloud = this->ProjectCloud(trans_cloud);
+  PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
-    pcl::PointXYZ camera_centroid = Util::GetCloudCentroid(camera_cloud);
-    pcl::PointXYZ proj_centroid = Util::GetCloudCentroid(proj_cloud);
+    pcl::PointXYZ camera_centroid = GetCloudCentroid(camera_cloud);
+    pcl::PointXYZ proj_centroid = GetCloudCentroid(proj_cloud);
 
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T(0, 3) = camera_centroid.x - proj_centroid.x;
     T(1, 3) = camera_centroid.y - proj_centroid.y;
     T(2, 3) = camera_centroid.z - proj_centroid.z;
-    pcl::transformPointCloud(*proj_cloud, proj_cloud, T);
+    TransformCloudUpdate(proj_cloud, T);
   }
 
-  // get correspondences
-  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
-      corr_est;
-  corr_est.setInputSource(camera_cloud);
-  corr_est.setInputTarget(proj_cloud);
-  corr_est.determineCorrespondences(*corrs, max_corr_distance);
+  // Get correspondences 
+
+  // Build kd tree from projected cloud
+  pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
+  proj_kdtree.setInputCloud (proj_cloud);
+
+  for(uint16_t i = 0; i<camera_cloud->size(); i++) {
+    std::vector<int> target_neighbor_indices(num_corrs);
+    std::vector<float> target_neighbor_distances(num_corrs);
+    pcl::Correspondence corr1;
+    pcl::Correspondence corr2;
+
+    if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
+        target_neighbor_indices, target_neighbor_distances) >= num_corrs
+        && target_neighbor_distances[0] <= max_corr_distance)
+    {
+      corr1.index_query = i;
+      corr1.index_match = target_neighbor_indices[0];
+
+      corrs->push_back(corr1);
+      
+      if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
+      {
+        corr1.index_query = i;
+        corr1.index_match = target_neighbor_indices[1];
+
+        corrs->push_back(corr2);
+      }
+
+      else corrs->pop_back();
+
+    }
+
+  }
 }
 
-namespace utils {
-
-Eigen::Matrix4d Util::QuaternionAndTranslationToTransformMatrix(
+Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
     const std::vector<double>& pose) {
   Eigen::Quaterniond q{pose[0], pose[1], pose[2], pose[3]};
   Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
   T.block(0, 0, 3, 3) = q.toRotationMatrix();
-  T(0, 3) = pose_[4];
-  T(1, 3) = pose_[5];
-  T(2, 3) = pose_[6];
+  T(0, 3) = pose[4];
+  T(1, 3) = pose[5];
+  T(2, 3) = pose[6];
   return T;
 }
 
@@ -144,7 +189,7 @@ void ScaleCloud(PointCloud::Ptr cloud, float scale) {
 }
 
 PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale) {
-  PointCloud::Ptr scaled_cloud = std::make_shared<PointCloud>();
+  pcl::PointCloud<pcl::PointXYZ>::Ptr scaled_cloud (new pcl::PointCloud<pcl::PointXYZ>);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     pcl::PointXYZ to_add;
     to_add.x = cloud->at(i).x * scale;
@@ -171,22 +216,11 @@ void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
   std::ifstream file(file_name);
   file >> J;
 
-  // initial pose
-  double w_pose[6];  // x, y, z, alpha, beta, gamma
-  double c_pose[6];  // x, y, z, alpha, beta, gamma
-
-  w_pose[0] = J["pose"][0];
-  w_pose[1] = J["pose"][1];
-  w_pose[2] = J["pose"][2];
-  w_pose[3] = J["pose"][3];
-  w_pose[4] = J["pose"][4];
-  w_pose[5] = J["pose"][5];
-
   Eigen::Matrix3d R;
   // TODO CAM: check order and put in README
-  R = AngleAxisf(utils::DegToRad(J["pose"][3]), Vector3f::UnitX()) *
-      AngleAxisf(utils::DegToRad(J["pose"][4]), Vector3f::UnitY()) *
-      AngleAxisf(utils::DegToRad(J["pose"][5]), Vector3f::UnitZ());
+  R = Eigen::AngleAxisd(DegToRad(J["pose"][3]), Eigen::Vector3d::UnitX()) *
+      Eigen::AngleAxisd(DegToRad(J["pose"][4]), Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(DegToRad(J["pose"][5]), Eigen::Vector3d::UnitZ());
 
   T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
   T_WORLD_CAMERA.block(0, 0, 3, 3) = R;
@@ -196,9 +230,10 @@ void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
 }
 
 pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
-  pcl::ModelCoefficients::Ptr coefficients =
-      std::make_shared<pcl::ModelCoefficients>();
-  pcl::PointIndices::Ptr inliers = std::make_shared<pcl::PointIndice>();
+  pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+      //std::make_shared<pcl::ModelCoefficients>();
+  pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+  //= std::make_shared<pcl::PointIndice>();
 
   // Create the segmentation object
   pcl::SACSegmentation<pcl::PointXYZ> seg;
@@ -216,8 +251,8 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
 PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
-    const std::shared_ptr<beam_calibration::CameraModel>& camera_model) {
-  PointCloud::Ptr back_projected_cloud = std::make_shared<PointCloud>();
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
+  PointCloud::Ptr back_projected_cloud (new pcl::PointCloud<pcl::PointXYZ>);
 
   // get cad surface normal and point on the cad plane
   Eigen::Vector3d cad_normal(target_plane->values[0], target_plane->values[1],
@@ -251,16 +286,6 @@ pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud) {
   pcl::computeCentroid(*cloud, centroid);
   centroid.z = 0;
   return centroid;
-}
-
-void GetCorrespondences(pcl::CorrespondencesPtr corrs,
-                        PointCloud::ConstPtr source_coud,
-                        PointCloud::ConstPtr target_cloud, uint16_t max_dist_) {
-  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
-      corr_est;
-  corr_est.setInputSource(source_coud_);
-  corr_est.setInputTarget(target_cloud_);
-  corr_est.determineCorrespondences(*corrs, max_dist);
 }
 
 Eigen::Matrix4d PerturbTransformRadM(const Eigen::Matrix4d& T,

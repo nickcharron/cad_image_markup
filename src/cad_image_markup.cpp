@@ -1,7 +1,8 @@
 #include <cad_image_markup/CadImageMarkup.h>
-#include <cad_image_markup/Gflags.h>
-#include <gflags/gflags.h>
+//#include <cad_image_markup/Gflags.h>
+//#include <gflags/gflags.h>
 
+/*
 DEFINE_string(cad, "", "Full path to CAD file in json format (Required).");
 DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(image, "", "Full path to image (Required).");
@@ -30,11 +31,18 @@ int main(int argc, char **argv) {
       .ceres_config_path = FLAGS_ceres_config,
       .initial_pose_path = FLAGS_initial_pose};
 
-  cad_image_markup::CadImageMarkup markup(inputs);
+  cad_image_markup::Params params;
+
+  cad_image_markup::CadImageMarkup markup(inputs,params);
   if (markup.Run()) {
     LOG_INFO("Success completed CAD markup!");
   } else {
     LOG_ERROR("Failed CAD markup!");
   }
+  return 0;
+}
+*/
+
+int main () {
   return 0;
 }

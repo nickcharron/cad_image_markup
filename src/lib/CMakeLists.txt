@@ -8,6 +8,10 @@ add_library(${PROJECT_NAME}
   camera_models/Radtan.cpp
   CadImageMarkup.cpp
   Gflags.cpp
+  ImageBuffer.cpp
+  Utils.cpp
+  Solver.cpp
+  Visualizer.cpp
 )
 target_compile_options(${PROJECT_NAME}
   PUBLIC
@@ -25,5 +29,4 @@ target_link_libraries(${PROJECT_NAME}
   ${OpenCV_LIBS}
   ${PCL_LIBRARIES}
   ceres
-  nlohmann_json::nlohmann_json
 )
