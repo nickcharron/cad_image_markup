@@ -9,8 +9,6 @@
 #include <string>
 #include <thread>
 
-#include <boost/make_shared.hpp>
-#include <cad_image_markup/nlohmann/json.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -21,6 +19,8 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/registration/correspondence_estimation.h>
 
+#include <cad_image_markup/nlohmann/json.h>
+#include <cad_image_markup/Utils.h>
 
 namespace cad_image_markup { 
 
@@ -63,7 +63,7 @@ public:
      * @param cloud point cloud to display
      * @param id unique cloud id for display
      */
-    void DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string id);
+    void DisplayClouds(PointCloud::Ptr cloud, std::string id);
 
     /**
      * @brief Method to display two point clouds
@@ -72,8 +72,8 @@ public:
      * @param id1 unique cloud id for display
      * @param id2 unique cloud id for display
      */
-    void DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
-                            pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2,
+    void DisplayClouds(PointCloud::Ptr cloud1,
+                            PointCloud::Ptr cloud2,
                             std::string id1,
                             std::string id2);
 
@@ -86,9 +86,9 @@ public:
      * @param id2 unique cloud id for display
      * @param id3 unique cloud id for display
      */
-    void DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, 
-                       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2,
-                       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud3,
+    void DisplayClouds(PointCloud::Ptr cloud1, 
+                       PointCloud::Ptr cloud2,
+                       PointCloud::Ptr cloud3,
                        std::string id1,
                        std::string id2,
                        std::string id3);
@@ -104,10 +104,10 @@ public:
      * @param id3 unique cloud id for display
      * @param id4 unique cloud id for display
      */
-    void DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, 
-                       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2,
-                       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud3,
-                       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud4,
+    void DisplayClouds(PointCloud::Ptr cloud1, 
+                       PointCloud::Ptr cloud2,
+                       PointCloud::Ptr cloud3,
+                       PointCloud::Ptr cloud4,
                        std::string id1,
                        std::string id2,
                        std::string id3,
@@ -121,8 +121,8 @@ public:
      * @param id_image unique cloud id for display
      * @param id_projected unique cloud id for display
      */
-    void DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr image_cloud,
-                            pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud,
+    void DisplayClouds(PointCloud::Ptr image_cloud,
+                            PointCloud::Ptr projected_cloud,
                             pcl::CorrespondencesConstPtr corrs,
                             std::string id_image,
                             std::string id_projected);
@@ -137,9 +137,9 @@ public:
      * @param id_cad unique cloud id for display
      * @param id_projected unique cloud id for display
      */
-    void DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::ConstPtr image_cloud,
-                            pcl::PointCloud<pcl::PointXYZ>::Ptr cad_cloud,
-                            pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud,
+    void DisplayClouds(PointCloud::ConstPtr image_cloud,
+                            PointCloud::Ptr cad_cloud,
+                            PointCloud::Ptr projected_cloud,
                             pcl::CorrespondencesConstPtr corrs,
                             std::string id_image,
                             std::string id_cad,

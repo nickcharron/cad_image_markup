@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdio.h>
+#include <string>
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -11,15 +14,11 @@
 #include <pcl/ModelCoefficients.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/kdtree/kdtree_flann.h>
-#include <cad_image_markup/camera_models/CameraModel.h>
-#include <cad_image_markup/camera_models/Radtan.h>
-#include <cad_image_markup/camera_models/DoubleSphere.h>
-#include <cad_image_markup/camera_models/KannalaBrandt.h>
-#include <string>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <stdio.h>
+
+#include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/Optional.h>
 #include <cad_image_markup/nlohmann/json.h>
 
@@ -43,8 +42,7 @@ namespace cad_image_markup {
 #define LOG_WARN(M, ...) fprintf(stdout, "[WARNING] " M "\n", ##__VA_ARGS__)
 #endif
 
-using PointCloud = pcl::PointCloud<pcl::PointXYZ>;
-
+typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 namespace utils {
 
@@ -56,7 +54,8 @@ extern std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
 /**
  * @brief Accessor method to retrieve camera model
  * @return camera model
- * CAM NOTE: not sure if this should return the utility camera model, or a copy (probably the pointer since you might need to change it)
+ * CAM NOTE: not sure if this should return the utility camera model, or a copy
+ * (probably the pointer since you might need to change it)
  */
 std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel();
 
@@ -64,7 +63,7 @@ std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel();
  * @brief Method to read the camera model used by the utility object from a
  * config file
  * @param intrinsics_file_path_ absolute path to the camera configuration file
- * @note There can exist only one utility camera model at a time 
+ * @note There can exist only one utility camera model at a time
  */
 void ReadCameraModel(std::string intrinsics_file_path);
 
@@ -99,40 +98,43 @@ void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid);
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
 
 /**
- * @brief Method to apply a transform to a point cloud, same behavior as pcl transform function but
- *        Easier to use with rest of project
+ * @brief Method to apply a transform to a point cloud, same behavior as pcl
+ * transform function but Easier to use with rest of project
  * @param cloud_ original point cloud
- * @param T_ transformation matrix 
+ * @param T_ transformation matrix
  * @return transformed point cloud
  */
-pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, const Eigen::Matrix4d &T);
+PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
+                               const Eigen::Matrix4d& T);
 
 /**
- * @brief Method to apply a transform to a point cloud by updating the original cloud
+ * @brief Method to apply a transform to a point cloud by updating the original
+ * cloud
  * @param cloud_ point cloud to transform
- * @param T_ transformation matrix 
+ * @param T_ transformation matrix
  */
-void TransformCloudUpdate(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const Eigen::Matrix4d &T);
+void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
 
 /**
-  * @brief Method to get single correspondences between a CAD cloud projection and an
-  * image cloud given transformation matrix
-  * @param cad_cloud CAD structure cloud (centered, at correct scale,
-  * untransformed)
-  * @param camera_cloud camera image label cloud
-  * @param T transformation matrix to apply to CAD cloud before projecting
-  * (usually T_CS)
-  * @param corrs nearest-neighbor correspondences between the CAD cloud
-  * projection and the camera image cloud (image point to nearest structure point)
-  * @param max_corr_distance
-  * @param num_corrs number of targets points for each source point(1 or 2)
-  * @param align_centroids
-  */
+ * @brief Method to get single correspondences between a CAD cloud projection
+ * and an image cloud given transformation matrix
+ * @param cad_cloud CAD structure cloud (centered, at correct scale,
+ * untransformed)
+ * @param camera_cloud camera image label cloud
+ * @param T transformation matrix to apply to CAD cloud before projecting
+ * (usually T_CS)
+ * @param corrs nearest-neighbor correspondences between the CAD cloud
+ * projection and the camera image cloud (image point to nearest structure
+ * point)
+ * @param max_corr_distance
+ * @param num_corrs number of targets points for each source point(1 or 2)
+ * @param align_centroids
+ */
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
-             PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
-             pcl::CorrespondencesPtr corrs, bool align_centroids,
-             double max_corr_distance, int num_corrs);
-
+                            PointCloud::ConstPtr camera_cloud,
+                            const Eigen::Matrix4d& T,
+                            pcl::CorrespondencesPtr corrs, bool align_centroids,
+                            double max_corr_distance, int num_corrs);
 
 /**
  * @brief Method to convert a vector of quaternions and translations to a
@@ -186,7 +188,7 @@ PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
 void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
 
 /**
- * @brief Method to load initial poses 
+ * @brief Method to load initial poses
  * @param file_name_ absolute path to json file with initial pose
  * @param T_WORLD_CAMERA transformation matrix to which the read pose is applied
  */

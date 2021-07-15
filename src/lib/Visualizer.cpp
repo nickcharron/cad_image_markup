@@ -7,7 +7,7 @@ namespace cad_image_markup {
 Visualizer::Visualizer(const std::string name) {
   display_name_ = name;
   display1_called_ = false;
-  display2_called_= false;
+  display2_called_ = false;
   display3_called_ = false;
   display4_called_ = false;
   display5_called_ = false;
@@ -18,7 +18,7 @@ Visualizer::~Visualizer() {}
 
 void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_ =
-      boost::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
+      std::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
   point_cloud_display_->setBackgroundColor(0, 0, 0);
   point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
@@ -34,8 +34,7 @@ void Visualizer::EndVis() {
   vis_thread_.join();
 }
 
-void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
-                               std::string id) {
+void Visualizer::DisplayClouds(PointCloud::Ptr cloud, std::string id) {
   // get mutex for visulalizer spinning in vis thread
   // and either create a new cloud or update the existing one
   mtx_.lock();
@@ -57,8 +56,7 @@ void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud,
   display1_called_ = true;
 }
 
-void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2,
+void Visualizer::DisplayClouds(PointCloud::Ptr cloud1, PointCloud::Ptr cloud2,
                                std::string id1, std::string id2) {
   // get mutex for visulalizer spinning in vis thread
   // and either create a new cloud or update the existing one
@@ -84,15 +82,13 @@ void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
 
   mtx_.unlock();
 
-  display2_called_= true;
+  display2_called_ = true;
 }
 
 // display three clouds with no correspondences
-void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr cloud3,
-                               std::string id1, std::string id2,
-                               std::string id3) {
+void Visualizer::DisplayClouds(PointCloud::Ptr cloud1, PointCloud::Ptr cloud2,
+                               PointCloud::Ptr cloud3, std::string id1,
+                               std::string id2, std::string id3) {
   // get mutex for visulalizer spinning in vis thread
   // and either create a new cloud or update the existing one
   mtx_.lock();
@@ -125,10 +121,8 @@ void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
 }
 
 // display three clouds with no correspondences
-void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr cloud3,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr cloud4,
+void Visualizer::DisplayClouds(PointCloud::Ptr cloud1, PointCloud::Ptr cloud2,
+                               PointCloud::Ptr cloud3, PointCloud::Ptr cloud4,
                                std::string id1, std::string id2,
                                std::string id3, std::string id4) {
   // get mutex for visulalizer spinning in vis thread and
@@ -168,11 +162,10 @@ void Visualizer::DisplayClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1,
   display4_called_ = true;
 }
 
-void Visualizer::DisplayClouds(
-    pcl::PointCloud<pcl::PointXYZ>::Ptr image_cloud,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud,
-    pcl::CorrespondencesConstPtr corrs, std::string id_image,
-    std::string id_projected) {
+void Visualizer::DisplayClouds(PointCloud::Ptr image_cloud,
+                               PointCloud::Ptr projected_cloud,
+                               pcl::CorrespondencesConstPtr corrs,
+                               std::string id_image, std::string id_projected) {
   // get mutex for visulalizer spinning in vis thread and
   // either create a new cloud or update the existing one
   mtx_.lock();
@@ -204,8 +197,8 @@ void Visualizer::DisplayClouds(
     uint16_t cam_point_index = corrs->at(i).index_query;
 
     point_cloud_display_->addLine(projected_cloud->at(proj_point_index),
-                                 image_cloud->at(cam_point_index), 0, 255, 0,
-                                 std::to_string(line_id));
+                                  image_cloud->at(cam_point_index), 0, 255, 0,
+                                  std::to_string(line_id));
     line_start_index += 2;
     line_end_index += 2;
     line_id++;
@@ -216,12 +209,12 @@ void Visualizer::DisplayClouds(
   display5_called_ = true;
 }
 
-void Visualizer::DisplayClouds(
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr image_cloud,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cad_cloud,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud,
-    pcl::CorrespondencesConstPtr corrs, std::string id_image,
-    std::string id_cad, std::string id_projected) {
+void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
+                               PointCloud::Ptr cad_cloud,
+                               PointCloud::Ptr projected_cloud,
+                               pcl::CorrespondencesConstPtr corrs,
+                               std::string id_image, std::string id_cad,
+                               std::string id_projected) {
   // get mutex for visulalizer spinning in vis thread and
   // either create a new cloud or update the existing one
   mtx_.lock();
@@ -260,8 +253,8 @@ void Visualizer::DisplayClouds(
     uint16_t cam_point_index = corrs->at(i).index_query;
 
     point_cloud_display_->addLine(projected_cloud->at(proj_point_index),
-                                 image_cloud->at(cam_point_index), 0, 255, 0,
-                                 std::to_string(line_id));
+                                  image_cloud->at(cam_point_index), 0, 255, 0,
+                                  std::to_string(line_id));
     line_start_index += 2;
     line_end_index += 2;
     line_id++;

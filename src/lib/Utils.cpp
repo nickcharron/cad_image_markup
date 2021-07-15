@@ -40,7 +40,7 @@ void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid) {
 }
 
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
-  PointCloud::Ptr proj_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  PointCloud::Ptr proj_cloud (new PointCloud);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
     cad_image_markup::optional<Eigen::Vector2d> pixel_projected;
@@ -54,10 +54,10 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
   return proj_cloud;
 }
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, const Eigen::Matrix4d &T) {
+PointCloud::Ptr TransformCloud (
+    PointCloud::ConstPtr cloud, const Eigen::Matrix4d &T) {
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    PointCloud::Ptr trans_cloud (new PointCloud);
     
     for(uint16_t i=0; i < cloud->size(); i++) {
         Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
@@ -71,7 +71,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr TransformCloud (
 
 }
 
-void TransformCloudUpdate (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, 
+void TransformCloudUpdate (PointCloud::Ptr cloud, 
                      const Eigen::Matrix4d &T) {
     
     for(uint16_t i=0; i < cloud->size(); i++) {
@@ -96,7 +96,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   corrs->clear();
 
   // transform the CAD cloud points to the camera frame
-  PointCloud::Ptr trans_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  PointCloud::Ptr trans_cloud (new PointCloud);
   trans_cloud = TransformCloud(cad_cloud, T);
 
   // project the transformed points to the camera plane
@@ -189,7 +189,7 @@ void ScaleCloud(PointCloud::Ptr cloud, float scale) {
 }
 
 PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale) {
-  pcl::PointCloud<pcl::PointXYZ>::Ptr scaled_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  PointCloud::Ptr scaled_cloud (new PointCloud);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     pcl::PointXYZ to_add;
     to_add.x = cloud->at(i).x * scale;
@@ -252,7 +252,7 @@ PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
-  PointCloud::Ptr back_projected_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  PointCloud::Ptr back_projected_cloud (new PointCloud);
 
   // get cad surface normal and point on the cad plane
   Eigen::Vector3d cad_normal(target_plane->values[0], target_plane->values[1],

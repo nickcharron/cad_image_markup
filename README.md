@@ -16,7 +16,7 @@ The following software needs to be install before building
 * Eigen (min. 3.3.7)
 * gflags
 * Catch2 (min. 2.13.2)
-* PCL (min. 1.11.1)
+* PCL (min. 1.11.0)
 * Ceres (min. 1.14)
 * OpenCV (min. 3.2.0)
 

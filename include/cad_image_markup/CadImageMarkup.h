@@ -118,9 +118,9 @@ class CadImageMarkup {
   
   std::unique_ptr<Solver> solver_;
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr camera_points_CAMFRAME_;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cad_points_CADFRAME_;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cad_points_WORLDFRAME_;
+  PointCloud::Ptr camera_points_CAMFRAME_;
+  PointCloud::Ptr cad_points_CADFRAME_;
+  PointCloud::Ptr cad_points_WORLDFRAME_;
 };
 
 }  // namespace cad_image_markup

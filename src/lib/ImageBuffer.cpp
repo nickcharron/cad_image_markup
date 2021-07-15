@@ -5,7 +5,7 @@
 namespace cad_image_markup {
 
 bool ImageBuffer::ReadPoints(const std::string &filename,
-                             pcl::PointCloud<pcl::PointXYZ>::Ptr points) {
+                             PointCloud::Ptr points) {
   points->clear();
 
   if (!boost::filesystem::exists(filename)) {
@@ -35,11 +35,10 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   return true;
 }
 
-void ImageBuffer::DensifyPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, uint8_t density_index) {
+void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
   // TODO CAM: go over this function, I have not edited it to use PointCloud
   // instead of a vector.
 
-  
   // add additional point between existing points according to scale
   // will help to converge solution
   uint16_t init_length = points->size();
@@ -126,10 +125,9 @@ void ImageBuffer::DensifyPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, uint
           std::pow(std::abs(current_y_coord - current_start_point.y), 2));
     }
   }
-  
 }
 
-void ImageBuffer::ScalePoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, float scale) {
+void ImageBuffer::ScalePoints(PointCloud::Ptr points, float scale) {
   // scale points based on image scale (for CAD images)
   PointCloud points_orig = *points;
   points->clear();
@@ -142,10 +140,10 @@ void ImageBuffer::ScalePoints(pcl::PointCloud<pcl::PointXYZ>::Ptr points, float 
   }
 }
 
-bool ImageBuffer::WriteToImage(pcl::PointCloud<pcl::PointXYZ>::Ptr points,
+bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
                                const std::string &src_file_name,
-                               const std::string &target_file_name,
-                               uint8_t r, uint8_t g, uint8_t b) {
+                               const std::string &target_file_name, uint8_t r,
+                               uint8_t g, uint8_t b) {
   // Note opencv use BGR not RGB
   cv::Vec3b color;
   color[0] = b;
@@ -156,7 +154,7 @@ bool ImageBuffer::WriteToImage(pcl::PointCloud<pcl::PointXYZ>::Ptr points,
     LOG_ERROR("Invalid path to input image: %s", src_file_name.c_str());
     return false;
   }
-  LOG_INFO("Reading image: %s", src_file_name);
+  LOG_INFO("Reading image: %s", src_file_name.c_str());
 
   cv::Mat image;
   image = cv::imread(src_file_name, 1);
@@ -164,7 +162,7 @@ bool ImageBuffer::WriteToImage(pcl::PointCloud<pcl::PointXYZ>::Ptr points,
     image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
   }
 
-  LOG_INFO("Saving image to: %s", target_file_name);
+  LOG_INFO("Saving image to: %s", target_file_name.c_str());
   bool written = cv::imwrite(target_file_name, image);
   if (!written) {
     LOG_ERROR("Unable to write image.");

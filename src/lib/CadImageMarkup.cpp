@@ -101,9 +101,9 @@ bool CadImageMarkup::Run() {
 bool CadImageMarkup::Setup() {
   
   //camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
-  pcl::PointCloud<pcl::PointXYZ>::Ptr camera_points_CAMFRAME_ (new pcl::PointCloud<pcl::PointXYZ>);
+  PointCloud::Ptr camera_points_CAMFRAME_ (new PointCloud);
   //cad_points_CADFRAME_ = std::make_shared<PointCloud>();
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cad_points_CADFRAME_ (new pcl::PointCloud<pcl::PointXYZ>);
+  PointCloud::Ptr cad_points_CADFRAME_ (new PointCloud);
 
   params_.LoadFromJson(inputs_.config_path);
 
