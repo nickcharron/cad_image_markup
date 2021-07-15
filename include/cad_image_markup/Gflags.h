@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <gflags/gflags.h>
+
 namespace cad_image_markup {
 namespace gflags {
 

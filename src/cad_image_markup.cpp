@@ -1,8 +1,6 @@
 #include <cad_image_markup/CadImageMarkup.h>
-//#include <cad_image_markup/Gflags.h>
-//#include <gflags/gflags.h>
+#include <cad_image_markup/Gflags.h>
 
-/*
 DEFINE_string(cad, "", "Full path to CAD file in json format (Required).");
 DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(image, "", "Full path to image (Required).");
@@ -39,10 +37,5 @@ int main(int argc, char **argv) {
   } else {
     LOG_ERROR("Failed CAD markup!");
   }
-  return 0;
-}
-*/
-
-int main () {
   return 0;
 }
