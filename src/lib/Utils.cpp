@@ -29,7 +29,7 @@ void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
   }
 }
 
-void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid) {
+void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid) {
   uint16_t num_points = cloud->size();
 
   // shift all points back to center on origin

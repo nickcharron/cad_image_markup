@@ -20,29 +20,13 @@
 
 #include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/Optional.h>
-#include <cad_image_markup/nlohmann/json.h>
+#include <cad_image_markup/Params.h>
+#include <cad_image_markup/Log.h>
 
 namespace cad_image_markup {
 
-#ifndef FILENAME
-#define FILENAME \
-  (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#endif
-
-#ifndef LOG_ERROR
-#define LOG_ERROR(M, ...) \
-  fprintf(stderr, "[ERROR] [%s:%d] " M "\n", FILENAME, __LINE__, ##__VA_ARGS__)
-#endif
-
-#ifndef LOG_INFO
-#define LOG_INFO(M, ...) fprintf(stdout, "[INFO] " M "\n", ##__VA_ARGS__)
-#endif
-
-#ifndef LOG_WARN
-#define LOG_WARN(M, ...) fprintf(stdout, "[WARNING] " M "\n", ##__VA_ARGS__)
-#endif
-
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+typedef Eigen::aligned_allocator<Eigen::Vector2d> AlignVec2d;
 
 namespace utils {
 
@@ -87,7 +71,7 @@ void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset);
  * @param cloud cloud to be centered
  * @param centroid centroid of could
  */
-void OriginCloudxy(PointCloud::Ptr cloud, pcl::PointXYZ centroid);
+void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid);
 
 /**
  * @brief Method to use camera model to project a point cloud into the xy

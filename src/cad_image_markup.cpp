@@ -29,9 +29,7 @@ int main(int argc, char **argv) {
       .ceres_config_path = FLAGS_ceres_config,
       .initial_pose_path = FLAGS_initial_pose};
 
-  cad_image_markup::Params params;
-
-  cad_image_markup::CadImageMarkup markup(inputs,params);
+  cad_image_markup::CadImageMarkup markup(inputs);
   if (markup.Run()) {
     LOG_INFO("Success completed CAD markup!");
   } else {

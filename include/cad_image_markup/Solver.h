@@ -8,21 +8,16 @@
 #include <ceres/rotation.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <cad_image_markup/nlohmann/json.h>
 
-#include <cad_image_markup/CadImageMarkup.h>
 #include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
 #include <cad_image_markup/optimization/CeresParams.h>
 #include <cad_image_markup/optimization/PointToLineCost.h>
 #include <cad_image_markup/Utils.h>
+#include <cad_image_markup/Params.h>
 #include <cad_image_markup/Visualizer.h>
 
 namespace cad_image_markup {
-
-struct Params; //forward declaration of params struct type shared with CadImageMarkup.h
-
-using AlignVec2d = Eigen::aligned_allocator<Eigen::Vector2d>;
 
 /**
  * @brief Class to solve camera pose estimation problem
@@ -40,14 +35,14 @@ class Solver {
    * @param camera_model
    * @param params params needed for this class
    */
-  Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model,
-         const Params* params);
+  Solver(const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
+         const Params& params);
 
   /**
    * @brief Constructor with default params
    * @param camera_model
    */
-  Solver(std::shared_ptr<cad_image_markup::CameraModel> camera_model);
+  Solver(const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
   /**
    * @brief Default destructor
@@ -103,7 +98,7 @@ class Solver {
   bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
 
   // options
-  const Params *params_;
+  const Params& params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables
