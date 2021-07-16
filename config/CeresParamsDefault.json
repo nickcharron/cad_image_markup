@@ -14,7 +14,7 @@
   {
     "local_parameterization_take_ownership": false,
     "cost_function_take_ownership": false,
-    "loss_function_take_ownership": false,
+    "loss_function_take_ownership": false
   },
   "loss_function": 
   {

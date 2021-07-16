@@ -35,7 +35,8 @@ bool CadImageMarkup::Setup() {
   std::shared_ptr<CameraModel> camera_model =
       CameraModel::Create(inputs_.intrinsics_path);
 
-  solver_ = std::make_unique<Solver>(camera_model, params_);
+  solver_ = std::make_unique<Solver>(camera_model, params_,
+                                     inputs_.ceres_config_path);
 }
 
 bool CadImageMarkup::LoadData() {

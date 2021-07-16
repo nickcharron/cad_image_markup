@@ -1,7 +1,6 @@
 {
   "solution_options":
   {
-    "ceres_params_path": "",
     "cad_cloud_scale": 100,
     "max_solution_iterations": 30,
     "visualize": true,
@@ -14,7 +13,7 @@
   {
     "convergence_type": "LOSS",
     "convergence_condition": "DIFFERENCE",
-    "converged_differenctial_cost": 1,
+    "converged_differential_cost": 1,
     "converged_absolute_cost": 100,
     "converged_differential_translation_m": 1,
     "converged_differential_rotation_deg": 1

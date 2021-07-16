@@ -33,10 +33,11 @@ class Solver {
   /**
    * @brief Constructor with custom params
    * @param camera_model
-   * @param params params needed for this class
+   * @param params params needed for this class. See Params.h
+   * @param ceres config path. See optimization/CeresParams.h
    */
   Solver(const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
-         const Params& params);
+         const Params& params, const std::string& ceres_config_path = "");
 
   /**
    * @brief Constructor with default params

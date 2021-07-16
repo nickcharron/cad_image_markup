@@ -4,18 +4,12 @@ namespace cad_image_markup {
 
 Solver::Solver(
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
-    const Params& params)
+    const Params& params, const std::string& ceres_config_path)
     : camera_model_(camera_model), params_(params) {
-  ceres_params_ = optimization::CeresParams(params_.ceres_params_path);
-  visualizer_ = std::make_shared<Visualizer>(
-      "solution visualizer");  // Initialize visualizer directly in Solver
-}
+  ceres_params_ = optimization::CeresParams(ceres_config_path);
 
-Solver::Solver(
-    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model)
-    : camera_model_(camera_model), params_(Params()) {
-  visualizer_ = std::make_shared<Visualizer>(
-      "solution visualizer");  // Initialize visualizer directly in Solver
+  // Initialize visualizer directly in Solver
+  visualizer_ = std::make_shared<Visualizer>("solution visualizer");
 }
 
 bool Solver::Solve(PointCloud::ConstPtr cad_cloud,

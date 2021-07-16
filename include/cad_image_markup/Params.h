@@ -75,9 +75,6 @@ inline std::string GetCorrespondenceTypes() {
 struct Params {
   // SOLUTION OPTIONS
 
-  /** Full path to ceres config json file. See optimization::CeresParams */
-  std::string ceres_params_path{""};
-
   /** CAD drawing scale in pixels/working unit (meters, feet, etc.) */
   double cad_cloud_scale{100};
 
@@ -160,27 +157,24 @@ struct Params {
     std::ifstream file(path);
     file >> J;
 
-    nlohmann::json J_solution_options = J["solver_options"];
+    nlohmann::json J_solution_options = J["solution_options"];
 
-    ceres_params_path = J_solution_options["ceres_params_path"];
     cad_cloud_scale = J_solution_options["cad_cloud_scale"];
     max_solution_iterations = J_solution_options["max_solution_iterations"];
     visualize = J_solution_options["visualize"];
     output_results = J_solution_options["output_results"];
-    align_centroids = J_solution_options["align centroids"];
+    align_centroids = J_solution_options["align_centroids"];
     max_corr_distance = J_solution_options["max_corr_distance"];
 
     nlohmann::json J_convergence_options = J["convergence_options"];
 
-    convergence_condition = J_convergence_options["convergence_condition"];
     converged_differential_cost =
         J_convergence_options["converged_differential_cost"];
     converged_absolute_cost = J_convergence_options["converged_absolute_cost"];
     converged_differential_translation =
         J_convergence_options["converged_differential_translation_m"];
     converged_differential_rotation =
-        J_convergence_options["convergend_differential_rotation_deg"];
-    ceres_params_path = J["ceres_config_path"];
+        J_convergence_options["converged_differential_rotation_deg"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(
