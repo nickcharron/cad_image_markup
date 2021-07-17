@@ -18,10 +18,10 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   std::ifstream file(filename);
   file >> J;
 
-  const auto &J_shapes = J["shapes"];
-  for (const auto &J_point : J_shapes["points"]) {
+  nlohmann::json J_shapes = J["shapes"];
+  for (auto J_point : J_shapes[0]["points"]) {
     std::vector<float> point_vec;
-    for (const auto &val : J_point) {
+    for (auto val : J_point) {
       point_vec.push_back(val.get<float>());
     }
     if (point_vec.size() != 2) {

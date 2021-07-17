@@ -38,6 +38,8 @@ bool CadImageMarkup::Setup() {
 
   solver_ = std::make_unique<Solver>(camera_model, params_,
                                      inputs_.ceres_config_path);
+
+  return true;                                   
 }
 
 bool CadImageMarkup::LoadData() {
