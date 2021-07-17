@@ -48,6 +48,15 @@ class CadImageMarkup {
 
   bool Solve();
 
+  /**
+   * @brief Method to load initial poses
+   * @param path absolute path to json file with initial pose
+   * @param T_WORLD_CAMERA transformation matrix to which the read pose is
+   * applied
+   */
+  void LoadInitialPose(const std::string& path,
+                       Eigen::Matrix4d& T_WORLD_CAMERA);
+
   Inputs inputs_;
   Params params_;
 

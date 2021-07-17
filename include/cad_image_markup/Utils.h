@@ -172,13 +172,6 @@ PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
 void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
 
 /**
- * @brief Method to load initial poses
- * @param file_name_ absolute path to json file with initial pose
- * @param T_WORLD_CAMERA transformation matrix to which the read pose is applied
- */
-void LoadInitialPose(std::string file_name_, Eigen::Matrix4d& T_WORLD_CAMERA);
-
-/**
  * @brief Method to get the plane that best fits a cloud
  * @todo CAM: Why do we even need this function? We only have 2D clouds meaning
  * we know the plane parameters because all points lie in that plane, so you can

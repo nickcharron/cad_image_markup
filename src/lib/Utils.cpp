@@ -207,28 +207,6 @@ void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale) {
   }
 }
 
-//////////////////////////////////////////////////////////////////////
-// Double check this
-
-void LoadInitialPose(std::string file_name, Eigen::Matrix4d& T_WORLD_CAMERA) {
-  // load file
-  nlohmann::json J;
-  std::ifstream file(file_name);
-  file >> J;
-
-  Eigen::Matrix3d R;
-  // TODO CAM: check order and put in README
-  R = Eigen::AngleAxisd(DegToRad(J["pose"][3]), Eigen::Vector3d::UnitX()) *
-      Eigen::AngleAxisd(DegToRad(J["pose"][4]), Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(DegToRad(J["pose"][5]), Eigen::Vector3d::UnitZ());
-
-  T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
-  T_WORLD_CAMERA.block(0, 0, 3, 3) = R;
-  T_WORLD_CAMERA(0, 3) = J["pose"][0];
-  T_WORLD_CAMERA(1, 3) = J["pose"][1];
-  T_WORLD_CAMERA(2, 3) = J["pose"][2];
-}
-
 pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
   pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
       //std::make_shared<pcl::ModelCoefficients>();
