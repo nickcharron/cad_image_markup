@@ -25,8 +25,8 @@ bool CadImageMarkup::Run() {
 
 bool CadImageMarkup::Setup() {
   LOG_INFO("Setting up problem");
-  camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
-  cad_points_CADFRAME_ = std::make_shared<PointCloud>();
+  camera_points_CAMFRAME_ = boost::make_shared<PointCloud>();
+  cad_points_CADFRAME_ = boost::make_shared<PointCloud>();
 
   if (!params_.LoadFromJson(inputs_.config_path)) {
     LOG_ERROR("Could not load params. Exiting ...");
