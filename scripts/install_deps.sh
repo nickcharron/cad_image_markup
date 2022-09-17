@@ -13,8 +13,8 @@ install_routine()
     sudo -v
     #install_eigen3
     #install_ceres
-    install_pcl
-    #install_gflags
+    #install_pcl
+    install_gflags
     #install_catch2
     #install_opencv
 }
@@ -44,12 +44,12 @@ install_ceres()
           mkdir -p $BUILD_DIR
           cd $BUILD_DIR
           cmake ..
-          make -j$(nproc)
+          make -j1
           make test
         fi
 
         cd $DEPS_DIR/$CERES_DIR/$BUILD_DIR
-        sudo make -j$(nproc) install
+        sudo make -j1 install
     fi
 }
 
@@ -129,7 +129,7 @@ install_eigen3()
   fi
 
   cd $DEPS_DIR/$EIGEN_DIR/$BUILD_DIR
-  sudo make -j$(nproc) install
+  sudo make -j1 install
 }
 
 install_gflags()
@@ -147,8 +147,8 @@ install_gflags()
   if [ ! -d "$BUILD_DIR" ]; then
     mkdir -p $BUILD_DIR
     cd $BUILD_DIR
-    cmake ..
-    make
+    cmake - GFLAGS_BUILD_SHARED_LIBS - GFLAGS_INSTALL_SHARED_LIBS ..
+    make 
   fi
 
   cd $DEPS_DIR/$GFLAGS_DIR/$BUILD_DIR

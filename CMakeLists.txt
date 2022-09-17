@@ -3,10 +3,10 @@ project(cad_image_markup)
 
 SET(CMAKE_CXX_STANDARD 17)
 
-find_package(gflags REQUIRED)
+#find_package(gflags REQUIRED)
 find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(PCL 1.11.0 REQUIRED)
+find_package(PCL 1.10.0 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Ceres REQUIRED)
@@ -24,7 +24,7 @@ add_executable(${PROJECT_NAME}_main
 
 target_link_libraries(${PROJECT_NAME}_main
 	${PROJECT_NAME}
-  gflags
+  #gflags
 )
 
 ################## tests ##################
