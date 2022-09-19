@@ -41,9 +41,11 @@ void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid) {
 
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
   PointCloud::Ptr proj_cloud (new PointCloud);
+
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
     cad_image_markup::optional<Eigen::Vector2d> pixel_projected;
+
     pixel_projected = camera_model_->ProjectPointPrecise(point);
     if (pixel_projected.has_value()) {
       pcl::PointXYZ proj_point(pixel_projected.value()(0),
@@ -51,6 +53,7 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
       proj_cloud->push_back(proj_point);
     }
   }
+
   return proj_cloud;
 }
 
@@ -89,8 +92,8 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                    PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
                    double max_corr_distance, int num_corrs) {
-  
-  
+
+  LOG_INFO("Correspondences: starting estimation");
 
   //clear the previous correspondences 
   corrs->clear();
@@ -99,8 +102,16 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   PointCloud::Ptr trans_cloud (new PointCloud);
   trans_cloud = TransformCloud(cad_cloud, T);
 
+  LOG_INFO("Correspondences: transformed CAD cloud");
+  LOG_INFO("Correspondences: transformed cloud size %ld", trans_cloud->size());
+
+  LOG_INFO("Correspondences: sample CAD point in camera frame %f,%f,%f", trans_cloud->at(100).x,trans_cloud->at(100).y,trans_cloud->at(100).z);
+
   // project the transformed points to the camera plane
   PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
+
+  LOG_INFO("Correspondences: projected CAD cloud");
+  LOG_INFO("Correspondences: projected cloud size %ld", proj_cloud->size());
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
@@ -113,6 +124,9 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     T(2, 3) = camera_centroid.z - proj_centroid.z;
     TransformCloudUpdate(proj_cloud, T);
   }
+
+  LOG_INFO("Correspondences: projected and algined clouds");
+
 
   // Get correspondences 
 
@@ -148,6 +162,9 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     }
 
   }
+
+  LOG_INFO("Correspondences: exiting correspondence estimation");
+
 }
 
 Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
@@ -162,7 +179,7 @@ Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
 }
 
 void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
-                   double max_y_dim, float& x_scale, float& y_scale) {
+                   double max_y_dim, double x_scale, double y_scale) {
   // get max cloud dimensions in x and y
   float max_x = 0;
   float max_y = 0;
@@ -176,8 +193,8 @@ void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
   }
 
   // CAD unit/pixel
-  x_scale = max_x_dim / (max_x - min_x);
-  y_scale = max_y_dim / (max_y - min_y);
+  x_scale = (max_x_dim / (max_x - min_x));
+  y_scale = (max_y_dim / (max_y - min_y));
 }
 
 void ScaleCloud(PointCloud::Ptr cloud, float scale) {

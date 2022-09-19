@@ -7,9 +7,14 @@ namespace cad_image_markup {
 CadImageMarkup::CadImageMarkup(const Inputs& inputs) : inputs_(inputs) {}
 
 bool CadImageMarkup::Run() {
+
+  LOG_INFO("Markup Run Starting");
+
   if (!Setup()) {
     return false;
   }
+
+  LOG_INFO("Markup Setup Complete");
 
   // todo here:
   if (!LoadData()) {
@@ -33,8 +38,11 @@ bool CadImageMarkup::Setup() {
     return false;
   }
 
+  // TODO: fix redundancy here, utils used to have a common camera model attribute for all fcns when it was a class, should 
+  // just pass into every relevant fcn
   std::shared_ptr<CameraModel> camera_model =
       CameraModel::Create(inputs_.intrinsics_path);
+  utils::ReadCameraModel(inputs_.intrinsics_path);
 
   solver_ = std::make_unique<Solver>(camera_model, params_,
                                      inputs_.ceres_config_path);
@@ -87,6 +95,25 @@ bool CadImageMarkup::Solve() {
   Eigen::Matrix4d T_WORLD_CAMERA_init;
   LoadInitialPose(inputs_.initial_pose_path, T_WORLD_CAMERA_init);
 
+  // not sure about this - I think this should place the CAD cloud in space at the initial pose provided if
+  // it has previously been aligned with the origin of the camera
+
+  LOG_INFO("Sample CAD point in CAD frame %f,%f,%f", cad_points_CADFRAME_->at(100).x,cad_points_CADFRAME_->at(100).y,cad_points_CADFRAME_->at(100).z);
+
+  //cad_points_WORLDFRAME_ = utils::TransformCloud(cad_points_CADFRAME_,T_WORLD_CAMERA_init);
+  // these two frames are effectively coincident for the rest of the solution
+  cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
+
+  LOG_INFO("Sample CAD point in World frame %f,%f,%f", cad_points_WORLDFRAME_->at(100).x,cad_points_WORLDFRAME_->at(100).y,cad_points_WORLDFRAME_->at(100).z);
+  //cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
+
+  // perturb the initial camera world transform to reflect the orientation of the camera coordinates
+  Eigen::VectorXd perturbation(6, 1);
+  perturbation << 0, 0, 0, 0, 0, 10;
+  //T_WORLD_CAMERA_init = utils::PerturbTransformDegM(T_WORLD_CAMERA_init,perturbation);
+  perturbation << 0, 90, 0, 0, 0, 0;
+  //T_WORLD_CAMERA_init = utils::PerturbTransformDegM(T_WORLD_CAMERA_init,perturbation);
+
   LOG_INFO("Running solver");
   bool converged =
       solver_->Solve(cad_points_WORLDFRAME_, camera_points_CAMFRAME_,
@@ -131,7 +158,7 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
         "No initial pose path provided. Assuming the image was collected about "
         "3 m from the structure, and taken perpendicularly.");
     T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
-    T_WORLD_CAMERA(2,3) = -3; // cad model is assumed to be 3 m ahead of camera in z
+    T_WORLD_CAMERA(2,3) = 3; // cad model is assumed to be 3 m ahead of camera in z
     return;
   }
 

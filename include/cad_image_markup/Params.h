@@ -75,8 +75,14 @@ inline std::string GetCorrespondenceTypes() {
 struct Params {
   // SOLUTION OPTIONS
 
-  /** CAD drawing scale in pixels/working unit (meters, feet, etc.) */
+  /** CAD drawing scale in working unit/pixel (meters, feet, etc.) */
   double cad_cloud_scale{100};
+  double cad_cloud_scale_x{100};
+  double cad_cloud_scale_y{100};
+
+  /** Alternatively, can provide surface dimensions (in working unit) to calculate scale automatically */
+  double max_x_dim{1.5}; 
+  double max_y_dim{3};
 
   /** maximum number of correspondence iterations of the overall solution
    * before the solver exits */

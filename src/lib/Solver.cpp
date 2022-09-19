@@ -15,16 +15,31 @@ Solver::Solver(
 bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
                    PointCloud::ConstPtr camera_cloud,
                    Eigen::Matrix4d& T_WORLD_CAMERA, bool visualize) {
-  // cad_cloud_ = cad_cloud;
-  // camera_cloud_ = camera_cloud;
+  cad_cloud_ = cad_cloud;
+  camera_cloud_ = camera_cloud;
+
+  LOG_INFO("SOLVER: cad cloud size: %ld", cad_cloud->size());
+  LOG_INFO("SOLVER: camera cloud size: %ld", camera_cloud->size());
+
+  LOG_INFO("SOLVER: Initiated");
 
   solution_iterations_ = 0;
   last_iteration_cost_ = 0;
 
   bool has_converged = false;
 
+  LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
+
+  float cad_scale_x = 0.01, cad_scale_y = 0.01;
+
+
+  utils::GetCloudScale(cad_cloud,params_.max_x_dim, params_.max_y_dim, cad_scale_x, cad_scale_y);
+
+  // CAD drawing should have the same x and y scale
   PointCloud::Ptr CAD_cloud_scaled =
-      utils::ScaleCloud(cad_cloud, params_.cad_cloud_scale);
+      utils::ScaleCloud(cad_cloud, cad_scale_x);
+
+  LOG_INFO("SOLVER: Finished Scaling CAD Cloud by: %f",cad_scale_x);
 
   // correspondence object tells the cost function which points to compare
   pcl::CorrespondencesPtr proj_corrs(new pcl::Correspondences);
@@ -36,9 +51,16 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   } else if (params_.correspondence_type == CorrespondenceType::P2LINE) {
     num_correspondences = 2;
   }
+
+  num_correspondences == 1 ? LOG_INFO("SOLVER: Selected Point to Point Correspondences") : LOG_INFO("SOLVER: Selected Point to Line Correspondences");
+
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA,
                                 proj_corrs, params_.align_centroids,
                                 params_.max_corr_distance, num_correspondences);
+
+  std::cout << T_WORLD_CAMERA << "\n";
+
+  LOG_INFO("SOLVER: Initial Correspondences Estimated");
 
   if (params_.visualize) visualizer_->StartVis();
 
@@ -232,11 +254,13 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
   PointCloud::Ptr trans_cloud =
       utils::TransformCloud(CAD_cloud_scaled, T_WORLD_CAMERA);
 
+  LOG_INFO("SOLVER: Sample CAD cloud point in camera frame (for visualization): %f,%f,%f", trans_cloud->at(100).x,trans_cloud->at(100).y,trans_cloud->at(100).z);
+
   // project cloud for visualizer
   PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud);
 
   // blow up the transformed cloud for visualization
-  utils::ScaleCloud(trans_cloud, (1 / params_.cad_cloud_scale));
+  utils::ScaleCloud(trans_cloud, (params_.cad_cloud_scale_x));
 
   visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
                              "camera_cloud", "transformed_cloud",

@@ -142,7 +142,7 @@ Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
  * @param y_scale scale in y direction (CAD unit/pixel)
  */
 void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
-                   double max_y_dim, float& x_scale, float& y_scale);
+                   double max_y_dim, double x_scale, double y_scale);
 
 /**
  * @brief Method to scale a cloud (in xyz)
@@ -170,6 +170,7 @@ PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
  * @todo not sure if we really need this one
  */
 void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
+
 
 /**
  * @brief Method to get the plane that best fits a cloud
