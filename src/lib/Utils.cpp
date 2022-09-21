@@ -88,6 +88,18 @@ void TransformCloudUpdate (PointCloud::Ptr cloud,
 
 }
 
+void GetCorrespondences(pcl::CorrespondencesPtr corrs_, 
+                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
+                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
+                              uint16_t max_dist_) {
+
+    pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ> corr_est;
+    corr_est.setInputSource(source_coud_);
+    corr_est.setInputTarget(target_cloud_);
+    corr_est.determineCorrespondences(*corrs_,max_dist_);
+
+}
+
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                    PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
@@ -113,16 +125,18 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   LOG_INFO("Correspondences: projected CAD cloud");
   LOG_INFO("Correspondences: projected cloud size %ld", proj_cloud->size());
 
+  LOG_INFO("Correspondences: camera cloud size: %ld", camera_cloud->size());
+
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
     pcl::PointXYZ camera_centroid = GetCloudCentroid(camera_cloud);
     pcl::PointXYZ proj_centroid = GetCloudCentroid(proj_cloud);
 
-    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
-    T(0, 3) = camera_centroid.x - proj_centroid.x;
-    T(1, 3) = camera_centroid.y - proj_centroid.y;
-    T(2, 3) = camera_centroid.z - proj_centroid.z;
-    TransformCloudUpdate(proj_cloud, T);
+    Eigen::Matrix4d T1 = Eigen::Matrix4d::Identity();
+    T1(0, 3) = camera_centroid.x - proj_centroid.x;
+    T1(1, 3) = camera_centroid.y - proj_centroid.y;
+    T1(2, 3) = camera_centroid.z - proj_centroid.z;
+    TransformCloudUpdate(proj_cloud, T1);
   }
 
   LOG_INFO("Correspondences: projected and algined clouds");
@@ -134,7 +148,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
   proj_kdtree.setInputCloud (proj_cloud);
 
-  for(uint16_t i = 0; i<camera_cloud->size(); i++) {
+  for(uint32_t i = 0; i<camera_cloud->size(); i++) {
     std::vector<int> target_neighbor_indices(num_corrs);
     std::vector<float> target_neighbor_distances(num_corrs);
     pcl::Correspondence corr1;
@@ -142,7 +156,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
 
     if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
         target_neighbor_indices, target_neighbor_distances) >= num_corrs
-        && target_neighbor_distances[0] <= max_corr_distance)
+        /*&& target_neighbor_distances[0] <= max_corr_distance*/)
     {
       corr1.index_query = i;
       corr1.index_match = target_neighbor_indices[0];
@@ -157,11 +171,14 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
         corrs->push_back(corr2);
       }
 
-      else corrs->pop_back();
+      else if (num_corrs == 2 && target_neighbor_distances[1] > max_corr_distance) corrs->pop_back();
 
     }
 
   }
+  
+
+  //GetCorrespondences(corrs,camera_cloud,cad_cloud,100000);
 
   LOG_INFO("Correspondences: exiting correspondence estimation");
 

@@ -137,11 +137,11 @@ struct Params {
   double converged_differential_rotation{1};
 
   /** number of points to interpolate between each point in input cad cloud */
-  double cad_density_index{2};
+  double cad_density_index{1};
 
   /** number of points to interpolate between each point in input camera cloud
    */
-  double cam_density_index{10};
+  double cam_density_index{2};
 
   /**
    * @brief Loads params from a json file

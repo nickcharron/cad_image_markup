@@ -158,7 +158,7 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
         "No initial pose path provided. Assuming the image was collected about "
         "3 m from the structure, and taken perpendicularly.");
     T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
-    T_WORLD_CAMERA(2,3) = 3; // cad model is assumed to be 3 m ahead of camera in z
+    T_WORLD_CAMERA(2,3) = 7; // cad model is assumed to be 3 m ahead of camera in z
     return;
   }
 

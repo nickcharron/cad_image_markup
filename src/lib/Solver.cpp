@@ -32,7 +32,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
   float cad_scale_x = 0.01, cad_scale_y = 0.01;
 
-
   utils::GetCloudScale(cad_cloud,params_.max_x_dim, params_.max_y_dim, cad_scale_x, cad_scale_y);
 
   // CAD drawing should have the same x and y scale
@@ -60,7 +59,7 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
   std::cout << T_WORLD_CAMERA << "\n";
 
-  LOG_INFO("SOLVER: Initial Correspondences Estimated");
+  LOG_INFO("SOLVER: Initial Correspondences Estimated: %ld", proj_corrs->size());
 
   if (params_.visualize) visualizer_->StartVis();
 
@@ -120,14 +119,21 @@ void Solver::BuildCeresProblem(
     std::shared_ptr<cad_image_markup::CameraModel> camera_model,
     PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud) {
   if (params_.output_results) {
-    LOG_INFO("Building ceres problem...");
+    LOG_INFO("SOLVER: Building ceres problem...");
   }
   // initialize problem
   problem_ = std::make_shared<ceres::Problem>(ceres_params_.ProblemOptions());
 
+  // TEST! -> add a function to properly load the initial results
+  results_ = {0,0,0,1,0,0,1};
+
   std::unique_ptr<ceres::LocalParameterization> parameterization =
       ceres_params_.SE3QuatTransLocalParametrization();
   problem_->AddParameterBlock(&(results_[0]), 7, parameterization.get());
+
+  if (params_.output_results) {
+    LOG_INFO("SOLVER: Added Parameter Block...");
+  }
 
   // add residuals
   for (int i = 0; i < proj_corrs->size(); i++) {

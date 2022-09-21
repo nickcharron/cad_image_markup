@@ -99,6 +99,13 @@ PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
  */
 void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
 
+
+// TODO: add info
+void GetCorrespondences(pcl::CorrespondencesPtr corrs_, 
+                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
+                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
+                              uint16_t max_dist_);
+
 /**
  * @brief Method to get single correspondences between a CAD cloud projection
  * and an image cloud given transformation matrix
