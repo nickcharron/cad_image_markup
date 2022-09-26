@@ -136,6 +136,7 @@ public:
      * @param id_image unique cloud id for display
      * @param id_cad unique cloud id for display
      * @param id_projected unique cloud id for display
+     * @param source source cloud for the correspondences, "projected" or "camera"
      */
     void DisplayClouds(PointCloud::ConstPtr image_cloud,
                             PointCloud::Ptr cad_cloud,
@@ -143,7 +144,8 @@ public:
                             pcl::CorrespondencesConstPtr corrs,
                             std::string id_image,
                             std::string id_cad,
-                            std::string id_projected);
+                            std::string id_projected, 
+                            std::string source);
 
 private: 
     pcl::visualization::PCLVisualizer::Ptr point_cloud_display_;

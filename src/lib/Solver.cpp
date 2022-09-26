@@ -10,6 +10,7 @@ Solver::Solver(
 
   // Initialize visualizer directly in Solver
   visualizer_ = std::make_shared<Visualizer>("solution visualizer");
+  source_cloud_ = params_.source_cloud;
 }
 
 bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
@@ -27,6 +28,8 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   last_iteration_cost_ = 0;
 
   bool has_converged = false;
+
+  // TODO: Initialize results
 
   LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
 
@@ -55,7 +58,7 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA,
                                 proj_corrs, params_.align_centroids,
-                                params_.max_corr_distance, num_correspondences);
+                                params_.max_corr_distance, num_correspondences,source_cloud_);
 
   std::cout << T_WORLD_CAMERA << "\n";
 
@@ -86,7 +89,7 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
     utils::CorrespondenceEstimate(
         CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
         params_.align_centroids, params_.max_corr_distance,
-        num_correspondences);
+        num_correspondences, source_cloud_);
 
     void CorrespondenceEstimate(
         PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
@@ -144,6 +147,7 @@ void Solver::BuildCeresProblem(
                               cad_cloud->at(proj_corrs->at(i).index_match).y,
                               cad_cloud->at(proj_corrs->at(i).index_match).z);
 
+    // TODO: populate this?
     Eigen::Vector3d P_STRUCT2;
 
     // If two correspondences have been specified, every second correspondence
@@ -169,18 +173,23 @@ void Solver::BuildCeresProblem(
     if (params_.correspondence_type == CorrespondenceType::P2POINT)
       problem_->AddResidualBlock(cost_function1.release(), loss_function.get(),
                                  &(results_[0]));
+      
 
     else if (params_.correspondence_type == CorrespondenceType::P2LINE)
       problem_->AddResidualBlock(cost_function2.release(), loss_function.get(),
                                  &(results_[0]));
   }
+
+  LOG_INFO("SOLVER: Finished Building Ceres Problem");
+
 }
 
 void Solver::SolveCeresProblem() {
   // ceres::Solver::Summary ceres_summary;
 
   if (params_.output_results) {
-    LOG_INFO("Solving ceres problem...");
+    LOG_INFO("SOLVER: Solving ceres problem...");
+
     ceres::Solve(ceres_params_.SolverOptions(), problem_.get(), &summary_);
     LOG_INFO("Done.");
     LOG_INFO("Outputting ceres summary:");
@@ -270,7 +279,7 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
 
   visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
                              "camera_cloud", "transformed_cloud",
-                             "projected_cloud");
+                             "projected_cloud",source_cloud_);
 
   // wait on user input to continue or cancel the solution
   char end = ' ';

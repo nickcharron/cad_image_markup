@@ -103,7 +103,7 @@ void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                    PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
-                   double max_corr_distance, int num_corrs) {
+                   double max_corr_distance, int num_corrs, std::string source) {
 
   LOG_INFO("Correspondences: starting estimation");
 
@@ -142,39 +142,76 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   LOG_INFO("Correspondences: projected and algined clouds");
 
 
-  // Get correspondences 
+  // Get correspondences (source camera)
+  if (source == "camera") {
+    // Build kd tree from projected cloud
+    pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
+    proj_kdtree.setInputCloud (proj_cloud);
 
-  // Build kd tree from projected cloud
-  pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
-  proj_kdtree.setInputCloud (proj_cloud);
+    for(uint32_t i = 0; i<camera_cloud->size(); i++) {
+      std::vector<int> target_neighbor_indices(num_corrs);
+      std::vector<float> target_neighbor_distances(num_corrs);
+      pcl::Correspondence corr1;
+      pcl::Correspondence corr2;
 
-  for(uint32_t i = 0; i<camera_cloud->size(); i++) {
-    std::vector<int> target_neighbor_indices(num_corrs);
-    std::vector<float> target_neighbor_distances(num_corrs);
-    pcl::Correspondence corr1;
-    pcl::Correspondence corr2;
-
-    if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
-        target_neighbor_indices, target_neighbor_distances) >= num_corrs
-        /*&& target_neighbor_distances[0] <= max_corr_distance*/)
-    {
-      corr1.index_query = i;
-      corr1.index_match = target_neighbor_indices[0];
-
-      corrs->push_back(corr1);
-      
-      if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
+      if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
+          target_neighbor_indices, target_neighbor_distances) >= num_corrs
+          /*&& target_neighbor_distances[0] <= max_corr_distance*/)
       {
         corr1.index_query = i;
-        corr1.index_match = target_neighbor_indices[1];
+        corr1.index_match = target_neighbor_indices[0];
 
-        corrs->push_back(corr2);
+        corrs->push_back(corr1);
+        
+        if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
+        {
+          corr1.index_query = i;
+          corr1.index_match = target_neighbor_indices[1];
+
+          corrs->push_back(corr2);
+        }
+
+        else if (num_corrs == 2 && target_neighbor_distances[1] > max_corr_distance) corrs->pop_back();
+
       }
 
-      else if (num_corrs == 2 && target_neighbor_distances[1] > max_corr_distance) corrs->pop_back();
+    }
+  }
+
+  // Get correspondences (source CAD)
+  if (source == "projected") {
+    // Build kd tree from projected cloud
+    pcl::KdTreeFLANN<pcl::PointXYZ> camera_kdtree;
+    camera_kdtree.setInputCloud (camera_cloud);
+
+    for(uint32_t i = 0; i<proj_cloud->size(); i++) {
+      std::vector<int> target_neighbor_indices(num_corrs);
+      std::vector<float> target_neighbor_distances(num_corrs);
+      pcl::Correspondence corr1;
+      pcl::Correspondence corr2;
+
+      if (camera_kdtree.nearestKSearch (proj_cloud->at(i), num_corrs, 
+          target_neighbor_indices, target_neighbor_distances) >= num_corrs
+          /*&& target_neighbor_distances[0] <= max_corr_distance*/)
+      {
+        corr1.index_query = i;
+        corr1.index_match = target_neighbor_indices[0];
+
+        corrs->push_back(corr1);
+        
+        if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
+        {
+          corr1.index_query = i;
+          corr1.index_match = target_neighbor_indices[1];
+
+          corrs->push_back(corr2);
+        }
+
+        else if (num_corrs == 2 && target_neighbor_distances[1] > max_corr_distance) corrs->pop_back();
+
+      }
 
     }
-
   }
   
 

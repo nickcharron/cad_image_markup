@@ -214,10 +214,13 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
                                PointCloud::Ptr projected_cloud,
                                pcl::CorrespondencesConstPtr corrs,
                                std::string id_image, std::string id_cad,
-                               std::string id_projected) {
+                               std::string id_projected, 
+                               std::string source) {
   // get mutex for visulalizer spinning in vis thread and
   // either create a new cloud or update the existing one
   mtx_.lock();
+
+  LOG_INFO("Visualizer: Displaying Clouds");
 
   // if the visualizer does not already contain the image cloud, add it
   if (!display6_called_) {
@@ -247,10 +250,25 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
   uint16_t line_start_index = 0, line_end_index = 1;
   uint16_t line_id = 0;
 
+  LOG_INFO("Visualizer: displaying %ld correspondences", corrs->size());
+
   // illustrate correspondences
   for (uint16_t i = 0; i < corrs->size(); i++) {
-    uint16_t proj_point_index = corrs->at(i).index_match;
-    uint16_t cam_point_index = corrs->at(i).index_query;
+
+    uint16_t proj_point_index, cam_point_index;
+
+    // source camera
+    if (source == "camera") {
+      proj_point_index = corrs->at(i).index_match;
+      cam_point_index = corrs->at(i).index_query;
+    }
+
+
+    // source CAD
+    if (source == "projected") {
+      proj_point_index = corrs->at(i).index_query;
+      cam_point_index = corrs->at(i).index_match;
+    }
 
     point_cloud_display_->addLine(projected_cloud->at(proj_point_index),
                                   image_cloud->at(cam_point_index), 0, 255, 0,
@@ -259,6 +277,8 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
     line_end_index += 2;
     line_id++;
   }
+
+  LOG_INFO("Visualizer: drew %ld correspondences", corrs->size());
 
   mtx_.unlock();
 

@@ -100,7 +100,7 @@ PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
 void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
 
 
-// TODO: add info
+// TODO: add info - old version of correspondence estimation
 void GetCorrespondences(pcl::CorrespondencesPtr corrs_, 
                               pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
                               pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
@@ -120,12 +120,13 @@ void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
  * @param max_corr_distance
  * @param num_corrs number of targets points for each source point(1 or 2)
  * @param align_centroids
+ * @param source source of the correspondences, "projected" or "camera"
  */
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                             PointCloud::ConstPtr camera_cloud,
                             const Eigen::Matrix4d& T,
                             pcl::CorrespondencesPtr corrs, bool align_centroids,
-                            double max_corr_distance, int num_corrs);
+                            double max_corr_distance, int num_corrs, std::string source);
 
 /**
  * @brief Method to convert a vector of quaternions and translations to a

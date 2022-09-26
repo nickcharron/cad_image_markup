@@ -143,6 +143,10 @@ struct Params {
    */
   double cam_density_index{2};
 
+  /** source cloud for correspondences, "camera" or "projected"
+   */
+  std::string source_cloud{"camera"};
+
   /**
    * @brief Loads params from a json file
    * @param path full path to json

@@ -117,6 +117,7 @@ class Solver {
   double last_iteration_cost_;
   uint16_t solution_iterations_;
   bool solution_stalled_;
+  std::string source_cloud_;
 };
 
 }  // namespace cad_image_markup

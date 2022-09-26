@@ -73,16 +73,6 @@ bool CadImageMarkup::LoadData() {
   image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
   LOG_INFO("CAD data loaded successfully");
 
-  // TODO CAM: I don't understand why we'd need to do this?
-  // Based on our convo: we want to calculate T_WORLD_CAD where the world frame
-  // is the centroid of the object, and the cad frame is the top left corner. To
-  // calculate this, just get the translation in x and y to the centroid. Then I
-  // think we can remove this function
-
-  // CAM NOTE: This is just how I am doing that, the T_WORLD_CAMERA needs to
-  // operate initially on the cad cloud with its centroid aligned with the
-  // camera, when the cad cloud and back-projected defects are flattened,
-  // shifting back by the origin coodinates puts everything back in CAD frame
   LOG_INFO("Getting CAD centroid");
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_, cad_centroid_);
@@ -106,13 +96,6 @@ bool CadImageMarkup::Solve() {
 
   LOG_INFO("Sample CAD point in World frame %f,%f,%f", cad_points_WORLDFRAME_->at(100).x,cad_points_WORLDFRAME_->at(100).y,cad_points_WORLDFRAME_->at(100).z);
   //cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
-
-  // perturb the initial camera world transform to reflect the orientation of the camera coordinates
-  Eigen::VectorXd perturbation(6, 1);
-  perturbation << 0, 0, 0, 0, 0, 10;
-  //T_WORLD_CAMERA_init = utils::PerturbTransformDegM(T_WORLD_CAMERA_init,perturbation);
-  perturbation << 0, 90, 0, 0, 0, 0;
-  //T_WORLD_CAMERA_init = utils::PerturbTransformDegM(T_WORLD_CAMERA_init,perturbation);
 
   LOG_INFO("Running solver");
   bool converged =
@@ -149,10 +132,7 @@ bool CadImageMarkup::Solve() {
 
 void CadImageMarkup::LoadInitialPose(const std::string& path,
                                      Eigen::Matrix4d& T_WORLD_CAMERA) {
-  // TODO CAM: double check this. I assume the coordinate frame of the world
-  // frame is centered at the centroid of the CAD model, with the axes aligned
-  // with the camera axes. I.e., z pointing from camera to cad model, x - right,
-  // y - down
+
   if (path.empty()) {
     LOG_INFO(
         "No initial pose path provided. Assuming the image was collected about "
