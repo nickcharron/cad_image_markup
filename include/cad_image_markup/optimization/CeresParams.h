@@ -198,6 +198,7 @@ class CeresParams {
     problem_options_.local_parameterization_ownership =
         ceres::DO_NOT_TAKE_OWNERSHIP;
     problem_options_.cost_function_ownership = ceres::DO_NOT_TAKE_OWNERSHIP;
+
   }
 
   std::map<std::string, ceres::LinearSolverType> linear_solver_map_{

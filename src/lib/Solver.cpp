@@ -124,10 +124,19 @@ void Solver::BuildCeresProblem(
   if (params_.output_results) {
     LOG_INFO("SOLVER: Building ceres problem...");
   }
-  // initialize problem
-  problem_ = std::make_shared<ceres::Problem>(ceres_params_.ProblemOptions());
 
-  // TEST! -> add a function to properly load the initial results
+    // set ceres problem options
+  ceres::Problem::Options ceres_problem_options;
+
+  // if we want to manage our own data for these, we can set these flags:
+  ceres_problem_options.loss_function_ownership = ceres::DO_NOT_TAKE_OWNERSHIP;
+  ceres_problem_options.local_parameterization_ownership =
+      ceres::DO_NOT_TAKE_OWNERSHIP;
+  // initialize problem
+  //problem_ = std::make_shared<ceres::Problem>(ceres_params_.ProblemOptions());
+  problem_ = std::make_shared<ceres::Problem>(ceres_problem_options);
+
+  // TODO -> add a function to properly load the initial results
   results_ = {0,0,0,1,0,0,1};
 
   std::unique_ptr<ceres::LocalParameterization> parameterization =
@@ -170,11 +179,10 @@ void Solver::BuildCeresProblem(
     std::unique_ptr<ceres::LossFunction> loss_function =
         ceres_params_.LossFunction();
 
-    if (params_.correspondence_type == CorrespondenceType::P2POINT)
+    if (params_.correspondence_type == CorrespondenceType::P2POINT) {
       problem_->AddResidualBlock(cost_function1.release(), loss_function.get(),
                                  &(results_[0]));
-      
-
+    }
     else if (params_.correspondence_type == CorrespondenceType::P2LINE)
       problem_->AddResidualBlock(cost_function2.release(), loss_function.get(),
                                  &(results_[0]));
