@@ -29,6 +29,9 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
   bool has_converged = false;
 
+  // TODO -> add a function to properly load the initial results
+  results_ = {0,0,0,1,0,0,7};
+
   // TODO: Initialize results
 
   LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
@@ -78,10 +81,9 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
         return false;
     }
 
-    BuildCeresProblem(proj_corrs, camera_model_, camera_cloud_,
-                      CAD_cloud_scaled);
+    std::shared_ptr<ceres::Problem> problem = BuildCeresProblem(proj_corrs, camera_model_, camera_cloud_, CAD_cloud_scaled);
 
-    SolveCeresProblem();
+    //SolveCeresProblem(problem);
 
     T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
@@ -117,7 +119,7 @@ Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() {
 
 // Solver::Summary::FullReport Solver::GetResultsSummary() { return summary_; }
 
-void Solver::BuildCeresProblem(
+std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
     pcl::CorrespondencesPtr proj_corrs,
     std::shared_ptr<cad_image_markup::CameraModel> camera_model,
     PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud) {
@@ -125,7 +127,7 @@ void Solver::BuildCeresProblem(
     LOG_INFO("SOLVER: Building ceres problem...");
   }
 
-    // set ceres problem options
+  // set ceres problem options
   ceres::Problem::Options ceres_problem_options;
 
   // if we want to manage our own data for these, we can set these flags:
@@ -133,19 +135,22 @@ void Solver::BuildCeresProblem(
   ceres_problem_options.local_parameterization_ownership =
       ceres::DO_NOT_TAKE_OWNERSHIP;
   // initialize problem
-  //problem_ = std::make_shared<ceres::Problem>(ceres_params_.ProblemOptions());
   problem_ = std::make_shared<ceres::Problem>(ceres_problem_options);
 
-  // TODO -> add a function to properly load the initial results
-  results_ = {0,0,0,1,0,0,1};
+  std::shared_ptr<ceres::Problem> problem =
+      std::make_shared<ceres::Problem>(ceres_problem_options);
 
   std::unique_ptr<ceres::LocalParameterization> parameterization =
       ceres_params_.SE3QuatTransLocalParametrization();
-  problem_->AddParameterBlock(&(results_[0]), 7, parameterization.get());
+
+  problem->AddParameterBlock(&(results_[0]), 7, parameterization.get());
 
   if (params_.output_results) {
     LOG_INFO("SOLVER: Added Parameter Block...");
   }
+
+  std::unique_ptr<ceres::LossFunction> loss_function =
+        ceres_params_.LossFunction();
 
   // add residuals
   for (int i = 0; i < proj_corrs->size(); i++) {
@@ -176,35 +181,37 @@ void Solver::BuildCeresProblem(
         point_to_line_cost::CeresReprojectionCostFunction::Create(
             pixel, P_STRUCT1, P_STRUCT2, camera_model_));
 
-    std::unique_ptr<ceres::LossFunction> loss_function =
-        ceres_params_.LossFunction();
-
     if (params_.correspondence_type == CorrespondenceType::P2POINT) {
-      problem_->AddResidualBlock(cost_function1.release(), loss_function.get(),
+      problem->AddResidualBlock(cost_function1.release(), loss_function.get(),
                                  &(results_[0]));
     }
     else if (params_.correspondence_type == CorrespondenceType::P2LINE)
-      problem_->AddResidualBlock(cost_function2.release(), loss_function.get(),
+      problem->AddResidualBlock(cost_function2.release(), loss_function.get(),
                                  &(results_[0]));
   }
 
   LOG_INFO("SOLVER: Finished Building Ceres Problem");
+  SolveCeresProblem(problem);
+  return problem;
 
 }
 
-void Solver::SolveCeresProblem() {
+void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
   // ceres::Solver::Summary ceres_summary;
 
   if (params_.output_results) {
     LOG_INFO("SOLVER: Solving ceres problem...");
 
-    ceres::Solve(ceres_params_.SolverOptions(), problem_.get(), &summary_);
+    // DEBUG:: Generate an interrupt before starting ceres solution
+    // std::raise(SIGINT);
+
+    ceres::Solve(ceres_params_.SolverOptions(), problem.get(), &summary_);
     LOG_INFO("Done.");
     LOG_INFO("Outputting ceres summary:");
     std::string report = summary_.FullReport();
     std::cout << report << "\n";
   } else {
-    ceres::Solve(ceres_params_.SolverOptions(), problem_.get(), &summary_);
+    ceres::Solve(ceres_params_.SolverOptions(), problem.get(), &summary_);
   }
 }
 

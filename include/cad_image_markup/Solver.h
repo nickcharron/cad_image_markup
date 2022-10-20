@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <stdio.h>
+#include <csignal>
 
 #include <ceres/ceres.h>
 #include <ceres/autodiff_cost_function.h>
@@ -77,13 +78,13 @@ class Solver {
   /**
    * @brief Method for building the Ceres problem by adding the residual blocks
    */
-  void BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
+  std::shared_ptr<ceres::Problem> BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
                          PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud);
 
   /**
    * @brief Method to call the ceres solver on the individual ceres problem
    */
-  void SolveCeresProblem();
+  void SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem);
 
   /**
    * @brief Method to check the overall problem for convergence
