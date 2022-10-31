@@ -10,7 +10,7 @@
 namespace cad_image_markup {
 
 // Enum class for different convergence types
-enum class ConvergenceType { GEOMETRIC = 0, LOSS };
+enum class ConvergenceType { GEOMETRIC = 0, LOSS = 1};
 
 // Map for storing string input
 static std::map<std::string, ConvergenceType> ConvergenceTypeStringMap = {
@@ -29,7 +29,7 @@ inline std::string GetConvergenceTypes() {
 }
 
 // Enum class for different convergence conditions
-enum class ConvergenceCondition { DIFFERENCE = 0, ABSOLUTE };
+enum class ConvergenceCondition { DIFFERENCE = 0, ABSOLUTE = 1};
 
 // Map for storing string input
 static std::map<std::string, ConvergenceCondition>

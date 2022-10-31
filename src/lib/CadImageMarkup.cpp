@@ -21,9 +21,13 @@ bool CadImageMarkup::Run() {
     return false;
   }
 
+  LOG_INFO("Markup Load Data Complete");
+
   if (!Solve()) {
     return false;
   }
+
+  LOG_INFO("Markup Solution Complete");
 
   return true;
 }
@@ -125,6 +129,8 @@ bool CadImageMarkup::Solve() {
   //                                ceres_config.json
   Eigen::Matrix4d T_WORLD_CAMERA = solver_->GetT_WORLD_CAMERA();
   std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
+
+  return true;
 }
 
 //////////////////////////////////////////////////////////////////////

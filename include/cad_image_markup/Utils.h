@@ -139,6 +139,17 @@ Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
     const std::vector<double>& pose);
 
 /**
+ * @brief Method convert a transformation matrix to a quaternion and translation
+ * @param T transformation matrix
+ * @param q quaternion representing the rotation encapsulated in the transformation matrix
+ * @param p vector representing the translation encapsulated in the transformation matrix
+ * @return void
+ */
+void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
+                                               Eigen::Quaterniond& q,
+                                               Eigen::Vector3d& p);
+
+/**
  * @brief Method to get the scale in x and y of a cloud with respect to the
  * original structure dimensions
  * @param cloud scaled point cloud

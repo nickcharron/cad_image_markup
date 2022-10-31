@@ -30,9 +30,21 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   bool has_converged = false;
 
   // TODO -> add a function to properly load the initial results
-  results_ = {0,0,0,1,0,0,7};
+  //results_ = {0,0,0,1,0,0,3};
+  //T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
-  // TODO: Initialize results
+  Eigen::Quaterniond results_init_rotation;
+  Eigen::Vector3d results_init_translation;
+
+  utils::TransformMatrixToQuaternionAndTranslation(T_WORLD_CAMERA,results_init_rotation,results_init_translation);
+
+  results_ = {results_init_rotation.w(),
+              results_init_rotation.x(),
+              results_init_rotation.y(),
+              results_init_rotation.z(),
+              results_init_translation.x(),
+              results_init_translation.y(),
+              results_init_translation.z()};
 
   LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
 
@@ -62,8 +74,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA,
                                 proj_corrs, params_.align_centroids,
                                 params_.max_corr_distance, num_correspondences,source_cloud_);
-
-  std::cout << T_WORLD_CAMERA << "\n";
 
   LOG_INFO("SOLVER: Initial Correspondences Estimated: %ld", proj_corrs->size());
 
@@ -116,8 +126,6 @@ Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() {
 
   return T_WORLD_CAMERA;
 }
-
-// Solver::Summary::FullReport Solver::GetResultsSummary() { return summary_; }
 
 std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
     pcl::CorrespondencesPtr proj_corrs,
@@ -217,18 +225,23 @@ void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
 
 bool Solver::HasConverged() {
   // Cannot converge on a single solver iteration
-  if (solution_iterations_ <= 1) return false;
+  if (solution_iterations_ <= 10) return false;
+
 
   // Check ceres loss convergence conditions
+  
   if (params_.convergence_type == ConvergenceType::LOSS) {
-    double differential_cost =
-        std::abs(summary_.final_cost - last_iteration_cost_);
+    double differential_cost = std::fabs(summary_.final_cost - last_iteration_cost_);
     if ((differential_cost <= params_.converged_differential_cost &&
          params_.convergence_condition == ConvergenceCondition::DIFFERENCE) ||
         (summary_.final_cost <= params_.converged_absolute_cost &&
          params_.convergence_condition == ConvergenceCondition::ABSOLUTE))
       return true;
   }
+  
+
+  if (solution_iterations_ > 10 ) return true;
+
 
   // Check physical geometric convergence conditions
   // Assumes that conditions are provided in the same unit as the cloud scale

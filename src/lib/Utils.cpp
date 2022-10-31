@@ -232,6 +232,15 @@ Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
   return T;
 }
 
+void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
+                                               Eigen::Quaterniond& q,
+                                               Eigen::Vector3d& p) {
+  Eigen::Matrix3d R = T.block<3, 3>(0, 0);
+  Eigen::Quaterniond q_tmp(R);
+  q = q_tmp;
+  p = T.block<3, 1>(0, 3).transpose();
+}
+
 void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
                    double max_y_dim, double x_scale, double y_scale) {
   // get max cloud dimensions in x and y
