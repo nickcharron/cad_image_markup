@@ -52,9 +52,8 @@ TEST_CASE("Solution test.") {
       .ceres_config_path =
           "/home/user/sdic_cad_reprojection/cad_image_markup/config/"
           "CeresParamsDefault.json",
-      /*.initial_pose_path =
-          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/poses/"
-          "-3.000000_0.000000.json"*/};
+      .initial_pose_path =
+          "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/initial_pose.json"};
 
   cad_image_markup::CadImageMarkup markup(inputs);
 
