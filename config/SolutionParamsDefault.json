@@ -1,16 +1,14 @@
 {
-  "solution_options":
-  {
+  "solution_options": {
     "cad_cloud_scale": 100,
     "max_solution_iterations": 30,
     "visualize": true,
-    "output_results": true, 
+    "output_results": true,
     "align_centroids": true,
     "correspondence_type": "P2POINT",
     "max_corr_distance": 1000
   },
-  "convergence_options":
-  {
+  "convergence_options": {
     "convergence_type": "LOSS",
     "convergence_condition": "DIFFERENCE",
     "converged_differential_cost": 1,

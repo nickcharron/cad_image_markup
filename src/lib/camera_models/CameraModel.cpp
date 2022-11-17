@@ -13,6 +13,12 @@ namespace cad_image_markup {
 std::shared_ptr<CameraModel> CameraModel::Create(std::string& file_location) {
   std::shared_ptr<CameraModel> camera_model;
 
+  if(!boost::filesystem::exists(file_location)){
+    LOG_ERROR("invalid file path: %s", file_location.c_str());
+    throw std::invalid_argument{"invalid file path"};
+  }
+
+  LOG_INFO("Loading camera model from file: %s", file_location.c_str());
   std::string file_ext = boost::filesystem::extension(file_location);
   if (file_ext == ".json") {
     // load JSON

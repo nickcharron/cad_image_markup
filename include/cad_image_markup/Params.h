@@ -232,6 +232,8 @@ struct Params {
       return false;
     }
 
+    LOG_INFO("Done loading parms");
+
     return true;
   }
 };
