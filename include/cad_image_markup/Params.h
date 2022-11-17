@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include <cad_image_markup/Log.h>
 #include <cad_image_markup/nlohmann/json.h>
 

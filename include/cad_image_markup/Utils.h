@@ -268,7 +268,7 @@ std::string CombinePaths(const std::vector<std::string>& paths);
  * @brief get full file path of a file in the config directory
  * @param path_from_root path from root of the config folder
  */
-std::string GetConfigDataFilepath(const std::string& path_from_root) {
+std::string GetConfigDataFilepath(const std::string& path_from_root);
 
 } // namespace utils
 
