@@ -1,22 +1,22 @@
 #pragma once
 
+#include <csignal>
 #include <fstream>
 #include <stdio.h>
-#include <csignal>
 
-#include <ceres/ceres.h>
-#include <ceres/autodiff_cost_function.h>
-#include <ceres/rotation.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+#include <ceres/autodiff_cost_function.h>
+#include <ceres/ceres.h>
+#include <ceres/rotation.h>
 
+#include <cad_image_markup/Params.h>
+#include <cad_image_markup/Utils.h>
+#include <cad_image_markup/Visualizer.h>
 #include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
 #include <cad_image_markup/optimization/CeresParams.h>
 #include <cad_image_markup/optimization/PointToLineCost.h>
-#include <cad_image_markup/Utils.h>
-#include <cad_image_markup/Params.h>
-#include <cad_image_markup/Visualizer.h>
 
 namespace cad_image_markup {
 
@@ -24,8 +24,7 @@ namespace cad_image_markup {
  * @brief Class to solve camera pose estimation problem
  */
 class Solver {
- public:
-
+public:
   struct ResultsSummary {
     ceres::Solver::Summary ceres_summary;
     uint8_t solution_iterations{0};
@@ -37,14 +36,14 @@ class Solver {
    * @param params params needed for this class. See Params.h
    * @param ceres config path. See optimization/CeresParams.h
    */
-  Solver(const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
-         const Params& params, const std::string& ceres_config_path = "");
+  Solver(const std::shared_ptr<CameraModel>& camera_model, const Params& params,
+         const std::string& ceres_config_path = "");
 
   /**
    * @brief Constructor with default params
    * @param camera_model
    */
-  Solver(const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
+  Solver(const std::shared_ptr<CameraModel>& camera_model);
 
   /**
    * @brief Default destructor
@@ -72,14 +71,17 @@ class Solver {
   /**
    * @brief method for accessing results summary
    */
-  //ceres::Solver::Summary::FullReport GetResultsSummary();
+  // ceres::Solver::Summary::FullReport GetResultsSummary();
 
- private:
+private:
   /**
    * @brief Method for building the Ceres problem by adding the residual blocks
    */
-  std::shared_ptr<ceres::Problem> BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
-                         PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud);
+  std::shared_ptr<ceres::Problem>
+      BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs,
+                        std::shared_ptr<CameraModel> camera_model,
+                        PointCloud::ConstPtr camera_cloud,
+                        PointCloud::ConstPtr cad_cloud);
 
   /**
    * @brief Method to call the ceres solver on the individual ceres problem
@@ -94,17 +96,19 @@ class Solver {
 
   /**
    * @brief Method to update the visualization display
-   * @note Holds the solution until user enters 'n' to progress to the next iteration
-   *       or 'r' to cancel the solution
+   * @note Holds the solution until user enters 'n' to progress to the next
+   * iteration or 'r' to cancel the solution
    */
-  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
+                        Eigen::Matrix4d& T_WORLD_CAMERA,
+                        pcl::CorrespondencesPtr proj_corrs);
 
   // options
   const Params& params_;
   optimization::CeresParams ceres_params_;
 
   // input member variables
-  std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
+  std::shared_ptr<CameraModel> camera_model_;
   std::shared_ptr<Visualizer> visualizer_;
   PointCloud::ConstPtr camera_cloud_;
   PointCloud::ConstPtr cad_cloud_;
@@ -121,4 +125,4 @@ class Solver {
   std::string source_cloud_;
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

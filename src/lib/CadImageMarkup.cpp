@@ -7,25 +7,18 @@ namespace cad_image_markup {
 CadImageMarkup::CadImageMarkup(const Inputs& inputs) : inputs_(inputs) {}
 
 bool CadImageMarkup::Run() {
-
   LOG_INFO("Markup Run Starting");
 
-  if (!Setup()) {
-    return false;
-  }
+  if (!Setup()) { return false; }
 
   LOG_INFO("Markup Setup Complete");
 
   // todo here:
-  if (!LoadData()) {
-    return false;
-  }
+  if (!LoadData()) { return false; }
 
   LOG_INFO("Markup Load Data Complete");
 
-  if (!Solve()) {
-    return false;
-  }
+  if (!Solve()) { return false; }
 
   LOG_INFO("Markup Solution Complete");
 
@@ -34,16 +27,17 @@ bool CadImageMarkup::Run() {
 
 bool CadImageMarkup::Setup() {
   LOG_INFO("Setting up problem");
-  camera_points_CAMFRAME_ = boost::make_shared<PointCloud>();
-  cad_points_CADFRAME_ = boost::make_shared<PointCloud>();
+  camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
+  cad_points_CADFRAME_ = std::make_shared<PointCloud>();
 
   if (!params_.LoadFromJson(inputs_.config_path)) {
     LOG_ERROR("Could not load params. Exiting ...");
     return false;
   }
 
-  // TODO: fix redundancy here, utils used to have a common camera model attribute for all fcns when it was a class, should 
-  // just pass into every relevant fcn
+  // TODO: fix redundancy here, utils used to have a common camera model
+  // attribute for all fcns when it was a class, should just pass into every
+  // relevant fcn
   std::shared_ptr<CameraModel> camera_model =
       CameraModel::Create(inputs_.intrinsics_path);
   utils::ReadCameraModel(inputs_.intrinsics_path);
@@ -51,7 +45,7 @@ bool CadImageMarkup::Setup() {
   solver_ = std::make_unique<Solver>(camera_model, params_,
                                      inputs_.ceres_config_path);
 
-  return true;                                   
+  return true;
 }
 
 bool CadImageMarkup::LoadData() {
@@ -89,17 +83,23 @@ bool CadImageMarkup::Solve() {
   Eigen::Matrix4d T_WORLD_CAMERA_init;
   LoadInitialPose(inputs_.initial_pose_path, T_WORLD_CAMERA_init);
 
-  // not sure about this - I think this should place the CAD cloud in space at the initial pose provided if
-  // it has previously been aligned with the origin of the camera
+  // not sure about this - I think this should place the CAD cloud in space at
+  // the initial pose provided if it has previously been aligned with the origin
+  // of the camera
 
-  LOG_INFO("Sample CAD point in CAD frame %f,%f,%f", cad_points_CADFRAME_->at(100).x,cad_points_CADFRAME_->at(100).y,cad_points_CADFRAME_->at(100).z);
+  LOG_INFO("Sample CAD point in CAD frame %f,%f,%f",
+           cad_points_CADFRAME_->at(100).x, cad_points_CADFRAME_->at(100).y,
+           cad_points_CADFRAME_->at(100).z);
 
-  //cad_points_WORLDFRAME_ = utils::TransformCloud(cad_points_CADFRAME_,T_WORLD_CAMERA_init);
-  // these two frames are effectively coincident for the rest of the solution
+  // cad_points_WORLDFRAME_ =
+  // utils::TransformCloud(cad_points_CADFRAME_,T_WORLD_CAMERA_init);
+  //  these two frames are effectively coincident for the rest of the solution
   cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
 
-  LOG_INFO("Sample CAD point in World frame %f,%f,%f", cad_points_WORLDFRAME_->at(100).x,cad_points_WORLDFRAME_->at(100).y,cad_points_WORLDFRAME_->at(100).z);
-  //cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
+  LOG_INFO("Sample CAD point in World frame %f,%f,%f",
+           cad_points_WORLDFRAME_->at(100).x, cad_points_WORLDFRAME_->at(100).y,
+           cad_points_WORLDFRAME_->at(100).z);
+  // cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
 
   LOG_INFO("Running solver");
   bool converged =
@@ -138,13 +138,13 @@ bool CadImageMarkup::Solve() {
 
 void CadImageMarkup::LoadInitialPose(const std::string& path,
                                      Eigen::Matrix4d& T_WORLD_CAMERA) {
-
   if (path.empty()) {
     LOG_INFO(
         "No initial pose path provided. Assuming the image was collected about "
         "3 m from the structure, and taken perpendicularly.");
     T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
-    T_WORLD_CAMERA(2,3) = 7; // cad model is assumed to be 3 m ahead of camera in z
+    T_WORLD_CAMERA(2, 3) =
+        7; // cad model is assumed to be 3 m ahead of camera in z
     return;
   }
 
@@ -162,9 +162,12 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
 
   Eigen::Matrix3d R;
   // TODO CAM: check order and put in README
-  R = Eigen::AngleAxisd(utils::DegToRad(J["pose"][3]), Eigen::Vector3d::UnitX()) *
-      Eigen::AngleAxisd(utils::DegToRad(J["pose"][4]), Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(utils::DegToRad(J["pose"][5]), Eigen::Vector3d::UnitZ());
+  R = Eigen::AngleAxisd(utils::DegToRad(J["pose"][3]),
+                        Eigen::Vector3d::UnitX()) *
+      Eigen::AngleAxisd(utils::DegToRad(J["pose"][4]),
+                        Eigen::Vector3d::UnitY()) *
+      Eigen::AngleAxisd(utils::DegToRad(J["pose"][5]),
+                        Eigen::Vector3d::UnitZ());
 
   T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
   T_WORLD_CAMERA.block(0, 0, 3, 3) = R;
@@ -173,4 +176,4 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
   T_WORLD_CAMERA(2, 3) = J["pose"][2];
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

@@ -21,7 +21,7 @@ enum class CameraType { RADTAN = 0, KANNALABRANDT, DOUBLESPHERE };
  * @brief Abstract class for camera models
  */
 class CameraModel {
- public:
+public:
   /**
    * @brief Default constructor
    */
@@ -43,9 +43,9 @@ class CameraModel {
    * @param outside_domain optional parameter, set if point is outside camera
    * model domain
    */
-  virtual opt<Eigen::Vector2d> ProjectPointPrecise(
-      const Eigen::Vector3d& point,
-      bool& outside_domain = outside_domain_default_) = 0;
+  virtual opt<Eigen::Vector2d>
+      ProjectPointPrecise(const Eigen::Vector3d& point,
+                          bool& outside_domain = outside_domain_default_) = 0;
 
   /**
    * @brief Method for projecting a point into an image plane
@@ -53,9 +53,9 @@ class CameraModel {
    * @param outside_domain optional parameter, set if point is outside camera
    * model domain
    */
-  virtual opt<Eigen::Vector2i> ProjectPoint(
-      const Eigen::Vector3d& point,
-      bool& outside_domain = outside_domain_default_) = 0;
+  virtual opt<Eigen::Vector2i>
+      ProjectPoint(const Eigen::Vector3d& point,
+                   bool& outside_domain = outside_domain_default_) = 0;
 
   /**
    * @brief Overload projection function for computing jacobian of projection
@@ -67,9 +67,9 @@ class CameraModel {
    * @param outside_domain optional parameter, set if point is outside camera
    * model domain
    */
-  virtual opt<Eigen::Vector2i> ProjectPoint(
-      const Eigen::Vector3d& point, Eigen::MatrixXd& J,
-      bool& outside_domain = outside_domain_default_) = 0;
+  virtual opt<Eigen::Vector2i>
+      ProjectPoint(const Eigen::Vector3d& point, Eigen::MatrixXd& J,
+                   bool& outside_domain = outside_domain_default_) = 0;
 
   /**
    * @brief Method back projecting
@@ -166,7 +166,7 @@ class CameraModel {
   void WriteJSON(const std::string& file_path,
                  const std::string& method = std::string());
 
- protected:
+protected:
   /**
    * @brief Method for loading calibration information from a json.
    * @param file_path full path to json
@@ -178,7 +178,7 @@ class CameraModel {
    */
   void OutputCameraTypes();
 
-  CameraType type_;  // THIS SHOULD BE SET IN EACH DERIVED CLASS CONSTRUCTOR
+  CameraType type_; // THIS SHOULD BE SET IN EACH DERIVED CLASS CONSTRUCTOR
   std::string frame_id_{""};
   std::string calibration_date_{""};
   uint32_t image_height_{0};
@@ -200,4 +200,4 @@ class CameraModel {
       {"DOUBLESPHERE", CameraType::DOUBLESPHERE}};
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

@@ -8,7 +8,7 @@ namespace cad_image_markup {
  * @brief Derived class for pinhole camera model
  */
 class Radtan : public CameraModel {
- public:
+public:
   /**
    * @brief Constructor
    * @param input_file path to input file
@@ -47,9 +47,9 @@ class Radtan : public CameraModel {
    * @param outside_domain optional parameter, set if point is outside camera
    * model domain
    */
-  opt<Eigen::Vector2i> ProjectPoint(
-      const Eigen::Vector3d& point,
-      bool& outside_domain = outside_domain_default_) override;
+  opt<Eigen::Vector2i>
+      ProjectPoint(const Eigen::Vector3d& point,
+                   bool& outside_domain = outside_domain_default_) override;
 
   /**
    * @brief Overload projection function for computing jacobian of projection
@@ -60,9 +60,9 @@ class Radtan : public CameraModel {
    * model domain For ProjectPoint: [u,v]^T = [P1(x, y, z), P2(x, y, z)]^T J = |
    * dP1/dx , dP1/dy, dP1/dz | | dP2/dx , dP2/dy, dP2/dz |
    */
-  opt<Eigen::Vector2i> ProjectPoint(
-      const Eigen::Vector3d& point, Eigen::MatrixXd& J,
-      bool& outside_domain = outside_domain_default_) override;
+  opt<Eigen::Vector2i>
+      ProjectPoint(const Eigen::Vector3d& point, Eigen::MatrixXd& J,
+                   bool& outside_domain = outside_domain_default_) override;
 
   /**
    * @brief Method back projecting
@@ -78,7 +78,7 @@ class Radtan : public CameraModel {
    */
   void UndistortImage(const cv::Mat& image_input, cv::Mat& image_output);
 
- protected:
+protected:
   /**
    * @brief Method to distort point
    * @return Vec2 distorted point
@@ -103,4 +103,4 @@ class Radtan : public CameraModel {
   double p2_;
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

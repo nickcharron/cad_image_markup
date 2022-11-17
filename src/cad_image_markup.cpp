@@ -25,7 +25,7 @@ DEFINE_string(
     "the CAD mode. If not provided, we will assume the inspector was ~3m from "
     "the surface and the image was collected perpendicular to the surface.");
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   cad_image_markup::CadImageMarkup::Inputs inputs{

@@ -1,20 +1,21 @@
 #pragma once
 
+#include <map>
 #include <stdio.h>
 #include <string>
-#include <map>
 
-#include <cad_image_markup/nlohmann/json.h>
 #include <cad_image_markup/Log.h>
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace cad_image_markup {
 
 // Enum class for different convergence types
-enum class ConvergenceType { GEOMETRIC = 0, LOSS = 1};
+enum class ConvergenceType { GEOMETRIC = 0, LOSS = 1 };
 
 // Map for storing string input
 static std::map<std::string, ConvergenceType> ConvergenceTypeStringMap = {
-    {"GEOMETRIC", ConvergenceType::GEOMETRIC}, {"LOSS", ConvergenceType::LOSS}};
+    {"GEOMETRIC", ConvergenceType::GEOMETRIC},
+    {"LOSS", ConvergenceType::LOSS}};
 
 // function for listing types of Descriptor available
 inline std::string GetConvergenceTypes() {
@@ -29,7 +30,7 @@ inline std::string GetConvergenceTypes() {
 }
 
 // Enum class for different convergence conditions
-enum class ConvergenceCondition { DIFFERENCE = 0, ABSOLUTE = 1};
+enum class ConvergenceCondition { DIFFERENCE = 0, ABSOLUTE = 1 };
 
 // Map for storing string input
 static std::map<std::string, ConvergenceCondition>
@@ -80,8 +81,9 @@ struct Params {
   double cad_cloud_scale_x{100};
   double cad_cloud_scale_y{100};
 
-  /** Alternatively, can provide surface dimensions (in working unit) to calculate scale automatically */
-  double max_x_dim{1.5}; 
+  /** Alternatively, can provide surface dimensions (in working unit) to
+   * calculate scale automatically */
+  double max_x_dim{1.5};
   double max_y_dim{3};
 
   /** maximum number of correspondence iterations of the overall solution
@@ -152,9 +154,7 @@ struct Params {
    * @param path full path to json
    */
   inline bool LoadFromJson(const std::string& path) {
-    if (path.empty()) {
-      return true;
-    }
+    if (path.empty()) { return true; }
 
     if (!boost::filesystem::exists(path)) {
       LOG_ERROR("Invalid path to config file: %s", path.c_str());
@@ -225,9 +225,8 @@ struct Params {
     // validate CC and CT
     if (convergence_condition == ConvergenceCondition::ABSOLUTE &&
         convergence_type == ConvergenceType::GEOMETRIC) {
-      LOG_ERROR(
-          "Absolute convergence condition is not available for geometric "
-          "convergence type. Exiting...");
+      LOG_ERROR("Absolute convergence condition is not available for geometric "
+                "convergence type. Exiting...");
       return false;
     }
 
@@ -235,4 +234,4 @@ struct Params {
   }
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

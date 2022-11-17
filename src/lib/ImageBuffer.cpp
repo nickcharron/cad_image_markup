@@ -4,7 +4,7 @@
 
 namespace cad_image_markup {
 
-bool ImageBuffer::ReadPoints(const std::string &filename,
+bool ImageBuffer::ReadPoints(const std::string& filename,
                              PointCloud::Ptr points) {
   points->clear();
 
@@ -21,9 +21,7 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   nlohmann::json J_shapes = J["shapes"];
   for (auto J_point : J_shapes[0]["points"]) {
     std::vector<float> point_vec;
-    for (auto val : J_point) {
-      point_vec.push_back(val.get<float>());
-    }
+    for (auto val : J_point) { point_vec.push_back(val.get<float>()); }
     if (point_vec.size() != 2) {
       LOG_ERROR("Invalid point in points file.");
       return false;
@@ -141,8 +139,8 @@ void ImageBuffer::ScalePoints(PointCloud::Ptr points, float scale) {
 }
 
 bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
-                               const std::string &src_file_name,
-                               const std::string &target_file_name, uint8_t r,
+                               const std::string& src_file_name,
+                               const std::string& target_file_name, uint8_t r,
                                uint8_t g, uint8_t b) {
   // Note opencv use BGR not RGB
   cv::Vec3b color;
@@ -164,10 +162,8 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
 
   LOG_INFO("Saving image to: %s", target_file_name.c_str());
   bool written = cv::imwrite(target_file_name, image);
-  if (!written) {
-    LOG_ERROR("Unable to write image.");
-  }
+  if (!written) { LOG_ERROR("Unable to write image."); }
   return written;
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

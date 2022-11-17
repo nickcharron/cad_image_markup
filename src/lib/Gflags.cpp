@@ -2,23 +2,18 @@
 
 #include <boost/filesystem.hpp>
 
-namespace cad_image_markup {
-namespace gflags {
+namespace cad_image_markup { namespace gflags {
 
 bool IsExtension(const std::string& input, const std::string& should_be) {
   std::string file_extension = input;
   file_extension.erase(file_extension.end() - input.length(),
                        file_extension.end() - should_be.length());
-  if (file_extension != should_be) {
-    return false;
-  }
+  if (file_extension != should_be) { return false; }
   return true;
 }
 
 bool ValidateCannotBeEmpty(const char* flagname, const std::string& value) {
-  if (!value.empty()) {
-    return true;
-  }
+  if (!value.empty()) { return true; }
   printf("Invalid value for --%s: %s. Cannot be empty.\n", flagname,
          value.c_str());
   return false;
@@ -39,9 +34,7 @@ bool ValidateDirMustExist(const char* flagname, const std::string& value) {
 }
 
 bool ValidateFileMustExist(const char* flagname, const std::string& value) {
-  if (boost::filesystem::exists(value)) {
-    return true;
-  }
+  if (boost::filesystem::exists(value)) { return true; }
   printf("Invalid value for --%s: %s. File Does not exist.\n", flagname,
          value.c_str());
   return false;
@@ -55,9 +48,7 @@ bool ValidateJsonFileMustExist(const char* flagname, const std::string& value) {
   }
 
   std::string extension{".json"};
-  if (IsExtension(value, extension)) {
-    return true;
-  }
+  if (IsExtension(value, extension)) { return true; }
   printf("Invalid value for --%s: %s. File extension must be %s.\n", flagname,
          value.c_str(), extension.c_str());
   return false;
@@ -65,9 +56,7 @@ bool ValidateJsonFileMustExist(const char* flagname, const std::string& value) {
 
 bool ValidateJsonFileMustExistOrNONE(const char* flagname,
                                      const std::string& value) {
-  if (value == "NONE") {
-    return true;
-  }
+  if (value == "NONE") { return true; }
 
   if (!boost::filesystem::exists(value)) {
     printf("Invalid value for --%s: %s. File Does not exist.\n", flagname,
@@ -76,9 +65,7 @@ bool ValidateJsonFileMustExistOrNONE(const char* flagname,
   }
 
   std::string extension{".json"};
-  if (IsExtension(value, extension)) {
-    return true;
-  }
+  if (IsExtension(value, extension)) { return true; }
   printf("Invalid value for --%s: %s. File extension must be %s.\n", flagname,
          value.c_str(), extension.c_str());
   return false;
@@ -86,9 +73,7 @@ bool ValidateJsonFileMustExistOrNONE(const char* flagname,
 
 bool ValidateJsonFileMustExistOrEmpty(const char* flagname,
                                       const std::string& value) {
-  if (value == "") {
-    return true;
-  }
+  if (value == "") { return true; }
 
   if (!boost::filesystem::exists(value)) {
     printf("Invalid value for --%s: %s. File Does not exist.\n", flagname,
@@ -97,9 +82,7 @@ bool ValidateJsonFileMustExistOrEmpty(const char* flagname,
   }
 
   std::string extension{".json"};
-  if (IsExtension(value, extension)) {
-    return true;
-  }
+  if (IsExtension(value, extension)) { return true; }
   printf("Invalid value for --%s: %s. File extension must be %s.\n", flagname,
          value.c_str(), extension.c_str());
   return false;
@@ -113,9 +96,7 @@ bool ValidateBagFileMustExist(const char* flagname, const std::string& value) {
   }
 
   std::string extension{".bag"};
-  if (IsExtension(value, extension)) {
-    return true;
-  }
+  if (IsExtension(value, extension)) { return true; }
   printf("Invalid value for --%s: %s. File extension must be %s.\n", flagname,
          value.c_str(), extension.c_str());
   return false;
@@ -123,13 +104,10 @@ bool ValidateBagFileMustExist(const char* flagname, const std::string& value) {
 
 bool ValidateMustBeJson(const char* flagname, const std::string& value) {
   std::string extension{".json"};
-  if (IsExtension(value, extension)) {
-    return true;
-  }
+  if (IsExtension(value, extension)) { return true; }
   printf("Invalid value for --%s: %s. File extension must be %s.\n", flagname,
          value.c_str(), extension.c_str());
   return false;
 }
 
-}  // namespace gflags
-}  // namespace cad_image_markup
+}} // namespace cad_image_markup::gflags

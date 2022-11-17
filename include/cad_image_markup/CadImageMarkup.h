@@ -3,8 +3,8 @@
 #include <map>
 
 #include <cad_image_markup/ImageBuffer.h>
-#include <cad_image_markup/Solver.h>
 #include <cad_image_markup/Params.h>
+#include <cad_image_markup/Solver.h>
 #include <cad_image_markup/Utils.h>
 
 namespace cad_image_markup {
@@ -13,7 +13,7 @@ namespace cad_image_markup {
  * @brief TODO
  */
 class CadImageMarkup {
- public:
+public:
   /**
    * @brief Struct for containing all inputs needed for this class
    */
@@ -23,7 +23,7 @@ class CadImageMarkup {
     std::string intrinsics_path;
     std::string config_path;
     std::string ceres_config_path;
-    std::string initial_pose_path;  // T_WORLD_CAM
+    std::string initial_pose_path; // T_WORLD_CAM
   };
 
   /**
@@ -41,7 +41,7 @@ class CadImageMarkup {
    */
   bool Run();
 
- private:
+private:
   bool Setup();
 
   bool LoadData();
@@ -71,4 +71,4 @@ class CadImageMarkup {
   PointCloud::Ptr cad_points_WORLDFRAME_;
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

@@ -3,25 +3,25 @@
 #include <stdio.h>
 #include <string>
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
-#include <pcl/common/common_headers.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/console/parse.h>
-#include <pcl/registration/correspondence_estimation.h>
-#include <pcl/ModelCoefficients.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <unsupported/Eigen/MatrixFunctions>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/common/common_headers.h>
+#include <pcl/common/transforms.h>
+#include <pcl/console/parse.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/registration/correspondence_estimation.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <unsupported/Eigen/MatrixFunctions>
 
-#include <cad_image_markup/camera_models/CameraModel.h>
+#include <cad_image_markup/Log.h>
 #include <cad_image_markup/Optional.h>
 #include <cad_image_markup/Params.h>
-#include <cad_image_markup/Log.h>
+#include <cad_image_markup/camera_models/CameraModel.h>
 
 namespace cad_image_markup {
 
@@ -33,7 +33,7 @@ namespace utils {
 extern double image_offset_x_;
 extern double image_offset_y_;
 extern bool center_image_called_;
-extern std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
+extern std::shared_ptr<CameraModel> camera_model_;
 
 /**
  * @brief Accessor method to retrieve camera model
@@ -41,7 +41,7 @@ extern std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
  * CAM NOTE: not sure if this should return the utility camera model, or a copy
  * (probably the pointer since you might need to change it)
  */
-std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel();
+std::shared_ptr<CameraModel> GetCameraModel();
 
 /**
  * @brief Method to read the camera model used by the utility object from a
@@ -99,12 +99,11 @@ PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
  */
 void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
 
-
 // TODO: add info - old version of correspondence estimation
-void GetCorrespondences(pcl::CorrespondencesPtr corrs_, 
-                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
-                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
-                              uint16_t max_dist_);
+void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
+                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
+                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
+                        uint16_t max_dist_);
 
 /**
  * @brief Method to get single correspondences between a CAD cloud projection
@@ -126,7 +125,8 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                             PointCloud::ConstPtr camera_cloud,
                             const Eigen::Matrix4d& T,
                             pcl::CorrespondencesPtr corrs, bool align_centroids,
-                            double max_corr_distance, int num_corrs, std::string source);
+                            double max_corr_distance, int num_corrs,
+                            std::string source);
 
 /**
  * @brief Method to convert a vector of quaternions and translations to a
@@ -135,14 +135,16 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
  * by translations)
  * @return transformation matrix
  */
-Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
-    const std::vector<double>& pose);
+Eigen::Matrix4d
+    QuaternionAndTranslationToTransformMatrix(const std::vector<double>& pose);
 
 /**
  * @brief Method convert a transformation matrix to a quaternion and translation
  * @param T transformation matrix
- * @param q quaternion representing the rotation encapsulated in the transformation matrix
- * @param p vector representing the translation encapsulated in the transformation matrix
+ * @param q quaternion representing the rotation encapsulated in the
+ * transformation matrix
+ * @param p vector representing the translation encapsulated in the
+ * transformation matrix
  * @return void
  */
 void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
@@ -190,7 +192,6 @@ PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
  */
 void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
 
-
 /**
  * @brief Method to get the plane that best fits a cloud
  * @todo CAM: Why do we even need this function? We only have 2D clouds meaning
@@ -211,10 +212,10 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
  * coefficients are given in form: [0] = a , [1] = b, [2] = c, [3] = d
  * @return
  */
-PointCloud::Ptr BackProject(
-    PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
-    pcl::ModelCoefficients::ConstPtr target_plane,
-    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
+PointCloud::Ptr BackProject(PointCloud::ConstPtr image_cloud,
+                            PointCloud::ConstPtr cad_cloud,
+                            pcl::ModelCoefficients::ConstPtr target_plane,
+                            const std::shared_ptr<CameraModel>& camera_model);
 
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
 
@@ -244,6 +245,31 @@ Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V);
 
 double DegToRad(double d);
 
-}  // namespace utils
+std::string CleanupPath(const std::string& path);
 
-}  // namespace cad_image_markup
+/**
+ * @brief safe way (for all OSs) of combining paths. Uses std::filesystem
+ *
+ * @param path1 first path to add
+ * @param path2 second path to add
+ * @return std::string
+ */
+std::string CombinePaths(const std::string& path1, const std::string& path2);
+
+/**
+ * @brief safe way (for all OSs) of combining paths. Uses std::filesystem
+ *
+ * @param paths vector of paths to combine in order
+ * @return std::string
+ */
+std::string CombinePaths(const std::vector<std::string>& paths);
+
+/**
+ * @brief get full file path of a file in the config directory
+ * @param path_from_root path from root of the config folder
+ */
+std::string GetConfigDataFilepath(const std::string& path_from_root) {
+
+} // namespace utils
+
+} // namespace cad_image_markup

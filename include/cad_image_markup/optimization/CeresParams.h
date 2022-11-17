@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdio>
-#include <map>
 #include <fstream>
+#include <map>
 
 #include <boost/filesystem.hpp>
 #include <ceres/ceres.h>
@@ -10,8 +10,8 @@
 #include <ceres/solver.h>
 #include <ceres/types.h>
 
-#include <cad_image_markup/nlohmann/json.h>
 #include <cad_image_markup/Utils.h>
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace optimization {
 
@@ -23,7 +23,7 @@ namespace optimization {
  * parameters from a json.
  */
 class CeresParams {
- public:
+public:
   /**
    * @brief Constructor. This will use the default params set in this
    * class
@@ -114,9 +114,8 @@ class CeresParams {
     loss_function_scaling_ = J_loss_function["scaling"];
     if (loss_function_types_.find(loss_function_type_) ==
         loss_function_types_.end()) {
-      LOG_ERROR(
-          "Invalid loss function type, Options: HUBER, CAUCHY, NULL. "
-          "Using default: HUBER");
+      LOG_ERROR("Invalid loss function type, Options: HUBER, CAUCHY, NULL. "
+                "Using default: HUBER");
       loss_function_type_ = "HUBER";
     }
   }
@@ -170,7 +169,7 @@ class CeresParams {
    * identity (x y z) parameterization.
    */
   std::unique_ptr<ceres::LocalParameterization>
-  SE3QuatTransLocalParametrization() {
+      SE3QuatTransLocalParametrization() {
     std::unique_ptr<ceres::LocalParameterization> quat_parameterization(
         new ceres::QuaternionParameterization());
     std::unique_ptr<ceres::LocalParameterization> identity_parameterization(
@@ -183,7 +182,7 @@ class CeresParams {
     return std::move(se3_parameterization);
   }
 
- private:
+private:
   void LoadDefaultParams() {
     solver_options_.minimizer_progress_to_stdout = false;
     solver_options_.max_num_iterations = 50;
@@ -198,7 +197,6 @@ class CeresParams {
     problem_options_.local_parameterization_ownership =
         ceres::DO_NOT_TAKE_OWNERSHIP;
     problem_options_.cost_function_ownership = ceres::DO_NOT_TAKE_OWNERSHIP;
-
   }
 
   std::map<std::string, ceres::LinearSolverType> linear_solver_map_{
@@ -229,4 +227,4 @@ class CeresParams {
   double loss_function_scaling_{1.0};
 };
 
-}  // namespace optimization
+} // namespace optimization

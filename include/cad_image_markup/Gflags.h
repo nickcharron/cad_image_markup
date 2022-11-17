@@ -4,8 +4,7 @@
 
 #include <gflags/gflags.h>
 
-namespace cad_image_markup {
-namespace gflags {
+namespace cad_image_markup { namespace gflags {
 
 bool IsExtension(const std::string& input, const std::string& should_be);
 
@@ -27,5 +26,4 @@ bool ValidateMustBeJson(const char* flagname, const std::string& value);
 
 bool ValidateBagFileMustExist(const char* flagname, const std::string& value);
 
-}  // namespace gflags
-}  // namespace cad_image_markup
+}} // namespace cad_image_markup::gflags

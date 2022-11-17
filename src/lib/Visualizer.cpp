@@ -18,7 +18,7 @@ Visualizer::~Visualizer() {}
 
 void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_ =
-      boost::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
+      std::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
   point_cloud_display_->setBackgroundColor(0, 0, 0);
   point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
@@ -214,8 +214,7 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
                                PointCloud::Ptr projected_cloud,
                                pcl::CorrespondencesConstPtr corrs,
                                std::string id_image, std::string id_cad,
-                               std::string id_projected, 
-                               std::string source) {
+                               std::string id_projected, std::string source) {
   // get mutex for visulalizer spinning in vis thread and
   // either create a new cloud or update the existing one
   mtx_.lock();
@@ -254,7 +253,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
 
   // illustrate correspondences
   for (uint16_t i = 0; i < corrs->size(); i++) {
-
     uint16_t proj_point_index, cam_point_index;
 
     // source camera
@@ -262,7 +260,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
       proj_point_index = corrs->at(i).index_match;
       cam_point_index = corrs->at(i).index_query;
     }
-
 
     // source CAD
     if (source == "projected") {
@@ -295,4 +292,4 @@ void Visualizer::Spin() {
   }
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

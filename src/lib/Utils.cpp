@@ -1,27 +1,28 @@
 #include <cad_image_markup/Utils.h>
 
-namespace cad_image_markup {
+#include <boost/filesystem.hpp>
 
-namespace utils {
+namespace cad_image_markup { namespace utils {
 
 // Provide default definitions for namespace variables
 double image_offset_x_ = 0;
 double image_offset_y_ = 0;
 bool center_image_called_ = false;
-std::shared_ptr<cad_image_markup::CameraModel> camera_model_ = nullptr;
+std::shared_ptr<CameraModel> camera_model_ = nullptr;
 
-std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel() {
+std::shared_ptr<CameraModel> GetCameraModel() {
   return camera_model_;
 }
 
 void ReadCameraModel(std::string intrinsics_file_path) {
-  camera_model_ = cad_image_markup::CameraModel::Create(intrinsics_file_path);
+  camera_model_ = CameraModel::Create(intrinsics_file_path);
 }
 
-void SetCameraID(uint8_t cam_ID) { camera_model_->SetCameraID(cam_ID); }
+void SetCameraID(uint8_t cam_ID) {
+  camera_model_->SetCameraID(cam_ID);
+}
 
 void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
-
   // restore offset to all points
   for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
     cloud->at(point_index).x += static_cast<int>(offset(0));
@@ -40,11 +41,11 @@ void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid) {
 }
 
 PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
-  PointCloud::Ptr proj_cloud (new PointCloud);
+  PointCloud::Ptr proj_cloud(new PointCloud);
 
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
-    cad_image_markup::optional<Eigen::Vector2d> pixel_projected;
+    optional<Eigen::Vector2d> pixel_projected;
 
     pixel_projected = camera_model_->ProjectPointPrecise(point);
     if (pixel_projected.has_value()) {
@@ -57,67 +58,63 @@ PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
   return proj_cloud;
 }
 
-PointCloud::Ptr TransformCloud (
-    PointCloud::ConstPtr cloud, const Eigen::Matrix4d &T) {
+PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
+                               const Eigen::Matrix4d& T) {
+  PointCloud::Ptr trans_cloud(new PointCloud);
 
-    PointCloud::Ptr trans_cloud (new PointCloud);
-    
-    for(uint16_t i=0; i < cloud->size(); i++) {
-        Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
-        Eigen::Vector4d point_transformed = T*point; 
-        pcl::PointXYZ pcl_point_transformed (point_transformed(0), 
-            point_transformed(1), point_transformed(2));
-        trans_cloud->push_back(pcl_point_transformed);
-    }
+  for (uint16_t i = 0; i < cloud->size(); i++) {
+    Eigen::Vector4d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
+    Eigen::Vector4d point_transformed = T * point;
+    pcl::PointXYZ pcl_point_transformed(
+        point_transformed(0), point_transformed(1), point_transformed(2));
+    trans_cloud->push_back(pcl_point_transformed);
+  }
 
-    return trans_cloud;
-
+  return trans_cloud;
 }
 
-void TransformCloudUpdate (PointCloud::Ptr cloud, 
-                     const Eigen::Matrix4d &T) {
-    
-    for(uint16_t i=0; i < cloud->size(); i++) {
-        Eigen::Vector4d point (cloud->at(i).x, cloud->at(i).y, 
-            cloud->at(i).z, 1);
-        Eigen::Vector4d point_transformed = T*point; 
-        pcl::PointXYZ pcl_point_transformed (point_transformed(0), 
-            point_transformed(1), point_transformed(2));
-        cloud->at(i) = pcl_point_transformed;
-    }
-
+void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T) {
+  for (uint16_t i = 0; i < cloud->size(); i++) {
+    Eigen::Vector4d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
+    Eigen::Vector4d point_transformed = T * point;
+    pcl::PointXYZ pcl_point_transformed(
+        point_transformed(0), point_transformed(1), point_transformed(2));
+    cloud->at(i) = pcl_point_transformed;
+  }
 }
 
-void GetCorrespondences(pcl::CorrespondencesPtr corrs_, 
-                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
-                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
-                              uint16_t max_dist_) {
-
-    pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ> corr_est;
-    corr_est.setInputSource(source_coud_);
-    corr_est.setInputTarget(target_cloud_);
-    corr_est.determineCorrespondences(*corrs_,max_dist_);
-
+void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
+                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
+                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
+                        uint16_t max_dist_) {
+  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
+      corr_est;
+  corr_est.setInputSource(source_coud_);
+  corr_est.setInputTarget(target_cloud_);
+  corr_est.determineCorrespondences(*corrs_, max_dist_);
 }
 
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
-                   PointCloud::ConstPtr camera_cloud, const Eigen::Matrix4d& T,
-                   pcl::CorrespondencesPtr corrs, bool align_centroids,
-                   double max_corr_distance, int num_corrs, std::string source) {
-
+                            PointCloud::ConstPtr camera_cloud,
+                            const Eigen::Matrix4d& T,
+                            pcl::CorrespondencesPtr corrs, bool align_centroids,
+                            double max_corr_distance, int num_corrs,
+                            std::string source) {
   LOG_INFO("Correspondences: starting estimation");
 
-  //clear the previous correspondences 
+  // clear the previous correspondences
   corrs->clear();
 
   // transform the CAD cloud points to the camera frame
-  PointCloud::Ptr trans_cloud (new PointCloud);
+  PointCloud::Ptr trans_cloud(new PointCloud);
   trans_cloud = TransformCloud(cad_cloud, T);
 
   LOG_INFO("Correspondences: transformed CAD cloud");
   LOG_INFO("Correspondences: transformed cloud size %ld", trans_cloud->size());
 
-  LOG_INFO("Correspondences: sample CAD point in camera frame %f,%f,%f", trans_cloud->at(100).x,trans_cloud->at(100).y,trans_cloud->at(100).z);
+  LOG_INFO("Correspondences: sample CAD point in camera frame %f,%f,%f",
+           trans_cloud->at(100).x, trans_cloud->at(100).y,
+           trans_cloud->at(100).z);
 
   // project the transformed points to the camera plane
   PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
@@ -141,40 +138,39 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
 
   LOG_INFO("Correspondences: projected and algined clouds");
 
-
   // Get correspondences (source camera)
   if (source == "camera") {
     // Build kd tree from projected cloud
     pcl::KdTreeFLANN<pcl::PointXYZ> proj_kdtree;
-    proj_kdtree.setInputCloud (proj_cloud);
+    proj_kdtree.setInputCloud(proj_cloud);
 
-    for(uint32_t i = 0; i<camera_cloud->size(); i++) {
+    for (uint32_t i = 0; i < camera_cloud->size(); i++) {
       std::vector<int> target_neighbor_indices(num_corrs);
       std::vector<float> target_neighbor_distances(num_corrs);
       pcl::Correspondence corr1;
       pcl::Correspondence corr2;
 
-      if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
-          target_neighbor_indices, target_neighbor_distances) >= num_corrs
-          /*&& target_neighbor_distances[0] <= max_corr_distance*/)
-      {
+      if (proj_kdtree.nearestKSearch(camera_cloud->at(i), num_corrs,
+                                     target_neighbor_indices,
+                                     target_neighbor_distances) >= num_corrs
+          /*&& target_neighbor_distances[0] <= max_corr_distance*/) {
         corr1.index_query = i;
         corr1.index_match = target_neighbor_indices[0];
 
         corrs->push_back(corr1);
-        
-        if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
-        {
+
+        if (num_corrs == 2 &&
+            target_neighbor_distances[1] <= max_corr_distance) {
           corr1.index_query = i;
           corr1.index_match = target_neighbor_indices[1];
 
           corrs->push_back(corr2);
         }
 
-        else if (num_corrs == 2 && target_neighbor_distances[1] > max_corr_distance) corrs->pop_back();
-
+        else if (num_corrs == 2 &&
+                 target_neighbor_distances[1] > max_corr_distance)
+          corrs->pop_back();
       }
-
     }
   }
 
@@ -182,47 +178,45 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   if (source == "projected") {
     // Build kd tree from projected cloud
     pcl::KdTreeFLANN<pcl::PointXYZ> camera_kdtree;
-    camera_kdtree.setInputCloud (camera_cloud);
+    camera_kdtree.setInputCloud(camera_cloud);
 
-    for(uint32_t i = 0; i<proj_cloud->size(); i++) {
+    for (uint32_t i = 0; i < proj_cloud->size(); i++) {
       std::vector<int> target_neighbor_indices(num_corrs);
       std::vector<float> target_neighbor_distances(num_corrs);
       pcl::Correspondence corr1;
       pcl::Correspondence corr2;
 
-      if (camera_kdtree.nearestKSearch (proj_cloud->at(i), num_corrs, 
-          target_neighbor_indices, target_neighbor_distances) >= num_corrs
-          /*&& target_neighbor_distances[0] <= max_corr_distance*/)
-      {
+      if (camera_kdtree.nearestKSearch(proj_cloud->at(i), num_corrs,
+                                       target_neighbor_indices,
+                                       target_neighbor_distances) >= num_corrs
+          /*&& target_neighbor_distances[0] <= max_corr_distance*/) {
         corr1.index_query = i;
         corr1.index_match = target_neighbor_indices[0];
 
         corrs->push_back(corr1);
-        
-        if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
-        {
+
+        if (num_corrs == 2 &&
+            target_neighbor_distances[1] <= max_corr_distance) {
           corr1.index_query = i;
           corr1.index_match = target_neighbor_indices[1];
 
           corrs->push_back(corr2);
         }
 
-        else if (num_corrs == 2 && target_neighbor_distances[1] > max_corr_distance) corrs->pop_back();
-
+        else if (num_corrs == 2 &&
+                 target_neighbor_distances[1] > max_corr_distance)
+          corrs->pop_back();
       }
-
     }
   }
-  
 
-  //GetCorrespondences(corrs,camera_cloud,cad_cloud,100000);
+  // GetCorrespondences(corrs,camera_cloud,cad_cloud,100000);
 
   LOG_INFO("Correspondences: exiting correspondence estimation");
-
 }
 
-Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
-    const std::vector<double>& pose) {
+Eigen::Matrix4d
+    QuaternionAndTranslationToTransformMatrix(const std::vector<double>& pose) {
   Eigen::Quaterniond q{pose[0], pose[1], pose[2], pose[3]};
   Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
   T.block(0, 0, 3, 3) = q.toRotationMatrix();
@@ -269,7 +263,7 @@ void ScaleCloud(PointCloud::Ptr cloud, float scale) {
 }
 
 PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale) {
-  PointCloud::Ptr scaled_cloud (new PointCloud);
+  PointCloud::Ptr scaled_cloud(new PointCloud);
   for (uint16_t i = 0; i < cloud->size(); i++) {
     pcl::PointXYZ to_add;
     to_add.x = cloud->at(i).x * scale;
@@ -288,9 +282,9 @@ void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale) {
 }
 
 pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
-  pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-      //std::make_shared<pcl::ModelCoefficients>();
-  pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+  pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+  // std::make_shared<pcl::ModelCoefficients>();
+  pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
   //= std::make_shared<pcl::PointIndice>();
 
   // Create the segmentation object
@@ -306,11 +300,11 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
   return coefficients;
 }
 
-PointCloud::Ptr BackProject(
-    PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
-    pcl::ModelCoefficients::ConstPtr target_plane,
-    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
-  PointCloud::Ptr back_projected_cloud (new PointCloud);
+PointCloud::Ptr BackProject(PointCloud::ConstPtr image_cloud,
+                            PointCloud::ConstPtr cad_cloud,
+                            pcl::ModelCoefficients::ConstPtr target_plane,
+                            const std::shared_ptr<CameraModel>& camera_model) {
+  PointCloud::Ptr back_projected_cloud(new PointCloud);
 
   // get cad surface normal and point on the cad plane
   Eigen::Vector3d cad_normal(target_plane->values[0], target_plane->values[1],
@@ -386,8 +380,54 @@ Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V) {
   return M;
 }
 
-double DegToRad(double d) { return d * (M_PI / 180); }
+double DegToRad(double d) {
+  return d * (M_PI / 180);
+}
 
-}  // namespace utils
+std::string CleanupPath(const std::string& path) {
+  namespace fs = boost::filesystem;
+  if (path.size() < 3) { return path; }
+  std::string return_path;
+  for (uint32_t i = 0; i < path.size() - 1; i++) {
+    return_path += path[i];
+    if (path[i] == fs::path::preferred_separator &&
+        path[i + 1] == fs::path::preferred_separator) {
+      i++;
+    }
+  }
 
-}  // namespace cad_image_markup
+  // add last character only if not a file separator
+  if (path[path.size() - 1] != fs::path::preferred_separator) {
+    return_path += path[path.size() - 1];
+  }
+  return return_path;
+}
+
+std::string CombinePaths(const std::string& path1, const std::string& path2) {
+  namespace fs = boost::filesystem;
+  fs::path p1(path1);
+  fs::path p2(path2);
+  fs::path p = p1 / p2;
+  return CleanupPath(p.string());
+}
+
+std::string CombinePaths(const std::vector<std::string>& paths) {
+  namespace fs = boost::filesystem;
+  fs::path p;
+  for (uint32_t i = 0; i < paths.size(); i++) {
+    fs::path p_add(paths[i]);
+    p = p / p_add;
+  }
+  return CleanupPath(p.string());
+}
+
+std::string GetConfigDataFilepath(const std::string& path_from_root) {
+  std::string this_file_path = __FILE__;
+  std::string relative_path_to_this = "src/lib/Utils.cpp";
+  std::string root_path = this_file_path.substr(
+      0, this_file_path.size() - relative_path_to_this.size());
+  std::string config_path = CombinePaths(root_path, "config");
+  return utils::CombinePaths(config_path, path_from_root);
+}
+
+}} // namespace cad_image_markup::utils

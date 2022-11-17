@@ -2,9 +2,8 @@
 
 namespace cad_image_markup {
 
-Solver::Solver(
-    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
-    const Params& params, const std::string& ceres_config_path)
+Solver::Solver(const std::shared_ptr<CameraModel>& camera_model,
+               const Params& params, const std::string& ceres_config_path)
     : camera_model_(camera_model), params_(params) {
   ceres_params_ = optimization::CeresParams(ceres_config_path);
 
@@ -30,33 +29,32 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   bool has_converged = false;
 
   // TODO -> add a function to properly load the initial results
-  //results_ = {0,0,0,1,0,0,3};
-  //T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
+  // results_ = {0,0,0,1,0,0,3};
+  // T_WORLD_CAMERA =
+  // utils::QuaternionAndTranslationToTransformMatrix(results_);
 
   Eigen::Quaterniond results_init_rotation;
   Eigen::Vector3d results_init_translation;
 
-  utils::TransformMatrixToQuaternionAndTranslation(T_WORLD_CAMERA,results_init_rotation,results_init_translation);
+  utils::TransformMatrixToQuaternionAndTranslation(
+      T_WORLD_CAMERA, results_init_rotation, results_init_translation);
 
-  results_ = {results_init_rotation.w(),
-              results_init_rotation.x(),
-              results_init_rotation.y(),
-              results_init_rotation.z(),
-              results_init_translation.x(),
-              results_init_translation.y(),
+  results_ = {results_init_rotation.w(),    results_init_rotation.x(),
+              results_init_rotation.y(),    results_init_rotation.z(),
+              results_init_translation.x(), results_init_translation.y(),
               results_init_translation.z()};
 
   LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
 
   float cad_scale_x = 0.01, cad_scale_y = 0.01;
 
-  utils::GetCloudScale(cad_cloud,params_.max_x_dim, params_.max_y_dim, cad_scale_x, cad_scale_y);
+  utils::GetCloudScale(cad_cloud, params_.max_x_dim, params_.max_y_dim,
+                       cad_scale_x, cad_scale_y);
 
   // CAD drawing should have the same x and y scale
-  PointCloud::Ptr CAD_cloud_scaled =
-      utils::ScaleCloud(cad_cloud, cad_scale_x);
+  PointCloud::Ptr CAD_cloud_scaled = utils::ScaleCloud(cad_cloud, cad_scale_x);
 
-  LOG_INFO("SOLVER: Finished Scaling CAD Cloud by: %f",cad_scale_x);
+  LOG_INFO("SOLVER: Finished Scaling CAD Cloud by: %f", cad_scale_x);
 
   // correspondence object tells the cost function which points to compare
   pcl::CorrespondencesPtr proj_corrs(new pcl::Correspondences);
@@ -69,13 +67,17 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
     num_correspondences = 2;
   }
 
-  num_correspondences == 1 ? LOG_INFO("SOLVER: Selected Point to Point Correspondences") : LOG_INFO("SOLVER: Selected Point to Line Correspondences");
+  num_correspondences == 1
+      ? LOG_INFO("SOLVER: Selected Point to Point Correspondences")
+      : LOG_INFO("SOLVER: Selected Point to Line Correspondences");
 
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA,
                                 proj_corrs, params_.align_centroids,
-                                params_.max_corr_distance, num_correspondences,source_cloud_);
+                                params_.max_corr_distance, num_correspondences,
+                                source_cloud_);
 
-  LOG_INFO("SOLVER: Initial Correspondences Estimated: %ld", proj_corrs->size());
+  LOG_INFO("SOLVER: Initial Correspondences Estimated: %ld",
+           proj_corrs->size());
 
   if (params_.visualize) visualizer_->StartVis();
 
@@ -91,17 +93,18 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
         return false;
     }
 
-    std::shared_ptr<ceres::Problem> problem = BuildCeresProblem(proj_corrs, camera_model_, camera_cloud_, CAD_cloud_scaled);
+    std::shared_ptr<ceres::Problem> problem = BuildCeresProblem(
+        proj_corrs, camera_model_, camera_cloud_, CAD_cloud_scaled);
 
-    //SolveCeresProblem(problem);
+    // SolveCeresProblem(problem);
 
     T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
     // transform, project, and get correspondences
     utils::CorrespondenceEstimate(
         CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
-        params_.align_centroids, params_.max_corr_distance,
-        num_correspondences, source_cloud_);
+        params_.align_centroids, params_.max_corr_distance, num_correspondences,
+        source_cloud_);
 
     void CorrespondenceEstimate(
         PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
@@ -127,13 +130,12 @@ Eigen::Matrix4d Solver::GetT_WORLD_CAMERA() {
   return T_WORLD_CAMERA;
 }
 
-std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
-    pcl::CorrespondencesPtr proj_corrs,
-    std::shared_ptr<cad_image_markup::CameraModel> camera_model,
-    PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud) {
-  if (params_.output_results) {
-    LOG_INFO("SOLVER: Building ceres problem...");
-  }
+std::shared_ptr<ceres::Problem>
+    Solver::BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs,
+                              std::shared_ptr<CameraModel> camera_model,
+                              PointCloud::ConstPtr camera_cloud,
+                              PointCloud::ConstPtr cad_cloud) {
+  if (params_.output_results) { LOG_INFO("SOLVER: Building ceres problem..."); }
 
   // set ceres problem options
   ceres::Problem::Options ceres_problem_options;
@@ -153,12 +155,10 @@ std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
 
   problem->AddParameterBlock(&(results_[0]), 7, parameterization.get());
 
-  if (params_.output_results) {
-    LOG_INFO("SOLVER: Added Parameter Block...");
-  }
+  if (params_.output_results) { LOG_INFO("SOLVER: Added Parameter Block..."); }
 
   std::unique_ptr<ceres::LossFunction> loss_function =
-        ceres_params_.LossFunction();
+      ceres_params_.LossFunction();
 
   // add residuals
   for (int i = 0; i < proj_corrs->size(); i++) {
@@ -191,17 +191,15 @@ std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
 
     if (params_.correspondence_type == CorrespondenceType::P2POINT) {
       problem->AddResidualBlock(cost_function1.release(), loss_function.get(),
-                                 &(results_[0]));
-    }
-    else if (params_.correspondence_type == CorrespondenceType::P2LINE)
+                                &(results_[0]));
+    } else if (params_.correspondence_type == CorrespondenceType::P2LINE)
       problem->AddResidualBlock(cost_function2.release(), loss_function.get(),
-                                 &(results_[0]));
+                                &(results_[0]));
   }
 
   LOG_INFO("SOLVER: Finished Building Ceres Problem");
   SolveCeresProblem(problem);
   return problem;
-
 }
 
 void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
@@ -227,21 +225,19 @@ bool Solver::HasConverged() {
   // Cannot converge on a single solver iteration
   if (solution_iterations_ <= 10) return false;
 
-
   // Check ceres loss convergence conditions
-  
+
   if (params_.convergence_type == ConvergenceType::LOSS) {
-    double differential_cost = std::fabs(summary_.final_cost - last_iteration_cost_);
+    double differential_cost =
+        std::fabs(summary_.final_cost - last_iteration_cost_);
     if ((differential_cost <= params_.converged_differential_cost &&
          params_.convergence_condition == ConvergenceCondition::DIFFERENCE) ||
         (summary_.final_cost <= params_.converged_absolute_cost &&
          params_.convergence_condition == ConvergenceCondition::ABSOLUTE))
       return true;
   }
-  
 
-  if (solution_iterations_ > 10 ) return true;
-
+  if (solution_iterations_ > 10) return true;
 
   // Check physical geometric convergence conditions
   // Assumes that conditions are provided in the same unit as the cloud scale
@@ -297,7 +293,10 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
   PointCloud::Ptr trans_cloud =
       utils::TransformCloud(CAD_cloud_scaled, T_WORLD_CAMERA);
 
-  LOG_INFO("SOLVER: Sample CAD cloud point in camera frame (for visualization): %f,%f,%f", trans_cloud->at(100).x,trans_cloud->at(100).y,trans_cloud->at(100).z);
+  LOG_INFO("SOLVER: Sample CAD cloud point in camera frame (for "
+           "visualization): %f,%f,%f",
+           trans_cloud->at(100).x, trans_cloud->at(100).y,
+           trans_cloud->at(100).z);
 
   // project cloud for visualizer
   PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud);
@@ -307,17 +306,15 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
 
   visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
                              "camera_cloud", "transformed_cloud",
-                             "projected_cloud",source_cloud_);
+                             "projected_cloud", source_cloud_);
 
   // wait on user input to continue or cancel the solution
   char end = ' ';
 
-  while (end != 'n' && end != 'r') {
-    cin >> end;
-  }
+  while (end != 'n' && end != 'r') { cin >> end; }
 
   if (end == 'r') return false;
   return true;
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

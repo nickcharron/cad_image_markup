@@ -6,18 +6,17 @@
 #include <string>
 #include <vector>
 
+#include <cad_image_markup/nlohmann/json.h>
 #include <opencv2/imgcodecs.hpp>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
 #include <pcl/common/common_headers.h>
+#include <pcl/common/transforms.h>
+#include <pcl/console/parse.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/console/parse.h>
-#include <cad_image_markup/nlohmann/json.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include <cad_image_markup/Utils.h>
-
 
 namespace cad_image_markup {
 
@@ -26,7 +25,7 @@ namespace cad_image_markup {
  * labelled image data and writing to ouput images
  */
 class ImageBuffer {
- public:
+public:
   /**
    * @brief Default constructor
    */
@@ -44,8 +43,7 @@ class ImageBuffer {
    * @return read success
    * @todo update to handle points from multiple labels in an image
    */
-  bool ReadPoints(const std::string& filename,
-                  PointCloud::Ptr points);
+  bool ReadPoints(const std::string& filename, PointCloud::Ptr points);
 
   /**
    * @brief Method for interpolating points for a more
@@ -55,8 +53,7 @@ class ImageBuffer {
    * @todo update to add interpolated points at equal intervals rather than at
    * fractions of the length between labelled points
    */
-  void DensifyPoints(PointCloud::Ptr points,
-                     uint8_t density_index);
+  void DensifyPoints(PointCloud::Ptr points, uint8_t density_index);
 
   /**
    * @brief Method for scaling the 2D feature points wrt the origin (top let
@@ -81,8 +78,8 @@ class ImageBuffer {
    * points
    */
   bool WriteToImage(PointCloud::Ptr points, const std::string& src_file_name,
-                    const std::string& target_file_name,
-                    uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
+                    const std::string& target_file_name, uint8_t r = 0,
+                    uint8_t g = 0, uint8_t b = 0);
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

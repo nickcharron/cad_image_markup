@@ -15,7 +15,6 @@ find_package(Ceres REQUIRED)
 
 # Add the core library
 add_subdirectory(src/lib)
-add_subdirectory(tests)
 
 # Add main executables
 add_executable(${PROJECT_NAME}_main
