@@ -17,5 +17,13 @@
     "converged_absolute_cost": 100,
     "converged_differential_translation_m": 1,
     "converged_differential_rotation_deg": 1
+  },
+  "output_options":
+  {
+    "output_image": true
+  },
+  "misc_options":
+  {
+    "defect_color": "red"
   }
 }

@@ -139,13 +139,20 @@ struct Params {
   /** number of points to interpolate between each point in input cad cloud */
   double cad_density_index{1};
 
-  /** number of points to interpolate between each point in input camera cloud
-   */
+  /** number of points to interpolate between each point in input camera cloud */
   double cam_density_index{2};
 
-  /** source cloud for correspondences, "camera" or "projected"
-   */
+  /** source cloud for correspondences, "camera" or "projected" */
   std::string source_cloud{"camera"};
+
+  // OUTPUT OPTIONS
+
+  /** source cloud for correspondences, "camera" or "projected" */
+  bool output_image{false};
+
+  // MISC OPTIONS
+
+  std::string defect_color{"red"};
 
   /**
    * @brief Loads params from a json file
@@ -185,6 +192,14 @@ struct Params {
         J_convergence_options["converged_differential_translation_m"];
     converged_differential_rotation =
         J_convergence_options["converged_differential_rotation_deg"];
+
+    nlohmann::json J_output_options = J["output_options"];
+
+    output_image = J_output_options["output_image"];
+
+    nlohmann::json J_misc_options = J["misc_options"];
+
+    defect_color = J_misc_options["defect_color"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(

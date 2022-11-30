@@ -42,18 +42,25 @@ class ImageBuffer {
    * @param filename_ absolute path to the json file to read data from
    * @param points pointcloud of points to fill in
    * @return read success
-   * @todo update to handle points from multiple labels in an image
    */
   bool ReadPoints(const std::string& filename,
                   PointCloud::Ptr points);
+
+  /**
+   * @brief Method for reading labelled data from a png file 
+   * @param filename_ absolute path to the png file to read the data from
+   * @param points pointcloud of points to fill in
+   * @param color pixel color to extract, options: "red", "green", "blue", "white", "black"
+   * @return read success
+   */
+  bool ReadPointsPNG(const std::string& filename,
+                  PointCloud::Ptr points, std::string color);
 
   /**
    * @brief Method for interpolating points for a more
    * dense outline of a feature - helps to converge minimization solution
    * @param points feature points
    * @param density_index number of points to add for every ten pixels
-   * @todo update to add interpolated points at equal intervals rather than at
-   * fractions of the length between labelled points
    */
   void DensifyPoints(PointCloud::Ptr points,
                      uint8_t density_index);

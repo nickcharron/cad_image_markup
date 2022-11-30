@@ -61,11 +61,12 @@ bool CadImageMarkup::LoadData() {
     LOG_ERROR("Cannot read image file at: %s", inputs_.image_path.c_str());
     return false;
   }
+  LOG_INFO("Camera data loaded successfully");
+
 
   LOG_INFO("Densifying points");
   image_buffer_.DensifyPoints(camera_points_CAMFRAME_,
                               params_.cam_density_index);
-  LOG_INFO("Camera data loaded successfully");
 
   LOG_INFO("Loading CAD model data");
   // read cad model points
@@ -73,6 +74,7 @@ bool CadImageMarkup::LoadData() {
     LOG_ERROR("Cannot read CAD file at: %s", inputs_.cad_path.c_str());
     return false;
   }
+
   LOG_INFO("Densifying points");
   image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
   LOG_INFO("CAD data loaded successfully");
@@ -80,7 +82,14 @@ bool CadImageMarkup::LoadData() {
   LOG_INFO("Getting CAD centroid");
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_, cad_centroid_);
-  LOG_INFO("Done loading data");
+  LOG_INFO("Done loading CAD dimension data");
+
+  // attempt to read defect data
+  LOG_INFO("Loading defect data");
+  if (!image_buffer_.ReadPointsPNG(inputs_.defect_path, defect_points_CAMFRAME_)) {
+    LOG_WARN("Cannot read defect file at: %s", inputs_.defect_path.c_str());
+  }
+
 
   return true;
 }
@@ -89,17 +98,11 @@ bool CadImageMarkup::Solve() {
   Eigen::Matrix4d T_WORLD_CAMERA_init;
   LoadInitialPose(inputs_.initial_pose_path, T_WORLD_CAMERA_init);
 
-  // not sure about this - I think this should place the CAD cloud in space at the initial pose provided if
-  // it has previously been aligned with the origin of the camera
-
-  LOG_INFO("Sample CAD point in CAD frame %f,%f,%f", cad_points_CADFRAME_->at(100).x,cad_points_CADFRAME_->at(100).y,cad_points_CADFRAME_->at(100).z);
 
   //cad_points_WORLDFRAME_ = utils::TransformCloud(cad_points_CADFRAME_,T_WORLD_CAMERA_init);
   // these two frames are effectively coincident for the rest of the solution
   cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
 
-  LOG_INFO("Sample CAD point in World frame %f,%f,%f", cad_points_WORLDFRAME_->at(100).x,cad_points_WORLDFRAME_->at(100).y,cad_points_WORLDFRAME_->at(100).z);
-  //cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
 
   LOG_INFO("Running solver");
   bool converged =
@@ -129,6 +132,8 @@ bool CadImageMarkup::Solve() {
   //                                ceres_config.json
   Eigen::Matrix4d T_WORLD_CAMERA = solver_->GetT_WORLD_CAMERA();
   std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
+
+  // Generate output 
 
   return true;
 }

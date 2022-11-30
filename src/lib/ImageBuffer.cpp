@@ -35,9 +35,15 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   return true;
 }
 
+bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr points, std::string color) {
+  if (!boost::filesystem::exists(filename)) 
+    return false;
+
+  
+  
+}
+
 void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
-  // TODO CAM: go over this function, I have not edited it to use PointCloud
-  // instead of a vector.
 
   // add additional point between existing points according to scale
   // will help to converge solution

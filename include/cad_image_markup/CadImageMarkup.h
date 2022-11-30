@@ -20,10 +20,12 @@ class CadImageMarkup {
   struct Inputs {
     std::string cad_path;
     std::string image_path;
+    std::string defect_path;
     std::string intrinsics_path;
     std::string config_path;
     std::string ceres_config_path;
     std::string initial_pose_path;  // T_WORLD_CAM
+    std::string output_image_path;
   };
 
   /**
@@ -67,6 +69,7 @@ class CadImageMarkup {
   std::unique_ptr<Solver> solver_;
 
   PointCloud::Ptr camera_points_CAMFRAME_;
+  PointCloud::Ptr defect_points_CAMFRAME_;
   PointCloud::Ptr cad_points_CADFRAME_;
   PointCloud::Ptr cad_points_WORLDFRAME_;
 };
