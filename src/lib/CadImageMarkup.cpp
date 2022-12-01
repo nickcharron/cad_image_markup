@@ -63,13 +63,13 @@ bool CadImageMarkup::LoadData() {
   }
   LOG_INFO("Camera data loaded successfully");
 
-
   LOG_INFO("Densifying points");
   image_buffer_.DensifyPoints(camera_points_CAMFRAME_,
                               params_.cam_density_index);
 
-  LOG_INFO("Loading CAD model data");
+  
   // read cad model points
+  LOG_INFO("Loading CAD model data");
   if (!image_buffer_.ReadPoints(inputs_.cad_path, cad_points_CADFRAME_)) {
     LOG_ERROR("Cannot read CAD file at: %s", inputs_.cad_path.c_str());
     return false;
@@ -79,14 +79,15 @@ bool CadImageMarkup::LoadData() {
   image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
   LOG_INFO("CAD data loaded successfully");
 
-  LOG_INFO("Getting CAD centroid");
+  LOG_INFO("Adjusting CAD data");
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_, cad_centroid_);
+  utils::ScaleCloud(cad_points_CADFRAME_,params_.cad_cloud_scale);
   LOG_INFO("Done loading CAD dimension data");
 
   // attempt to read defect data
   LOG_INFO("Loading defect data");
-  if (!image_buffer_.ReadPointsPNG(inputs_.defect_path, defect_points_CAMFRAME_)) {
+  if (!image_buffer_.ReadPointsPNG(inputs_.defect_path, defect_points_CAMFRAME_,params_.defect_color)) {
     LOG_WARN("Cannot read defect file at: %s", inputs_.defect_path.c_str());
   }
 
@@ -134,6 +135,15 @@ bool CadImageMarkup::Solve() {
   std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
 
   // Generate output 
+  PointCloud::Ptr cad_points_CAMFRAME = boost::make_shared<PointCloud>();
+  cad_points_CAMFRAME = utils::TransformCloud(cad_points_WORLDFRAME_, T_WORLD_CAMERA);
+
+  pcl::ModelCoefficients::Ptr cad_plane_CAMFRAME = utils::GetCloudPlane(cad_points_CAMFRAME);
+
+  // [TODO]: back project, transform back into CAD frame, scale 1/cad scale, write to image
+  PointCloud::Ptr BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME,camera_model);
+ 
+
 
   return true;
 }
@@ -149,7 +159,7 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
         "No initial pose path provided. Assuming the image was collected about "
         "3 m from the structure, and taken perpendicularly.");
     T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
-    T_WORLD_CAMERA(2,3) = 7; // cad model is assumed to be 3 m ahead of camera in z
+    T_WORLD_CAMERA(2,3) = 3; // cad model is assumed to be 3 m ahead of camera in z
     return;
   }
 

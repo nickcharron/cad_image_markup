@@ -105,8 +105,6 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                    pcl::CorrespondencesPtr corrs, bool align_centroids,
                    double max_corr_distance, int num_corrs, std::string source) {
 
-  LOG_INFO("Correspondences: starting estimation");
-
   //clear the previous correspondences 
   corrs->clear();
 
@@ -114,18 +112,9 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   PointCloud::Ptr trans_cloud (new PointCloud);
   trans_cloud = TransformCloud(cad_cloud, T);
 
-  LOG_INFO("Correspondences: transformed CAD cloud");
-  LOG_INFO("Correspondences: transformed cloud size %ld", trans_cloud->size());
-
-  LOG_INFO("Correspondences: sample CAD point in camera frame %f,%f,%f", trans_cloud->at(100).x,trans_cloud->at(100).y,trans_cloud->at(100).z);
 
   // project the transformed points to the camera plane
   PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
-
-  LOG_INFO("Correspondences: projected CAD cloud");
-  LOG_INFO("Correspondences: projected cloud size %ld", proj_cloud->size());
-
-  LOG_INFO("Correspondences: camera cloud size: %ld", camera_cloud->size());
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {
@@ -138,8 +127,6 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     T1(2, 3) = camera_centroid.z - proj_centroid.z;
     TransformCloudUpdate(proj_cloud, T1);
   }
-
-  LOG_INFO("Correspondences: projected and algined clouds");
 
 
   // Get correspondences (source camera)
@@ -214,9 +201,6 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     }
   }
   
-
-  //GetCorrespondences(corrs,camera_cloud,cad_cloud,100000);
-
   LOG_INFO("Correspondences: exiting correspondence estimation");
 
 }

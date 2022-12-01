@@ -39,7 +39,50 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
   if (!boost::filesystem::exists(filename)) 
     return false;
 
-  
+  int threshold = 230;
+
+
+  cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
+
+  // get all pixels of specifid color 
+
+  for (int i = 0; i < img.rows; i++) {
+    for (int j = 0; j < img.cols; i++) {
+      std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i,j)[0], img.at<cv::Vec3b>(i,j)[1], img.at<cv::Vec3b>(i,j)[2]};
+      pcl::PointXYZ point_pcl(i, j, 0); // [TODO]: check x and y here
+
+      if (color == "red") {
+        if (pixel_vals[0] >= threshold && pixel_vals[1] < threshold && pixel_vals[2] < threshold)
+          points->push_back(point_pcl);
+      }
+      else if (color == "green") {
+        if (pixel_vals[0] < threshold && pixel_vals[1] >= threshold && pixel_vals[2] < threshold)
+          points->push_back(point_pcl);
+      }
+      else if (color == "blue") {
+        if (pixel_vals[0] < threshold && pixel_vals[1] < threshold && pixel_vals[2] >= threshold)
+          points->push_back(point_pcl);
+
+      } 
+      else if (color == "white") {
+        if (pixel_vals[0] >= threshold && pixel_vals[1] >= threshold && pixel_vals[2] >= threshold)
+          points->push_back(point_pcl);
+
+      }
+      else if (color == "black") {
+        if (pixel_vals[0] < (250 -threshold) && pixel_vals[1] < (250 -threshold) && pixel_vals[2] < (250 -threshold))
+          points->push_back(point_pcl);
+      }
+      else {
+        LOG_WARN("Invalid color selected for defect detection");
+        return false;
+      }
+
+
+    }
+  }
+
+  return true;
   
 }
 

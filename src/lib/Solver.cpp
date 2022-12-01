@@ -29,10 +29,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
   bool has_converged = false;
 
-  // TODO -> add a function to properly load the initial results
-  //results_ = {0,0,0,1,0,0,3};
-  //T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
-
   Eigen::Quaterniond results_init_rotation;
   Eigen::Vector3d results_init_translation;
 
@@ -225,7 +221,7 @@ void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
 
 bool Solver::HasConverged() {
   // Cannot converge on a single solver iteration
-  if (solution_iterations_ <= 10) return false;
+  if (solution_iterations_ <= 1) return false;
 
 
   // Check ceres loss convergence conditions
