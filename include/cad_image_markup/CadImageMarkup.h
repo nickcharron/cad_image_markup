@@ -68,6 +68,8 @@ class CadImageMarkup {
 
   std::unique_ptr<Solver> solver_;
 
+  std::shared_ptr<CameraModel> camera_model_;
+
   PointCloud::Ptr camera_points_CAMFRAME_;
   PointCloud::Ptr defect_points_CAMFRAME_;
   PointCloud::Ptr cad_points_CADFRAME_;

@@ -225,6 +225,21 @@ void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
   p = T.block<3, 1>(0, 3).transpose();
 }
 
+Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T) {
+  Eigen::Matrix4d inverse_transform = Eigen::Matrix4d::Identity();
+
+  // transpose rotation matrix to get inverse rotation
+  inverse_transform.block(0, 0, 3, 3) = (T.block(0, 0, 3, 3)).transpose();
+
+  // the translations are just negative
+  inverse_transform(0,3) = -T(0,3);
+  inverse_transform(1,3) = -T(1,3);
+  inverse_transform(2,3) = -T(2,3);
+
+  return inverse_transform;
+
+}
+
 void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
                    double max_y_dim, double x_scale, double y_scale) {
   // get max cloud dimensions in x and y

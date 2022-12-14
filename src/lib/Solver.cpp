@@ -223,6 +223,8 @@ bool Solver::HasConverged() {
   // Cannot converge on a single solver iteration
   if (solution_iterations_ <= 1) return false;
 
+  if (solution_iterations_ > 10 ) return true;
+
 
   // Check ceres loss convergence conditions
   
@@ -235,10 +237,6 @@ bool Solver::HasConverged() {
       return true;
   }
   
-
-  if (solution_iterations_ > 10 ) return true;
-
-
   // Check physical geometric convergence conditions
   // Assumes that conditions are provided in the same unit as the cloud scale
   else if (params_.convergence_type == ConvergenceType::GEOMETRIC) {
@@ -283,6 +281,9 @@ bool Solver::HasConverged() {
 
     return false;
   }
+
+  return false;
+
 }
 
 bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,

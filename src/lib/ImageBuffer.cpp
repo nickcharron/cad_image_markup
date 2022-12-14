@@ -41,19 +41,26 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
 
   int threshold = 230;
 
+  LOG_INFO("Reading defect data");
+
 
   cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
 
-  // get all pixels of specifid color 
+  LOG_INFO("Read defect data");
+
+  // get all pixels of specified color 
 
   for (int i = 0; i < img.rows; i++) {
     for (int j = 0; j < img.cols; i++) {
       std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i,j)[0], img.at<cv::Vec3b>(i,j)[1], img.at<cv::Vec3b>(i,j)[2]};
       pcl::PointXYZ point_pcl(i, j, 0); // [TODO]: check x and y here
 
+      LOG_INFO("Read defect pixel");
+
       if (color == "red") {
         if (pixel_vals[0] >= threshold && pixel_vals[1] < threshold && pixel_vals[2] < threshold)
           points->push_back(point_pcl);
+          
       }
       else if (color == "green") {
         if (pixel_vals[0] < threshold && pixel_vals[1] >= threshold && pixel_vals[2] < threshold)
@@ -81,6 +88,8 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
 
     }
   }
+
+  LOG_INFO("Finished Reading defect pixels");
 
   return true;
   

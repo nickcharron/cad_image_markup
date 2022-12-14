@@ -36,19 +36,17 @@ bool CadImageMarkup::Setup() {
   LOG_INFO("Setting up problem");
   camera_points_CAMFRAME_ = boost::make_shared<PointCloud>();
   cad_points_CADFRAME_ = boost::make_shared<PointCloud>();
+  defect_points_CAMFRAME_ = boost::make_shared<PointCloud>();
 
   if (!params_.LoadFromJson(inputs_.config_path)) {
     LOG_ERROR("Could not load params. Exiting ...");
     return false;
   }
 
-  // TODO: fix redundancy here, utils used to have a common camera model attribute for all fcns when it was a class, should 
-  // just pass into every relevant fcn
-  std::shared_ptr<CameraModel> camera_model =
-      CameraModel::Create(inputs_.intrinsics_path);
+  camera_model_ = CameraModel::Create(inputs_.intrinsics_path);
   utils::ReadCameraModel(inputs_.intrinsics_path);
 
-  solver_ = std::make_unique<Solver>(camera_model, params_,
+  solver_ = std::make_unique<Solver>(camera_model_, params_,
                                      inputs_.ceres_config_path);
 
   return true;                                   
@@ -141,8 +139,17 @@ bool CadImageMarkup::Solve() {
   pcl::ModelCoefficients::Ptr cad_plane_CAMFRAME = utils::GetCloudPlane(cad_points_CAMFRAME);
 
   // [TODO]: back project, transform back into CAD frame, scale 1/cad scale, write to image
-  PointCloud::Ptr BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME,camera_model);
- 
+  PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
+  Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
+  utils::TransformCloudUpdate(defect_points_CADFRAME, T_CAMERA_WORLD);
+
+  if (defect_points_CAMFRAME_->size() > 0) {
+    LOG_INFO("Back projected %ld defect points into the CAD plane", defect_points_CAMFRAME_->size());
+  }
+
+  image_buffer_.WriteToImage(defect_points_CADFRAME,"/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad.png", 
+                                                   "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
+                                                   255, 0, 0);
 
 
   return true;

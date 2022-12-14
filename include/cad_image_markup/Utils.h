@@ -149,6 +149,9 @@ void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
                                                Eigen::Quaterniond& q,
                                                Eigen::Vector3d& p);
 
+
+Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T);                                             
+
 /**
  * @brief Method to get the scale in x and y of a cloud with respect to the
  * original structure dimensions
