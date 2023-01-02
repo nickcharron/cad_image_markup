@@ -69,10 +69,9 @@ TEST_CASE("Defect transfer test.") {
           "labelled_images/sim_CAD.json",
       .image_path =
           "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/"
-          "labelled_images/-3.000000_0.000000.json",
+          "labelled_images/-1.000000_1.000000.json",
       .defect_path = 
-          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/"
-          "marked_up_images/-3.000000_0.000000_mk.png",
+          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/marked_up_images/-1.000000_1.000000_mk.jpeg",
       .intrinsics_path =
           "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/"
           "Radtan_intrinsics.json",

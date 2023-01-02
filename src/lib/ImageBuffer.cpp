@@ -41,25 +41,21 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
 
   int threshold = 230;
 
-  LOG_INFO("Reading defect data");
-
-
   cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
 
-  LOG_INFO("Read defect data");
+  LOG_INFO("INPUT BUFFER: opened defect file");
 
   // get all pixels of specified color 
-
   for (int i = 0; i < img.rows; i++) {
-    for (int j = 0; j < img.cols; i++) {
-      std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i,j)[0], img.at<cv::Vec3b>(i,j)[1], img.at<cv::Vec3b>(i,j)[2]};
-      pcl::PointXYZ point_pcl(i, j, 0); // [TODO]: check x and y here
+    for (int j = 0; j < img.cols; j++) {
 
-      LOG_INFO("Read defect pixel");
+      std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i,j)[2], img.at<cv::Vec3b>(i,j)[1], img.at<cv::Vec3b>(i,j)[0]};
+      pcl::PointXYZ point_pcl(j, i, 0); // [TODO]: check x and y here
 
       if (color == "red") {
-        if (pixel_vals[0] >= threshold && pixel_vals[1] < threshold && pixel_vals[2] < threshold)
+        if (pixel_vals[0] >= threshold && pixel_vals[1] < threshold && pixel_vals[2] < threshold) {
           points->push_back(point_pcl);
+        }
           
       }
       else if (color == "green") {
@@ -89,7 +85,8 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
     }
   }
 
-  LOG_INFO("Finished Reading defect pixels");
+  LOG_INFO("INPUT BUFFER: Finished Reading defect pixels");
+  LOG_INFO("INPUT BUFFER: %ld defect points read", points->size());
 
   return true;
   
@@ -205,8 +202,8 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
   // Note opencv use BGR not RGB
   cv::Vec3b color;
   color[0] = b;
-  color[0] = g;
-  color[0] = r;
+  color[1] = g;
+  color[2] = r;
 
   if (!boost::filesystem::exists(src_file_name)) {
     LOG_ERROR("Invalid path to input image: %s", src_file_name.c_str());

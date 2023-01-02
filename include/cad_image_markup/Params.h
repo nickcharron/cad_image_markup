@@ -76,7 +76,7 @@ struct Params {
   // SOLUTION OPTIONS
 
   /** CAD drawing scale in working unit/pixel (meters, feet, etc.) */
-  double cad_cloud_scale{100};
+  double cad_cloud_scale{0.01};
   double cad_cloud_scale_x{100};
   double cad_cloud_scale_y{100};
 

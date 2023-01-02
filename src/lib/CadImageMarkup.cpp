@@ -16,7 +16,6 @@ bool CadImageMarkup::Run() {
 
   LOG_INFO("Markup Setup Complete");
 
-  // todo here:
   if (!LoadData()) {
     return false;
   }
@@ -89,6 +88,8 @@ bool CadImageMarkup::LoadData() {
     LOG_WARN("Cannot read defect file at: %s", inputs_.defect_path.c_str());
   }
 
+  LOG_INFO("number of defect points retreived: %ld ", defect_points_CAMFRAME_->size());
+
 
   return true;
 }
@@ -138,10 +139,43 @@ bool CadImageMarkup::Solve() {
 
   pcl::ModelCoefficients::Ptr cad_plane_CAMFRAME = utils::GetCloudPlane(cad_points_CAMFRAME);
 
+  LOG_INFO("Got CAD plane in the camera frame");
+
   // [TODO]: back project, transform back into CAD frame, scale 1/cad scale, write to image
   PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
+  //PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
+  LOG_INFO("Back projected defect points into cad plane");
+
+  Visualizer vis1("back projection visualizer");
+  vis1.StartVis(1);
+  vis1.DisplayClouds(cad_points_CAMFRAME, defect_points_CADFRAME, 
+        "structure_cloud", "crack_cloud");
+
+  char end = ' ';
+
+    while (end != 'r') {
+        cin >> end; 
+    }
+
+  vis1.EndVis();
+
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
   utils::TransformCloudUpdate(defect_points_CADFRAME, T_CAMERA_WORLD);
+
+  pcl::PointXYZ centroid_offset(-cad_centroid_.x, -cad_centroid_.y, 0);
+
+  // [TEST]
+  utils::TransformCloudUpdate(cad_points_CAMFRAME, T_CAMERA_WORLD);
+  utils::ScaleCloud(cad_points_CAMFRAME,1.0/params_.cad_cloud_scale);
+  utils::OriginCloudxy(cad_points_CAMFRAME, centroid_offset);
+
+  // Scale defect points before writing to CAD drawing
+  utils::ScaleCloud(defect_points_CADFRAME,1.0/params_.cad_cloud_scale);
+  utils::OriginCloudxy(defect_points_CADFRAME, centroid_offset);
+
+  
+
+
 
   if (defect_points_CAMFRAME_->size() > 0) {
     LOG_INFO("Back projected %ld defect points into the CAD plane", defect_points_CAMFRAME_->size());
@@ -150,6 +184,10 @@ bool CadImageMarkup::Solve() {
   image_buffer_.WriteToImage(defect_points_CADFRAME,"/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad.png", 
                                                    "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
                                                    255, 0, 0);
+
+  image_buffer_.WriteToImage(cad_points_CAMFRAME,"/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
+                                                   "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
+                                                   50, 200, 100);
 
 
   return true;

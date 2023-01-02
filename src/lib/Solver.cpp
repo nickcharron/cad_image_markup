@@ -42,6 +42,7 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
               results_init_translation.y(),
               results_init_translation.z()};
 
+/*
   LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
 
   float cad_scale_x = 0.01, cad_scale_y = 0.01;
@@ -53,6 +54,11 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
       utils::ScaleCloud(cad_cloud, cad_scale_x);
 
   LOG_INFO("SOLVER: Finished Scaling CAD Cloud by: %f",cad_scale_x);
+*/
+
+  PointCloud::Ptr CAD_cloud_scaled =
+      utils::ScaleCloud(cad_cloud, 1.0);
+
 
   // correspondence object tells the cost function which points to compare
   pcl::CorrespondencesPtr proj_corrs(new pcl::Correspondences);
@@ -300,7 +306,8 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
   PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud);
 
   // blow up the transformed cloud for visualization
-  utils::ScaleCloud(trans_cloud, (params_.cad_cloud_scale_x));
+  //utils::ScaleCloud(trans_cloud, (params_.cad_cloud_scale_x));
+  utils::ScaleCloud(trans_cloud, 1.0/params_.cad_cloud_scale);
 
   visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
                              "camera_cloud", "transformed_cloud",

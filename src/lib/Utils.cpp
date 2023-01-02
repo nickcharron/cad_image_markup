@@ -320,19 +320,22 @@ PointCloud::Ptr BackProject(
   for (uint32_t i = 0; i < image_cloud->size(); i++) {
     Eigen::Vector3d image_point(0, 0, 0);
     Eigen::Vector2i image_pixel(image_cloud->at(i).x, image_cloud->at(i).y);
-    Eigen::Vector3d ray_unit_vector =
+    if (camera_model->BackProject(image_pixel).has_value()) {
+      Eigen::Vector3d ray_unit_vector =
         camera_model->BackProject(image_pixel).value().normalized();
-    double prod1 = (image_point - cad_point).dot(cad_normal);
+      double prod1 = (image_point - cad_point).dot(cad_normal);
 
-    double len = prod1 / (ray_unit_vector.dot(cad_normal));
+      double len = prod1 / (ray_unit_vector.dot(cad_normal));
 
-    Eigen::Vector3d back_projected_point = image_point - ray_unit_vector * len;
+      Eigen::Vector3d back_projected_point = image_point - ray_unit_vector * len;
 
-    pcl::PointXYZ back_projected_cloud_point(back_projected_point[0],
-                                             back_projected_point[1],
-                                             back_projected_point[2]);
+      pcl::PointXYZ back_projected_cloud_point(back_projected_point[0],
+                                              back_projected_point[1],
+                                              back_projected_point[2]);
 
-    back_projected_cloud->push_back(back_projected_cloud_point);
+      back_projected_cloud->push_back(back_projected_cloud_point);
+    }
+
   }
 
   return back_projected_cloud;
