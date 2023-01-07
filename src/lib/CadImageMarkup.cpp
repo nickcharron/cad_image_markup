@@ -135,29 +135,14 @@ bool CadImageMarkup::Solve() {
 
   // Generate output 
   PointCloud::Ptr cad_points_CAMFRAME = boost::make_shared<PointCloud>();
-  cad_points_CAMFRAME = utils::TransformCloud(cad_points_WORLDFRAME_, T_WORLD_CAMERA);
+  cad_points_CAMFRAME = utils::TransformCloud(cad_points_CADFRAME_, T_WORLD_CAMERA);
 
   pcl::ModelCoefficients::Ptr cad_plane_CAMFRAME = utils::GetCloudPlane(cad_points_CAMFRAME);
 
   LOG_INFO("Got CAD plane in the camera frame");
 
-  // [TODO]: back project, transform back into CAD frame, scale 1/cad scale, write to image
   PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
-  //PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
   LOG_INFO("Back projected defect points into cad plane");
-
-  Visualizer vis1("back projection visualizer");
-  vis1.StartVis(1);
-  vis1.DisplayClouds(cad_points_CAMFRAME, defect_points_CADFRAME, 
-        "structure_cloud", "crack_cloud");
-
-  char end = ' ';
-
-    while (end != 'r') {
-        cin >> end; 
-    }
-
-  vis1.EndVis();
 
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
   utils::TransformCloudUpdate(defect_points_CADFRAME, T_CAMERA_WORLD);
@@ -167,10 +152,10 @@ bool CadImageMarkup::Solve() {
   centroid_offset.x -= params_.cad_crop_offset_x;
   centroid_offset.y -= params_.cad_crop_offset_y;
 
-  // [TEST]
   utils::TransformCloudUpdate(cad_points_CAMFRAME, T_CAMERA_WORLD);
   utils::ScaleCloud(cad_points_CAMFRAME,1.0/params_.cad_cloud_scale);
   utils::OriginCloudxy(cad_points_CAMFRAME, centroid_offset);
+ 
 
   // Scale defect points before writing to CAD drawing
   utils::ScaleCloud(defect_points_CADFRAME,1.0/params_.cad_cloud_scale);

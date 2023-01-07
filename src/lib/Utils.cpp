@@ -229,12 +229,10 @@ Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T) {
   Eigen::Matrix4d inverse_transform = Eigen::Matrix4d::Identity();
 
   // transpose rotation matrix to get inverse rotation
-  inverse_transform.block(0, 0, 3, 3) = (T.block(0, 0, 3, 3)).transpose();
+  inverse_transform.block<3,3>(0,0) = (T.block<3,3>(0,0)).transpose();
 
-  // the translations are just negative
-  inverse_transform(0,3) = -T(0,3);
-  inverse_transform(1,3) = -T(1,3);
-  inverse_transform(2,3) = -T(2,3);
+  // the translations are:
+  inverse_transform.block<3,1>(0,3) = -inverse_transform.block<3,3>(0,0)*T.block<3,1>(0,3);
 
   return inverse_transform;
 

@@ -25,7 +25,7 @@
   "misc_options":
   {
     "defect_color": "red",
-    "cad_crop_offset_x": 22,
-    "cad_crop_offset_y": 5
+    "cad_crop_offset_x": 0,
+    "cad_crop_offset_y": 0
   }
 }
