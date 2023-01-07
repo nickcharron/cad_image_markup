@@ -154,6 +154,9 @@ struct Params {
 
   std::string defect_color{"red"};
 
+  double cad_crop_offset_x{0};
+  double cad_crop_offset_y{0};
+
   /**
    * @brief Loads params from a json file
    * @param path full path to json
@@ -200,6 +203,9 @@ struct Params {
     nlohmann::json J_misc_options = J["misc_options"];
 
     defect_color = J_misc_options["defect_color"];
+
+    cad_crop_offset_x = J_misc_options["cad_crop_offset_x"];
+    cad_crop_offset_y = J_misc_options["cad_crop_offset_y"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(

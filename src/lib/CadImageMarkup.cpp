@@ -162,7 +162,10 @@ bool CadImageMarkup::Solve() {
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
   utils::TransformCloudUpdate(defect_points_CADFRAME, T_CAMERA_WORLD);
 
+  // [NOTE] Add an offset here if the target drawing was cropped from the labelled drawing
   pcl::PointXYZ centroid_offset(-cad_centroid_.x, -cad_centroid_.y, 0);
+  centroid_offset.x -= params_.cad_crop_offset_x;
+  centroid_offset.y -= params_.cad_crop_offset_y;
 
   // [TEST]
   utils::TransformCloudUpdate(cad_points_CAMFRAME, T_CAMERA_WORLD);
@@ -173,20 +176,16 @@ bool CadImageMarkup::Solve() {
   utils::ScaleCloud(defect_points_CADFRAME,1.0/params_.cad_cloud_scale);
   utils::OriginCloudxy(defect_points_CADFRAME, centroid_offset);
 
-  
-
-
-
   if (defect_points_CAMFRAME_->size() > 0) {
     LOG_INFO("Back projected %ld defect points into the CAD plane", defect_points_CAMFRAME_->size());
   }
 
-  image_buffer_.WriteToImage(defect_points_CADFRAME,"/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad.png", 
-                                                   "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
-                                                   255, 0, 0);
+  image_buffer_.WriteToImage(defect_points_CADFRAME,inputs_.cad_image_path, 
+                                                    inputs_.output_image_path, 
+                                                    255, 0, 0);
 
-  image_buffer_.WriteToImage(cad_points_CAMFRAME,"/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
-                                                   "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/cad_mk.png", 
+  image_buffer_.WriteToImage(cad_points_CAMFRAME,inputs_.output_image_path, 
+                                                 inputs_.output_image_path, 
                                                    50, 200, 100);
 
 

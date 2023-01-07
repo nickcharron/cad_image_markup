@@ -214,7 +214,8 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
   cv::Mat image;
   image = cv::imread(src_file_name, 1);
   for (uint32_t i = 0; i < points->size(); i++) {
-    image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
+    if (points->at(i).x >= 0 && points->at(i).x <=  image.cols && points->at(i).y >= 0 && points->at(i).y <= image.rows) 
+      image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
   }
 
   LOG_INFO("Saving image to: %s", target_file_name.c_str());

@@ -229,7 +229,7 @@ bool Solver::HasConverged() {
   // Cannot converge on a single solver iteration
   if (solution_iterations_ <= 1) return false;
 
-  if (solution_iterations_ > 10 ) return true;
+  if (solution_iterations_ > 20 ) return true;
 
 
   // Check ceres loss convergence conditions

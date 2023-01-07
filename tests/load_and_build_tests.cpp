@@ -67,11 +67,13 @@ TEST_CASE("Defect transfer test.") {
       .cad_path =
           "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/"
           "labelled_images/sim_CAD.json",
+      .cad_image_path =
+          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/cad/cad.png",
       .image_path =
           "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/"
-          "labelled_images/-1.000000_1.000000.json",
+          "labelled_images/-3.000000_0.000000.json",
       .defect_path = 
-          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/marked_up_images/-1.000000_1.000000_mk.jpeg",
+          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/marked_up_images/-3.000000_0.000000_mk.png",
       .intrinsics_path =
           "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/"
           "Radtan_intrinsics.json",
@@ -82,7 +84,9 @@ TEST_CASE("Defect transfer test.") {
           "/home/user/sdic_cad_reprojection/cad_image_markup/config/"
           "CeresParamsDefault.json",
       .initial_pose_path =
-          "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/initial_pose.json"};
+          "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/initial_pose.json", 
+      .output_image_path = 
+          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/marked_up_cad/-3.000000_0.000000_cad_mk.png" };
 
   cad_image_markup::CadImageMarkup markup(inputs);
 
