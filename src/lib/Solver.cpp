@@ -19,9 +19,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   cad_cloud_ = cad_cloud;
   camera_cloud_ = camera_cloud;
 
-  LOG_INFO("SOLVER: cad cloud size: %ld", cad_cloud->size());
-  LOG_INFO("SOLVER: camera cloud size: %ld", camera_cloud->size());
-
   LOG_INFO("SOLVER: Initiated");
 
   solution_iterations_ = 0;
@@ -41,20 +38,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
               results_init_translation.x(),
               results_init_translation.y(),
               results_init_translation.z()};
-
-/*
-  LOG_INFO("SOLVER: Ready to Scale CAD Cloud");
-
-  float cad_scale_x = 0.01, cad_scale_y = 0.01;
-
-  utils::GetCloudScale(cad_cloud,params_.max_x_dim, params_.max_y_dim, cad_scale_x, cad_scale_y);
-
-  // CAD drawing should have the same x and y scale
-  PointCloud::Ptr CAD_cloud_scaled =
-      utils::ScaleCloud(cad_cloud, cad_scale_x);
-
-  LOG_INFO("SOLVER: Finished Scaling CAD Cloud by: %f",cad_scale_x);
-*/
 
   PointCloud::Ptr CAD_cloud_scaled =
       utils::ScaleCloud(cad_cloud, 1.0);
@@ -86,16 +69,12 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
          solution_iterations_ < params_.max_solution_iterations) {
     solution_iterations_++;
 
-    printf("Solver iteration %u \n", solution_iterations_);
-
     if (params_.visualize) {
       if (!UpdateVisualizer(CAD_cloud_scaled, T_WORLD_CAMERA, proj_corrs))
         return false;
     }
 
     std::shared_ptr<ceres::Problem> problem = BuildCeresProblem(proj_corrs, camera_model_, camera_cloud_, CAD_cloud_scaled);
-
-    //SolveCeresProblem(problem);
 
     T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
@@ -144,6 +123,7 @@ std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
   ceres_problem_options.loss_function_ownership = ceres::DO_NOT_TAKE_OWNERSHIP;
   ceres_problem_options.local_parameterization_ownership =
       ceres::DO_NOT_TAKE_OWNERSHIP;
+
   // initialize problem
   problem_ = std::make_shared<ceres::Problem>(ceres_problem_options);
 
@@ -171,7 +151,6 @@ std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
                               cad_cloud->at(proj_corrs->at(i).index_match).y,
                               cad_cloud->at(proj_corrs->at(i).index_match).z);
 
-    // TODO: populate this?
     Eigen::Vector3d P_STRUCT2;
 
     // If two correspondences have been specified, every second correspondence
@@ -211,13 +190,9 @@ void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
 
   if (params_.output_results) {
     LOG_INFO("SOLVER: Solving ceres problem...");
-
-    // DEBUG:: Generate an interrupt before starting ceres solution
-    // std::raise(SIGINT);
-
     ceres::Solve(ceres_params_.SolverOptions(), problem.get(), &summary_);
-    LOG_INFO("Done.");
-    LOG_INFO("Outputting ceres summary:");
+    LOG_INFO("SOLVER: Finished solving ceres problem");
+    LOG_INFO("SOLVER: Outputting ceres summary:");
     std::string report = summary_.FullReport();
     std::cout << report << "\n";
   } else {
@@ -225,6 +200,7 @@ void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
   }
 }
 
+// [TODO] debug convergence conditions
 bool Solver::HasConverged() {
   // Cannot converge on a single solver iteration
   if (solution_iterations_ <= 1) return false;

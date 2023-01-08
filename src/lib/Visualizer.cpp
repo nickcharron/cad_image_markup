@@ -250,8 +250,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
   uint16_t line_start_index = 0, line_end_index = 1;
   uint16_t line_id = 0;
 
-  LOG_INFO("Visualizer: displaying %ld correspondences", corrs->size());
-
   // illustrate correspondences
   for (uint16_t i = 0; i < corrs->size(); i++) {
 
@@ -277,8 +275,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
     line_end_index += 2;
     line_id++;
   }
-
-  LOG_INFO("Visualizer: drew %ld correspondences", corrs->size());
 
   mtx_.unlock();
 

@@ -206,10 +206,10 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
   color[2] = r;
 
   if (!boost::filesystem::exists(src_file_name)) {
-    LOG_ERROR("Invalid path to input image: %s", src_file_name.c_str());
+    LOG_ERROR("OUTPUT BUFFER: Invalid path to input image: %s", src_file_name.c_str());
     return false;
   }
-  LOG_INFO("Reading image: %s", src_file_name.c_str());
+  LOG_INFO("OUTPUT BUFFER: Reading image: %s", src_file_name.c_str());
 
   cv::Mat image;
   image = cv::imread(src_file_name, 1);
@@ -218,10 +218,10 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
       image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
   }
 
-  LOG_INFO("Saving image to: %s", target_file_name.c_str());
+  LOG_INFO("OUTPUT BUFFER: Saving image to: %s", target_file_name.c_str());
   bool written = cv::imwrite(target_file_name, image);
   if (!written) {
-    LOG_ERROR("Unable to write image.");
+    LOG_ERROR("OUTPUT BUFFER: Unable to write image.");
   }
   return written;
 }

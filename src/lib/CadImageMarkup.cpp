@@ -8,25 +8,25 @@ CadImageMarkup::CadImageMarkup(const Inputs& inputs) : inputs_(inputs) {}
 
 bool CadImageMarkup::Run() {
 
-  LOG_INFO("Markup Run Starting");
+  LOG_INFO("MARKUP:  Run Starting");
 
   if (!Setup()) {
     return false;
   }
 
-  LOG_INFO("Markup Setup Complete");
+  LOG_INFO("MARKUP: Setup Complete");
 
   if (!LoadData()) {
     return false;
   }
 
-  LOG_INFO("Markup Load Data Complete");
+  LOG_INFO("MARKUP: Load Data Complete");
 
   if (!Solve()) {
     return false;
   }
 
-  LOG_INFO("Markup Solution Complete");
+  LOG_INFO("MARKUP: Solution Complete");
 
   return true;
 }
@@ -88,9 +88,6 @@ bool CadImageMarkup::LoadData() {
     LOG_WARN("Cannot read defect file at: %s", inputs_.defect_path.c_str());
   }
 
-  LOG_INFO("number of defect points retreived: %ld ", defect_points_CAMFRAME_->size());
-
-
   return true;
 }
 
@@ -115,6 +112,7 @@ bool CadImageMarkup::Solve() {
   }
   LOG_INFO("Solver successful.");
 
+  // STILL [TODO]!
   // TODO CAM: output results here? We can just create a new CAD image with the
   // markups, and rename it using the orginal name. We should also output other
   // things like:
@@ -161,10 +159,6 @@ bool CadImageMarkup::Solve() {
   utils::ScaleCloud(defect_points_CADFRAME,1.0/params_.cad_cloud_scale);
   utils::OriginCloudxy(defect_points_CADFRAME, centroid_offset);
 
-  if (defect_points_CAMFRAME_->size() > 0) {
-    LOG_INFO("Back projected %ld defect points into the CAD plane", defect_points_CAMFRAME_->size());
-  }
-
   image_buffer_.WriteToImage(defect_points_CADFRAME,inputs_.cad_image_path, 
                                                     inputs_.output_image_path, 
                                                     255, 0, 0);
@@ -177,9 +171,9 @@ bool CadImageMarkup::Solve() {
   return true;
 }
 
-//////////////////////////////////////////////////////////////////////
-// TODO CAM: Double check this
 
+// [NOTE]: pose calculated with respect to camera focal point with Z pointing 
+// perpendicularly out from the frame and x any y along image dimensions 
 void CadImageMarkup::LoadInitialPose(const std::string& path,
                                      Eigen::Matrix4d& T_WORLD_CAMERA) {
 
@@ -205,7 +199,6 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
   file >> J;
 
   Eigen::Matrix3d R;
-  // TODO CAM: check order and put in README
   R = Eigen::AngleAxisd(utils::DegToRad(J["pose"][3]), Eigen::Vector3d::UnitX()) *
       Eigen::AngleAxisd(utils::DegToRad(J["pose"][4]), Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(utils::DegToRad(J["pose"][5]), Eigen::Vector3d::UnitZ());

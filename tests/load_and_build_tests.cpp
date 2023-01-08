@@ -84,7 +84,7 @@ TEST_CASE("Defect transfer test.") {
           "/home/user/sdic_cad_reprojection/cad_image_markup/config/"
           "CeresParamsDefault.json",
       .initial_pose_path =
-          "/home/user/sdic_cad_reprojection/cad_image_markup/data/test1/initial_pose.json", 
+          "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/poses/initial_pose.json", 
       .output_image_path = 
           "/home/user/sdic_cad_reprojection/cad_image_markup/tests/test_data/marked_up_cad/-3.000000_0.000000_cad_mk.png" };
 

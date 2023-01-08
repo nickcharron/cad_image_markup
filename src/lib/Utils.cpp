@@ -201,8 +201,6 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
     }
   }
   
-  LOG_INFO("Correspondences: exiting correspondence estimation");
-
 }
 
 Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
@@ -286,9 +284,7 @@ void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale) {
 
 pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
   pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-      //std::make_shared<pcl::ModelCoefficients>();
   pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
-  //= std::make_shared<pcl::PointIndice>();
 
   // Create the segmentation object
   pcl::SACSegmentation<pcl::PointXYZ> seg;

@@ -3,7 +3,7 @@
   {
     "cad_cloud_scale": 0.003,
     "max_solution_iterations": 30,
-    "visualize": false,
+    "visualize": true,
     "output_results": true, 
     "align_centroids": true,
     "correspondence_type": "P2POINT",
