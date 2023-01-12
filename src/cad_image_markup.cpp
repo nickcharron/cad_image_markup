@@ -3,6 +3,9 @@
 
 DEFINE_string(cad, "", "Full path to CAD file in json format (Required).");
 DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
+DEFINE_string(cad_image, "",
+              "Full path to CAD image file in png or jpg (Required).");
+DEFINE_validator(cad_image, &cad_image_markup::gflags::ValidateFileMustExist);
 DEFINE_string(image, "", "Full path to image (Required).");
 DEFINE_validator(image, &cad_image_markup::gflags::ValidateFileMustExist);
 DEFINE_string(intrinsics, "",
@@ -12,8 +15,10 @@ DEFINE_validator(intrinsics,
 DEFINE_string(config, "", "Full path to json config file (Optional).");
 DEFINE_string(ceres_config, "",
               "Full path to json config file for Ceres optimizer (Optional).");
-DEFINE_string(defect_image, "", "Full path to image file with labelled defects (Optional)");
-DEFINE_string(output_image, "", "Full path to marked-up output image (Optional)");
+DEFINE_string(defect_image, "",
+              "Full path to image file with labelled defects (Optional)");
+DEFINE_string(output_image, "",
+              "Full path to marked-up output image (Optional)");
 
 // TODO CAM: Is this correct? We should have some default pose that we supply
 // the optimizer if no pose file was given. We could realistically tell
@@ -32,6 +37,7 @@ int main(int argc, char **argv) {
 
   cad_image_markup::CadImageMarkup::Inputs inputs{
       .cad_path = FLAGS_cad,
+      .cad_image_path = FLAGS_cad_image,
       .image_path = FLAGS_image,
       .defect_path = FLAGS_defect_image,
       .intrinsics_path = FLAGS_intrinsics,
