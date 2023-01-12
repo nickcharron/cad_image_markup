@@ -20,7 +20,7 @@
   },
   "output_options":
   {
-    "output_image": false
+    "output_image": true
   },
   "misc_options":
   {

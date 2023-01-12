@@ -8,7 +8,8 @@
     "gradient_tolerance": 1e-10,
     "parameter_tolerance": 1e-8,
     "linear_solver_type": "SPARSE_SCHUR",
-    "preconditioner_type": "SCHUR_JACOBI"
+    "preconditioner_type": "SCHUR_JACOBI",
+    "output_results": false
   },
   "problem_options":
   {

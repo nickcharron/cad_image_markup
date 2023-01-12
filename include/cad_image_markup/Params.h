@@ -185,6 +185,7 @@ struct Params {
     output_results = J_solution_options["output_results"];
     align_centroids = J_solution_options["align_centroids"];
     max_corr_distance = J_solution_options["max_corr_distance"];
+    output_results = J_solution_options["output_results"];
 
     nlohmann::json J_convergence_options = J["convergence_options"];
 

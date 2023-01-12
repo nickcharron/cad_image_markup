@@ -33,9 +33,9 @@ bool CadImageMarkup::Run() {
 
 bool CadImageMarkup::Setup() {
   LOG_INFO("Setting up problem");
-  camera_points_CAMFRAME_ = boost::make_shared<PointCloud>();
-  cad_points_CADFRAME_ = boost::make_shared<PointCloud>();
-  defect_points_CAMFRAME_ = boost::make_shared<PointCloud>();
+  camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
+  cad_points_CADFRAME_ = std::make_shared<PointCloud>();
+  defect_points_CAMFRAME_ = std::make_shared<PointCloud>();
 
   if (!params_.LoadFromJson(inputs_.config_path)) {
     LOG_ERROR("Could not load params. Exiting ...");
@@ -132,7 +132,7 @@ bool CadImageMarkup::Solve() {
   std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
 
   // Generate output 
-  PointCloud::Ptr cad_points_CAMFRAME = boost::make_shared<PointCloud>();
+  PointCloud::Ptr cad_points_CAMFRAME = std::make_shared<PointCloud>();
   cad_points_CAMFRAME = utils::TransformCloud(cad_points_CADFRAME_, T_WORLD_CAMERA);
 
   pcl::ModelCoefficients::Ptr cad_plane_CAMFRAME = utils::GetCloudPlane(cad_points_CAMFRAME);
@@ -166,7 +166,6 @@ bool CadImageMarkup::Solve() {
   image_buffer_.WriteToImage(cad_points_CAMFRAME,inputs_.output_image_path, 
                                                  inputs_.output_image_path, 
                                                    50, 200, 100);
-
 
   return true;
 }
