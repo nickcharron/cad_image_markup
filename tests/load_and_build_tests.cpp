@@ -9,7 +9,7 @@ std::string GetDataPathRoot() {
   std::string current_file_path = "load_and_build_tests.cpp";
   file_location.erase(file_location.end() - current_file_path.length(),
                       file_location.end());
-  return file_location + "/test_data/";
+  return file_location + "test_data/";
 }
 
 std::string GetConfigPathRoot() {
@@ -17,7 +17,7 @@ std::string GetConfigPathRoot() {
   std::string current_file_path = "tests/load_and_build_tests.cpp";
   file_location.erase(file_location.end() - current_file_path.length(),
                       file_location.end());
-  return file_location + "/config/";
+  return file_location + "config/";
 }
 
 TEST_CASE("Initial test.") {
