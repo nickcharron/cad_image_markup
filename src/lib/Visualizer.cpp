@@ -17,6 +17,8 @@ void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
 
+  point_cloud_display_->setCameraPosition(0, 0, -3,    0, 0, 1,   0, -1, 0);
+
   continue_flag_.test_and_set(std::memory_order_relaxed);
 
   //start the visualizer spinning in its own thread
