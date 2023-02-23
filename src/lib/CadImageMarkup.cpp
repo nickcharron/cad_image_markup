@@ -33,13 +33,13 @@ bool CadImageMarkup::Run() {
 }
 
 bool CadImageMarkup::Setup() {
-  LOG_INFO("Setting up problem");
+  LOG_INFO("MARKUP: Setting up problem");
   camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
   cad_points_CADFRAME_ = std::make_shared<PointCloud>();
   defect_points_CAMFRAME_ = std::make_shared<PointCloud>();
 
   if (!params_.LoadFromJson(inputs_.config_path)) {
-    LOG_ERROR("Could not load params. Exiting ...");
+    LOG_ERROR("MARKUP: MARKUP: Could not load params. Exiting ...");
     return false;
   }
 
@@ -56,41 +56,41 @@ bool CadImageMarkup::Setup() {
 }
 
 bool CadImageMarkup::LoadData() {
-  LOG_INFO("Loading camera data");
-  
+  LOG_INFO("MARKUP: Loading camera data");
+
   // read image points
   if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_)) {
-    LOG_ERROR("Cannot read image file at: %s", inputs_.image_path.c_str());
+    LOG_ERROR("MARKUP: Cannot read image file at: %s", inputs_.image_path.c_str());
     return false;
   }
-  LOG_INFO("Camera data loaded successfully");
+  LOG_INFO("MARKUP: Camera data loaded successfully");
 
-  LOG_INFO("Densifying points");
+  LOG_INFO("MARKUP: Densifying points");
   image_buffer_.DensifyPoints(camera_points_CAMFRAME_,
                               params_.cam_density_index);
 
   
   // read cad model points
-  LOG_INFO("Loading CAD model data");
+  LOG_INFO("MARKUP: Loading CAD model data");
   if (!image_buffer_.ReadPoints(inputs_.cad_path, cad_points_CADFRAME_)) {
-    LOG_ERROR("Cannot read CAD file at: %s", inputs_.cad_path.c_str());
+    LOG_ERROR("MARKUP: Cannot read CAD file at: %s", inputs_.cad_path.c_str());
     return false;
   }
 
-  LOG_INFO("Densifying points");
+  LOG_INFO("MARKUP: Densifying points");
   image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
-  LOG_INFO("CAD data loaded successfully");
+  LOG_INFO("MARKUP: CAD data loaded successfully");
 
-  LOG_INFO("Adjusting CAD data");
+  LOG_INFO("MARKUP: Adjusting CAD data");
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_, cad_centroid_);
   utils::ScaleCloud(cad_points_CADFRAME_,params_.cad_cloud_scale);
-  LOG_INFO("Done loading CAD dimension data");
+  LOG_INFO("MARKUP: Done loading CAD dimension data");
 
   // attempt to read defect data
-  LOG_INFO("Loading defect data");
+  LOG_INFO("MARKUP: Loading defect data");
   if (!image_buffer_.ReadPointsPNG(inputs_.defect_path, defect_points_CAMFRAME_,params_.defect_color)) {
-    LOG_WARN("Cannot read defect file at: %s", inputs_.defect_path.c_str());
+    LOG_WARN("MARKUP: Cannot read defect file at: %s", inputs_.defect_path.c_str());
   }
 
   return true;
@@ -106,7 +106,7 @@ bool CadImageMarkup::Solve() {
   cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
 
 
-  LOG_INFO("Running solver");
+  LOG_INFO("MARKUP: Running solver");
   bool converged =
       solver_->Solve(cad_points_WORLDFRAME_, camera_points_CAMFRAME_,
                      T_WORLD_CAMERA_init, params_.visualize);
@@ -115,7 +115,7 @@ bool CadImageMarkup::Solve() {
     LOG_ERROR("Solver failed, exiting.");
     return false;
   }
-  LOG_INFO("Solver successful.");
+  LOG_INFO("MARKUP: Solver successful.");
 
   Eigen::Matrix4d T_WORLD_CAMERA = solver_->GetT_WORLD_CAMERA();
   std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
@@ -126,10 +126,10 @@ bool CadImageMarkup::Solve() {
 
   pcl::ModelCoefficients::Ptr cad_plane_CAMFRAME = utils::GetCloudPlane(cad_points_CAMFRAME);
 
-  LOG_INFO("Got CAD plane in the camera frame");
+  LOG_INFO("MARKUP: Got CAD plane in the camera frame");
 
   PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
-  LOG_INFO("Back projected defect points into cad plane");
+  LOG_INFO("MARKUP: Back projected defect points into cad plane");
 
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
   utils::TransformCloudUpdate(defect_points_CADFRAME, T_CAMERA_WORLD);
@@ -167,7 +167,7 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
 
   if (path.empty()) {
     LOG_INFO(
-        "No initial pose path provided. Assuming the image was collected about "
+        "MARKUP: No initial pose path provided. Assuming the image was collected about "
         "3 m from the structure, and taken perpendicularly.");
     T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
     T_WORLD_CAMERA(2,3) = 3; // cad model is assumed to be 3 m ahead of camera in z
@@ -175,11 +175,11 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
   }
 
   if (!boost::filesystem::exists(path)) {
-    LOG_ERROR("Invalid path to initial pose file: %s", path.c_str());
+    LOG_ERROR("MARKUP: Invalid path to initial pose file: %s", path.c_str());
     return;
   }
 
-  LOG_INFO("Loading initial pose file from: %s", path.c_str());
+  LOG_INFO("MARKUP: Loading initial pose file from: %s", path.c_str());
 
   // load file
   nlohmann::json J;
