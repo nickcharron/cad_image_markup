@@ -383,6 +383,7 @@ Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V) {
 }
 
 double DegToRad(double d) { return d * (M_PI / 180); }
+double RadToDeg(double r) { return r * (180 / M_PI); }
 
 }  // namespace utils
 

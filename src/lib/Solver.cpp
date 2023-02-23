@@ -200,32 +200,36 @@ void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
   }
 }
 
-// [TODO] debug convergence conditions
 bool Solver::HasConverged() {
+
   // Cannot converge on a single solver iteration
   if (solution_iterations_ <= 1) return false;
-
-  if (solution_iterations_ > 20 ) return true;
-
-
-  // Check ceres loss convergence conditions
   
   if (params_.convergence_type == ConvergenceType::LOSS) {
-    double differential_cost = std::fabs(summary_.final_cost - last_iteration_cost_);
+    double differential_cost = std::abs(summary_.final_cost - last_iteration_cost_);
     if ((differential_cost <= params_.converged_differential_cost &&
          params_.convergence_condition == ConvergenceCondition::DIFFERENCE) ||
         (summary_.final_cost <= params_.converged_absolute_cost &&
          params_.convergence_condition == ConvergenceCondition::ABSOLUTE))
       return true;
   }
-  
+
   // Check physical geometric convergence conditions
   // Assumes that conditions are provided in the same unit as the cloud scale
   else if (params_.convergence_type == ConvergenceType::GEOMETRIC) {
+
+    if (params_.convergence_condition == ConvergenceCondition::ABSOLUTE)
+      LOG_ERROR("SOLVER: Cannot converge to absolute geometric condition, set convergence condition to DIFFERENCE in the solution parameters file");
+
     Eigen::Quaterniond q_current{results_[0], results_[1], results_[2],
                                  results_[3]};
     Eigen::Vector3d euler_angles_current =
         q_current.toRotationMatrix().eulerAngles(0, 1, 2);
+
+    // convert to degrees
+    euler_angles_current[0] = utils::RadToDeg(euler_angles_current[0]);
+    euler_angles_current[1] = utils::RadToDeg(euler_angles_current[1]);
+    euler_angles_current[2] = utils::RadToDeg(euler_angles_current[2]);
 
     Eigen::Quaterniond q_last{
         last_iteration_results_[0], last_iteration_results_[1],
@@ -233,17 +237,10 @@ bool Solver::HasConverged() {
     Eigen::Vector3d euler_angles_last =
         q_last.toRotationMatrix().eulerAngles(0, 1, 2);
 
-    // Check absolute conditions - may not exist
-    /*
-    if (euler_angles_current(0) <= params_.converged_absolute_rotation
-        && euler_angles_current(1) <= params_.converged_absolute_rotation
-        && euler_angles_current(2) <= params_.converged_absolute_rotation
-        && results_[4] < params_.converged_absolute_translation
-        && results_[5] < params_.converged_absolute_translation
-        && results_[6] < params_.converged_absolute_translation
-        && params_.convergence_condition == ABS_CONVERGENCE)
-      return true;
-    */
+    // convert to degrees
+    euler_angles_last[0] = utils::RadToDeg(euler_angles_last[0]);
+    euler_angles_last[1] = utils::RadToDeg(euler_angles_last[1]);
+    euler_angles_last[2] = utils::RadToDeg(euler_angles_last[2]);
 
     // Check differential condition
     if (std::abs(euler_angles_current(0) - euler_angles_last(0)) <=
@@ -261,8 +258,11 @@ bool Solver::HasConverged() {
         params_.convergence_condition == ConvergenceCondition::DIFFERENCE)
       return true;
 
-    return false;
+    //return false;
   }
+
+  // update for the next iteration
+  last_iteration_cost_ = summary_.final_cost;
 
   return false;
 

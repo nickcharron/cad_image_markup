@@ -247,6 +247,8 @@ Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V);
 
 double DegToRad(double d);
 
+double RadToDeg(double d);
+
 }  // namespace utils
 
 }  // namespace cad_image_markup
