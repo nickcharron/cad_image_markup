@@ -82,7 +82,7 @@ TEST_CASE("Defect transfer test.") {
       .intrinsics_path = data_root + "Radtan_intrinsics.json",
       .config_path = config_root + "SolutionParamsDefault.json",
       .ceres_config_path = config_root + "CeresParamsDefault.json",
-      .initial_pose_path = data_root + "poses/-3.000000_0.000000.json",
+      .initial_pose_path = data_root + "poses/initial_pose.json",
       .output_image_path =
           data_root + "marked_up_cad/-3.000000_0.000000_cad_mk.png"};
 
