@@ -3,7 +3,7 @@
   {
     "cad_cloud_scale": 0.003,
     "max_solution_iterations": 30,
-    "visualize": false,
+    "visualize": true,
     "output_results": false, 
     "align_centroids": true,
     "correspondence_type": "P2POINT",
@@ -11,8 +11,8 @@
   },
   "convergence_options":
   {
-    "convergence_type": "GEOMETRIC",
-    "convergence_condition": "DIFFERENCE",
+    "convergence_type": "LOSS",
+    "convergence_condition": "ABSOLUTE",
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
     "converged_differential_translation_m": 0.1,

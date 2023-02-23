@@ -137,10 +137,10 @@ struct Params {
   double converged_differential_rotation{1};
 
   /** number of points to interpolate between each point in input cad cloud */
-  double cad_density_index{1};
+  double cad_density_index{0.01};
 
   /** number of points to interpolate between each point in input camera cloud */
-  double cam_density_index{2};
+  double cam_density_index{0.02};
 
   /** source cloud for correspondences, "camera" or "projected" */
   std::string source_cloud{"camera"};

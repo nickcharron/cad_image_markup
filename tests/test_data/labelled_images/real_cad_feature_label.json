@@ -1,0 +1,43 @@
+{
+  "flags": {},
+  "shapes": [
+    {
+      "label": "structure",
+      "line_color": null,
+      "fill_color": null,
+      "points": [
+        [
+          100,
+          100
+        ],
+        [
+          100,
+          637
+        ],
+        [
+          350,
+          637
+        ],
+        [
+          200,
+          100
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "lineColor": [
+    0,
+    255,
+    0,
+    128
+  ],
+  "fillColor": [
+    255,
+    0,
+    0,
+    128
+  ],
+  "imagePath": "real_cad.png",
+  "imageData": null
+}

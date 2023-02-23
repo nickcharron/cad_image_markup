@@ -39,7 +39,7 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
   if (!boost::filesystem::exists(filename)) 
     return false;
 
-  int threshold = 230;
+  int threshold = 200;
 
   cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
 
@@ -53,17 +53,17 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
       pcl::PointXYZ point_pcl(j, i, 0); 
 
       if (color == "red") {
-        if (pixel_vals[0] >= threshold && pixel_vals[1] < threshold && pixel_vals[2] < threshold) {
+        if (pixel_vals[0] >= threshold && pixel_vals[1] < (255 -threshold) && pixel_vals[2] < (255 -threshold)) {
           points->push_back(point_pcl);
         }
           
       }
       else if (color == "green") {
-        if (pixel_vals[0] < threshold && pixel_vals[1] >= threshold && pixel_vals[2] < threshold)
+        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] >= threshold && pixel_vals[2] < (255 -threshold))
           points->push_back(point_pcl);
       }
       else if (color == "blue") {
-        if (pixel_vals[0] < threshold && pixel_vals[1] < threshold && pixel_vals[2] >= threshold)
+        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] < (255 -threshold) && pixel_vals[2] >= threshold)
           points->push_back(point_pcl);
 
       } 
