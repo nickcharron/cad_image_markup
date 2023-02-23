@@ -75,16 +75,16 @@ TEST_CASE("Defect transfer test.") {
   std::string data_root = GetDataPathRoot();
   std::string config_root = GetConfigPathRoot();
   cad_image_markup::CadImageMarkup::Inputs inputs{
-      .cad_path = data_root + "labelled_images/sim_CAD.json",
-      .cad_image_path = data_root + "cad/cad.png",
-      .image_path = data_root + "labelled_images/-3.000000_0.000000.json",
-      .defect_path = data_root + "marked_up_images/-3.000000_0.000000_mk.png",
+      .cad_path = data_root + "labelled_images/sim_cad_feature_label.json",
+      .cad_image_path = data_root + "cad/sim_cad.png",
+      .image_path = data_root + "labelled_images/sim_view_2_feature_label.json",
+      .defect_path = data_root + "marked_up_images/sim_view_2_image_markup.png",
       .intrinsics_path = data_root + "Radtan_intrinsics.json",
       .config_path = config_root + "SolutionParamsDefault.json",
       .ceres_config_path = config_root + "CeresParamsDefault.json",
       .initial_pose_path = data_root + "poses/initial_pose.json",
       .output_image_path =
-          data_root + "marked_up_cad/-3.000000_0.000000_cad_mk.png"};
+          data_root + "marked_up_cad/sim_cad_view_2_markup.png"};
 
   cad_image_markup::CadImageMarkup markup(inputs);
 
