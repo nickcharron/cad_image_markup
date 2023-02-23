@@ -1,4 +1,5 @@
 #include <cad_image_markup/CadImageMarkup.h>
+#include <X11/Xlib.h>
 
 #include <boost/filesystem.hpp>
 
@@ -47,6 +48,9 @@ bool CadImageMarkup::Setup() {
 
   solver_ = std::make_unique<Solver>(camera_model_, params_,
                                      inputs_.ceres_config_path);
+
+  // Initialize multithreading for visualizer
+  XInitThreads();
 
   return true;                                   
 }
