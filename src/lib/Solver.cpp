@@ -186,7 +186,6 @@ std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
 }
 
 void Solver::SolveCeresProblem(const std::shared_ptr<ceres::Problem>& problem) {
-  // ceres::Solver::Summary ceres_summary;
 
   if (params_.output_results) {
     LOG_INFO("SOLVER: Solving ceres problem...");
@@ -271,6 +270,7 @@ bool Solver::HasConverged() {
 bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
                               Eigen::Matrix4d& T_WORLD_CAMERA,
                               pcl::CorrespondencesPtr proj_corrs) {
+
   // update the position of the transformed cloud based on
   // the upated transformation matrix for visualization
   PointCloud::Ptr trans_cloud =
@@ -282,7 +282,6 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
   PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud);
 
   // blow up the transformed cloud for visualization
-  //utils::ScaleCloud(trans_cloud, (params_.cad_cloud_scale_x));
   utils::ScaleCloud(trans_cloud, 1.0/params_.cad_cloud_scale);
 
   visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,

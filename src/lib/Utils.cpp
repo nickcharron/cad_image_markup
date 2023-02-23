@@ -142,8 +142,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
       pcl::Correspondence corr2;
 
       if (proj_kdtree.nearestKSearch (camera_cloud->at(i), num_corrs, 
-          target_neighbor_indices, target_neighbor_distances) >= num_corrs
-          /*&& target_neighbor_distances[0] <= max_corr_distance*/)
+          target_neighbor_indices, target_neighbor_distances) >= num_corrs)
       {
         corr1.index_query = i;
         corr1.index_match = target_neighbor_indices[0];
@@ -178,8 +177,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
       pcl::Correspondence corr2;
 
       if (camera_kdtree.nearestKSearch (proj_cloud->at(i), num_corrs, 
-          target_neighbor_indices, target_neighbor_distances) >= num_corrs
-          /*&& target_neighbor_distances[0] <= max_corr_distance*/)
+          target_neighbor_indices, target_neighbor_distances) >= num_corrs)
       {
         corr1.index_query = i;
         corr1.index_match = target_neighbor_indices[0];

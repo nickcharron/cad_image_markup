@@ -50,7 +50,7 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
     for (int j = 0; j < img.cols; j++) {
 
       std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i,j)[2], img.at<cv::Vec3b>(i,j)[1], img.at<cv::Vec3b>(i,j)[0]};
-      pcl::PointXYZ point_pcl(j, i, 0); // [TODO]: check x and y here
+      pcl::PointXYZ point_pcl(j, i, 0); 
 
       if (color == "red") {
         if (pixel_vals[0] >= threshold && pixel_vals[1] < threshold && pixel_vals[2] < threshold) {
@@ -199,7 +199,7 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
                                const std::string &src_file_name,
                                const std::string &target_file_name, uint8_t r,
                                uint8_t g, uint8_t b) {
-  // Note opencv use BGR not RGB
+  // [NOTE] opencv use BGR not RGB
   cv::Vec3b color;
   color[0] = b;
   color[1] = g;

@@ -134,10 +134,6 @@ struct CeresReprojectionCostFunction {
     _P_REF2[1] = P_STRUCT2_.cast<T>()[1];
     _P_REF2[2] = P_STRUCT2_.cast<T>()[2];
 
-
-   //Eigen::Matrix<T,3,1> _P_REF1 = P_STRUCT1_.cast<T>();
-   //Eigen::Matrix<T,3,1> _P_REF2 = P_STRUCT2_.cast<T>();
-
     // rotate and translate reference points into camera frame
     T P_CAMERA1[3];
     ceres::QuaternionRotatePoint(T_CR, _P_REF1, P_CAMERA1);

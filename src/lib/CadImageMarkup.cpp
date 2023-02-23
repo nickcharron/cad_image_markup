@@ -57,6 +57,7 @@ bool CadImageMarkup::Setup() {
 
 bool CadImageMarkup::LoadData() {
   LOG_INFO("Loading camera data");
+  
   // read image points
   if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_)) {
     LOG_ERROR("Cannot read image file at: %s", inputs_.image_path.c_str());
@@ -116,22 +117,6 @@ bool CadImageMarkup::Solve() {
   }
   LOG_INFO("Solver successful.");
 
-  // STILL [TODO]!
-  // TODO CAM: output results here? We can just create a new CAD image with the
-  // markups, and rename it using the orginal name. We should also output other
-  // things like:
-  // * T_WORLD_CAMERA_final
-  // * T_WORLD_CAMERA_initial
-  // * Intrinsics used
-  // * config copies (so we can go back and see the results that produced that)
-  // Overall structure would be:
-  // path_to_cad_in/cad_name.json
-  //               /cad_name_results/
-  //                                T_WORLD_CAMERA_final.json
-  //                                T_WORLD_CAMERA_initial.json
-  //                                intrinsics.json
-  //                                config.json
-  //                                ceres_config.json
   Eigen::Matrix4d T_WORLD_CAMERA = solver_->GetT_WORLD_CAMERA();
   std::cout << "T_WORLD_CAMERA: \n" << T_WORLD_CAMERA << "\n";
 
