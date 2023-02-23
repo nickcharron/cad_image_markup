@@ -1,6 +1,0 @@
-Started... 
-camera data read success
-CAD data read success
-points scaled 
-clouds populated 
-TEST ONE Failed: bad perfect initialization
