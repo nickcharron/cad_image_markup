@@ -56,30 +56,70 @@ bool CadImageMarkup::Setup() {
 }
 
 bool CadImageMarkup::LoadData() {
+  
   LOG_INFO("MARKUP: Loading camera data");
 
   // read image points
-  if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_)) {
-    LOG_ERROR("MARKUP: Cannot read image file at: %s", inputs_.image_path.c_str());
-    return false;
-  }
-  LOG_INFO("MARKUP: Camera data loaded successfully");
+  if (params_.feature_label_type == "MANUAL") {
 
-  LOG_INFO("MARKUP: Densifying points");
-  image_buffer_.DensifyPoints(camera_points_CAMFRAME_,
-                              params_.cam_density_index);
+    if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_)) {
+      LOG_ERROR("MARKUP: Cannot read image file at: %s", inputs_.image_path.c_str());
+      return false;
+    }
+
+    LOG_INFO("MARKUP: Densifying feature points");
+    image_buffer_.DensifyPoints(camera_points_CAMFRAME_,
+                                params_.cam_density_index);
+  
+  }
+  else if (params_.feature_label_type == "AUTOMATIC") {
+
+    // run Canny edge detection on input image
+    // TODO: make canny parameters configurable at runtime
+    if (!image_buffer_.CannyEdgeDetect(inputs_.image_path,inputs_.canny_edge_image_path,150,100,3,3)) {
+      LOG_ERROR("MARKUP: Canny Edge Detection Failed");
+      return false;
+    }
+
+    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_image_path, camera_points_CAMFRAME_, "white",10)) {
+      LOG_WARN("MARKUP: Cannot read canny edge image file at: %s", inputs_.canny_edge_image_path.c_str());
+    }
+
+  }
+  else 
+    LOG_ERROR("MARKUP: Invalid feature_label_type value provided.");
 
   
   // read cad model points
   LOG_INFO("MARKUP: Loading CAD model data");
-  if (!image_buffer_.ReadPoints(inputs_.cad_path, cad_points_CADFRAME_)) {
-    LOG_ERROR("MARKUP: Cannot read CAD file at: %s", inputs_.cad_path.c_str());
-    return false;
-  }
 
-  LOG_INFO("MARKUP: Densifying points");
-  image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
-  LOG_INFO("MARKUP: CAD data loaded successfully");
+  if (params_.feature_label_type == "MANUAL") {
+
+    if (!image_buffer_.ReadPoints(inputs_.cad_path, cad_points_CADFRAME_)) {
+      LOG_ERROR("MARKUP: Cannot read CAD file at: %s", inputs_.cad_path.c_str());
+      return false;
+    }
+
+    LOG_INFO("MARKUP: Densifying cad points");
+    image_buffer_.DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
+
+  }
+  else if (params_.feature_label_type == "AUTOMATIC") {
+
+    // run Canny edge detection on input image
+    // TODO: make canny parameters configurable at runtime
+    if (!image_buffer_.CannyEdgeDetect(inputs_.cad_image_path, inputs_.canny_edge_cad_path,100,100,3,3)) {
+      LOG_ERROR("MARKUP: Canny Edge Detection Failed");
+      return false;
+    }
+
+    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_cad_path, cad_points_CADFRAME_, "white",10)) {
+      LOG_WARN("MARKUP: Cannot read canny edge cad file at: %s", inputs_.canny_edge_cad_path.c_str());
+    }
+
+  }
+  else 
+    LOG_ERROR("MARKUP: Invalid feature_label_type value provided.");
 
   LOG_INFO("MARKUP: Adjusting CAD data");
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);

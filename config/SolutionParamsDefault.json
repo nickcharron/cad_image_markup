@@ -11,12 +11,12 @@
   },
   "convergence_options":
   {
-    "convergence_type": "LOSS",
-    "convergence_condition": "ABSOLUTE",
+    "convergence_type": "GEOMETRIC",
+    "convergence_condition": "DIFFERENCE",
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
-    "converged_differential_translation_m": 0.1,
-    "converged_differential_rotation_deg": 1
+    "converged_differential_translation_m": 0.01,
+    "converged_differential_rotation_deg": 0.1
   },
   "output_options":
   {
@@ -26,6 +26,7 @@
   {
     "defect_color": "red",
     "cad_crop_offset_x": 0,
-    "cad_crop_offset_y": 0
+    "cad_crop_offset_y": 0, 
+    "feature_label_type": "MANUAL"
   }
 }

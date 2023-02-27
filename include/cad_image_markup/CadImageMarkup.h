@@ -20,7 +20,9 @@ class CadImageMarkup {
   struct Inputs {
     std::string cad_path;
     std::string cad_image_path;
+    std::string canny_edge_cad_path;
     std::string image_path;
+    std::string canny_edge_image_path;
     std::string defect_path;
     std::string intrinsics_path;
     std::string config_path;

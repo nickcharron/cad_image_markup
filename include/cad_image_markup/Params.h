@@ -157,6 +157,12 @@ struct Params {
   double cad_crop_offset_x{0};
   double cad_crop_offset_y{0};
 
+  /** how the reference features are provided to the solver, options are: 
+   * MANUAL: a .json file is provided with manually labeled features in the form of polygons
+   * AUTOMATIC: only an image file is provided and the system performs Canny edge detection to 
+   *            extract the features to match */ 
+  std::string feature_label_type{"MANUAL"};
+
   /**
    * @brief Loads params from a json file
    * @param path full path to json
@@ -207,6 +213,8 @@ struct Params {
 
     cad_crop_offset_x = J_misc_options["cad_crop_offset_x"];
     cad_crop_offset_y = J_misc_options["cad_crop_offset_y"];
+
+    feature_label_type = J_misc_options["feature_label_type"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(

@@ -50,7 +50,9 @@ TEST_CASE("Defect transfer test - simulated data.") {
   cad_image_markup::CadImageMarkup::Inputs inputs{
       .cad_path = data_root + "labelled_images/sim_cad_feature_label.json",
       .cad_image_path = data_root + "cad/sim_cad.png",
-      .image_path = data_root + "labelled_images/sim_view_2_feature_label.json",
+      .canny_edge_cad_path = data_root + "canny_edge/canny_edges_cad.png",
+      .image_path = data_root + "images/sim_view_2_image.jpeg",                         // switch between raw image and json here for feature label modes
+      .canny_edge_image_path = data_root + "canny_edge/canny_edges_image.png",
       .defect_path = data_root + "marked_up_images/sim_view_2_image_markup.png",
       .intrinsics_path = data_root + "Radtan_intrinsics.json",
       .config_path = config_root + "SolutionParamsDefault.json",
@@ -64,6 +66,7 @@ TEST_CASE("Defect transfer test - simulated data.") {
   REQUIRE(markup.Run());
 }
 */
+
 TEST_CASE("Defect transfer test - real data.") {
   // Define these at compile time for testing since catch has a hard time with
   // command line arguments
@@ -73,6 +76,7 @@ TEST_CASE("Defect transfer test - real data.") {
       .cad_path = data_root + "labelled_images/real_cad_feature_label.json",
       .cad_image_path = data_root + "cad/real_cad.png",
       .image_path = data_root + "labelled_images/real_view_2_feature_label.json",
+      .canny_edge_image_path = data_root + "canny_edge/canny_edges.png",
       .defect_path = data_root + "marked_up_images/real_view_2_image.png",
       .intrinsics_path = data_root + "Radtan_intrinsics_phone.json",
       .config_path = config_root + "SolutionParamsDefault.json",

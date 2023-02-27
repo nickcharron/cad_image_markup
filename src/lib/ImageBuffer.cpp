@@ -35,15 +35,16 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   return true;
 }
 
-bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr points, std::string color) {
+bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr points, std::string color, int rate) {
   if (!boost::filesystem::exists(filename)) 
     return false;
 
   int threshold = 200;
+  int whitethreshold = 50;
+
+  int pixel_point_count = 0;
 
   cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
-
-  LOG_INFO("INPUT BUFFER: opened defect file");
 
   // get all pixels of specified color 
   for (int i = 0; i < img.rows; i++) {
@@ -54,27 +55,42 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
 
       if (color == "red") {
         if (pixel_vals[0] >= threshold && pixel_vals[1] < (255 -threshold) && pixel_vals[2] < (255 -threshold)) {
-          points->push_back(point_pcl);
+          if (pixel_point_count%rate == 0)
+            points->push_back(point_pcl);
+          pixel_point_count ++;
         }
           
       }
       else if (color == "green") {
-        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] >= threshold && pixel_vals[2] < (255 -threshold))
-          points->push_back(point_pcl);
+        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] >= threshold && pixel_vals[2] < (255 -threshold)) {
+          if (pixel_point_count%rate == 0)
+            points->push_back(point_pcl);
+          pixel_point_count ++;
+        }
+          
       }
       else if (color == "blue") {
-        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] < (255 -threshold) && pixel_vals[2] >= threshold)
-          points->push_back(point_pcl);
+        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] < (255 -threshold) && pixel_vals[2] >= threshold) {
+          if (pixel_point_count%rate == 0)
+            points->push_back(point_pcl);
+          pixel_point_count ++;
+        }
 
       } 
       else if (color == "white") {
-        if (pixel_vals[0] >= threshold && pixel_vals[1] >= threshold && pixel_vals[2] >= threshold)
-          points->push_back(point_pcl);
+        if (pixel_vals[0] >= whitethreshold && pixel_vals[1] >= whitethreshold && pixel_vals[2] >= whitethreshold) {
+          if (pixel_point_count%rate == 0)
+            points->push_back(point_pcl);
+          pixel_point_count ++;
+        }
 
       }
       else if (color == "black") {
-        if (pixel_vals[0] < (250 -threshold) && pixel_vals[1] < (250 -threshold) && pixel_vals[2] < (250 -threshold))
-          points->push_back(point_pcl);
+        if (pixel_vals[0] < (250 -threshold) && pixel_vals[1] < (250 -threshold) && pixel_vals[2] < (250 -threshold)) {
+          if (pixel_point_count%rate == 0)
+            points->push_back(point_pcl);
+          pixel_point_count ++;
+        }
       }
       else {
         LOG_WARN("Invalid color selected for defect detection");
@@ -85,11 +101,41 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
     }
   }
 
-  LOG_INFO("INPUT BUFFER: Finished Reading defect pixels");
-  LOG_INFO("INPUT BUFFER: %ld defect points read", points->size());
-
   return true;
   
+}
+
+bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename, 
+                     const std::string& target_filename, 
+                     const int lowThreshold,
+                     const int max_lowThreshold,
+                     const int ratio,
+                     const int kernel_size
+                     ) {
+  cv::Mat src, src_gray;
+  cv::Mat dst, detected_edges;
+
+  src = cv::imread(src_filename, cv::IMREAD_COLOR);
+
+  dst.create(src.size(), src.type());
+
+  cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
+
+  cv::blur(src_gray, detected_edges, cv::Size(3,3));
+
+  cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size);
+
+  dst = cv::Scalar::all(0);
+
+  src.copyTo(dst, detected_edges);
+
+  LOG_INFO("INPUT BUFFER: Saving canny edge image to: %s", target_filename.c_str());
+  bool written = cv::imwrite(target_filename, dst);
+  if (!written) {
+    LOG_ERROR("INPUT BUFFER: Unable to write image.");
+  }
+  return written;
+
 }
 
 void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {

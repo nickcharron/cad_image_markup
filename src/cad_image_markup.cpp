@@ -6,8 +6,10 @@ DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(cad_image, "",
               "Full path to CAD image file in png or jpg (Required).");
 DEFINE_validator(cad_image, &cad_image_markup::gflags::ValidateFileMustExist);
+DEFINE_string(canny_edge_cad, "", "Full path to canny_edge detected cad image (Optional, used when AUTOMATIC feature detection is enabled).");
 DEFINE_string(image, "", "Full path to image (Required).");
 DEFINE_validator(image, &cad_image_markup::gflags::ValidateFileMustExist);
+DEFINE_string(canny_edge_image, "", "Full path to canny_edge detected image (Optional, used when AUTOMATIC feature detection is enabled).");
 DEFINE_string(intrinsics, "",
               "Full path to intrinsics file in json format (Required).");
 DEFINE_validator(intrinsics,
@@ -38,7 +40,9 @@ int main(int argc, char **argv) {
   cad_image_markup::CadImageMarkup::Inputs inputs{
       .cad_path = FLAGS_cad,
       .cad_image_path = FLAGS_cad_image,
+      .canny_edge_cad_path = FLAGS_canny_edge_cad,
       .image_path = FLAGS_image,
+      .canny_edge_image_path = FLAGS_canny_edge_image,
       .defect_path = FLAGS_defect_image,
       .intrinsics_path = FLAGS_intrinsics,
       .config_path = FLAGS_config,

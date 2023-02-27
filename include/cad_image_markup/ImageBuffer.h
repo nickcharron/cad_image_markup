@@ -8,6 +8,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
@@ -52,10 +53,30 @@ class ImageBuffer {
    * @param filename_ absolute path to the png file to read the data from
    * @param points pointcloud of points to fill in
    * @param color pixel color to extract, options: "red", "green", "blue", "white", "black"
+   * @param rate rate at which to convert pixels to points in the cloud
    * @return read success
    */
   bool ReadPointsPNG(const std::string& filename,
-                  PointCloud::Ptr points, std::string color);
+                  PointCloud::Ptr points, 
+                  std::string color,
+                  int rate = 1);
+
+  /**
+   * @brief Method to perform Canny edge detection on the input images and CAD drawings
+   * @param src_filename path to source file, supported types: .png
+   * @param target_filename path to output file, supported types: .png 
+   * @param lowThreshold Canny low threshold 
+   * @param max_lowThreshold Canny maximum lower threshold 
+   * @param ratio Canny upper to lower threshold ratio
+   * @param kernel_size Canny kernel size for internal Sobel convolution operations
+   */
+  bool CannyEdgeDetect(const std::string& src_filename, 
+                       const std::string& target_filename, 
+                       const int lowThreshold = 0,
+                       const int max_lowThreshold = 100,
+                       const int ratio = 3,
+                       const int kernel_size = 3
+                       );
 
   /**
    * @brief Method for interpolating points for a more
