@@ -115,7 +115,7 @@ bool CadImageMarkup::LoadData() {
       return false;
     }
 
-    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_cad_path, cad_points_CADFRAME_, "white",10)) {
+    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_cad_path, cad_points_CADFRAME_, "white",3)) {
       LOG_WARN("MARKUP: Cannot read canny edge cad file at: %s", inputs_.canny_edge_cad_path.c_str());
     }
 

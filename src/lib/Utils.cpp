@@ -183,7 +183,8 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
         corr1.index_query = i;
         corr1.index_match = target_neighbor_indices[0];
 
-        corrs->push_back(corr1);
+        if (target_neighbor_distances[0] <= max_corr_distance)
+          corrs->push_back(corr1);
         
         if (num_corrs == 2 && target_neighbor_distances[1] <= max_corr_distance)
         {
