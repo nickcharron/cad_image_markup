@@ -7,7 +7,7 @@
     "output_results": false, 
     "align_centroids": true,
     "correspondence_type": "P2POINT",
-    "max_corr_distance": 1000
+    "max_corr_distance": 10000
   },
   "convergence_options":
   {
@@ -27,6 +27,12 @@
     "defect_color": "red",
     "cad_crop_offset_x": 0,
     "cad_crop_offset_y": 0, 
-    "feature_label_type": "MANUAL"
+    "feature_label_type": "MANUAL",
+    "cannny_low_threshold_cad": 100, 
+    "canny_ratio_cad": 3, 
+    "canny_kernel_size_cad": 3, 
+    "cannny_low_threshold_image": 65,
+    "canny_ratio_image": 3, 
+    "canny_kernel_size_image": 3
   }
 }

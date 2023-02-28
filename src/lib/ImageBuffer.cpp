@@ -40,7 +40,7 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
     return false;
 
   int threshold = 200;
-  int whitethreshold = 50;
+  int whitethreshold = 25;
 
   int pixel_point_count = 0;
 
@@ -108,7 +108,6 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
 bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename, 
                      const std::string& target_filename, 
                      const int lowThreshold,
-                     const int max_lowThreshold,
                      const int ratio,
                      const int kernel_size
                      ) {
@@ -121,7 +120,7 @@ bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename,
 
   cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
 
-  cv::blur(src_gray, detected_edges, cv::Size(3,3));
+  cv::blur(src_gray, detected_edges, cv::Size(5,5));
 
   cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size);
 

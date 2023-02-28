@@ -66,14 +66,12 @@ class ImageBuffer {
    * @param src_filename path to source file, supported types: .png
    * @param target_filename path to output file, supported types: .png 
    * @param lowThreshold Canny low threshold 
-   * @param max_lowThreshold Canny maximum lower threshold 
    * @param ratio Canny upper to lower threshold ratio
    * @param kernel_size Canny kernel size for internal Sobel convolution operations
    */
   bool CannyEdgeDetect(const std::string& src_filename, 
                        const std::string& target_filename, 
-                       const int lowThreshold = 0,
-                       const int max_lowThreshold = 100,
+                       const int lowThreshold = 50,
                        const int ratio = 3,
                        const int kernel_size = 3
                        );

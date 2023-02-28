@@ -76,7 +76,8 @@ bool CadImageMarkup::LoadData() {
 
     // run Canny edge detection on input image
     // TODO: make canny parameters configurable at runtime
-    if (!image_buffer_.CannyEdgeDetect(inputs_.image_path,inputs_.canny_edge_image_path,150,100,3,3)) {
+    if (!image_buffer_.CannyEdgeDetect(inputs_.image_path,inputs_.canny_edge_image_path,
+        params_.cannny_low_threshold_image,params_.canny_ratio_image,params_.canny_kernel_size_image)) {
       LOG_ERROR("MARKUP: Canny Edge Detection Failed");
       return false;
     }
@@ -108,7 +109,8 @@ bool CadImageMarkup::LoadData() {
 
     // run Canny edge detection on input image
     // TODO: make canny parameters configurable at runtime
-    if (!image_buffer_.CannyEdgeDetect(inputs_.cad_image_path, inputs_.canny_edge_cad_path,100,100,3,3)) {
+    if (!image_buffer_.CannyEdgeDetect(inputs_.cad_image_path, inputs_.canny_edge_cad_path,
+        params_.cannny_low_threshold_cad,params_.canny_ratio_cad,params_.canny_kernel_size_cad)) {
       LOG_ERROR("MARKUP: Canny Edge Detection Failed");
       return false;
     }

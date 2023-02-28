@@ -107,7 +107,7 @@ struct Params {
   /**  maximum distance for the solver to generate a correspondence (in
    * pixels)
    */
-  double max_corr_distance{1000};
+  double max_corr_distance{10};
 
   // CONVERGENCE OPTIONS
 
@@ -160,8 +160,19 @@ struct Params {
   /** how the reference features are provided to the solver, options are: 
    * MANUAL: a .json file is provided with manually labeled features in the form of polygons
    * AUTOMATIC: only an image file is provided and the system performs Canny edge detection to 
-   *            extract the features to match */ 
+   *            extract the features to match 
+   */ 
   std::string feature_label_type{"MANUAL"};
+
+
+  /** Canny algorithm parameters for automatic edge detection
+   * lowThreshold:  Canny low threshold 
+   * ratio:  Canny upper to lower threshold ratio
+   * kernel_size: Canny kernel size for internal Sobel convolution operations
+   */
+  int cannny_low_threshold_cad, canny_ratio_cad, canny_kernel_size_cad; 
+  int cannny_low_threshold_image, canny_ratio_image, canny_kernel_size_image; 
+
 
   /**
    * @brief Loads params from a json file
@@ -215,6 +226,13 @@ struct Params {
     cad_crop_offset_y = J_misc_options["cad_crop_offset_y"];
 
     feature_label_type = J_misc_options["feature_label_type"];
+
+    cannny_low_threshold_cad = J_misc_options["cannny_low_threshold_cad"];
+    canny_ratio_cad = J_misc_options["canny_ratio_cad"];
+    canny_kernel_size_cad = J_misc_options["canny_kernel_size_cad"];
+    cannny_low_threshold_image = J_misc_options["cannny_low_threshold_image"];
+    canny_ratio_image = J_misc_options["canny_ratio_image"];
+    canny_kernel_size_image = J_misc_options["canny_kernel_size_image"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(
