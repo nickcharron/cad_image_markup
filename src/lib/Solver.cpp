@@ -56,9 +56,11 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
   num_correspondences == 1 ? LOG_INFO("SOLVER: Selected Point to Point Correspondences") : LOG_INFO("SOLVER: Selected Point to Line Correspondences");
 
+  double max_corr_distance = params_.max_corr_distance;
+
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA,
                                 proj_corrs, params_.align_centroids,
-                                params_.max_corr_distance, num_correspondences,source_cloud_);
+                                max_corr_distance, num_correspondences,source_cloud_);
 
   LOG_INFO("SOLVER: Initial Correspondences Estimated: %ld", proj_corrs->size());
 
@@ -78,16 +80,20 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
 
     T_WORLD_CAMERA = utils::QuaternionAndTranslationToTransformMatrix(results_);
 
+    // attenuate the correspondence distance if this option selected
+    if (params_.attenuate_corr_distance)
+      max_corr_distance = (max_corr_distance-params_.corr_bound_low)*params_.attenuation_rate + params_.corr_bound_low;
+
     // transform, project, and get correspondences
     utils::CorrespondenceEstimate(
         CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
-        params_.align_centroids, params_.max_corr_distance,
+        params_.align_centroids, max_corr_distance,
         num_correspondences, source_cloud_);
 
-    void CorrespondenceEstimate(
+    /*void CorrespondenceEstimate(
         PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
         const Eigen::Matrix4d& T, pcl::CorrespondencesPtr corrs,
-        bool align_centroids, double max_corr_distance, int num_corrs);
+        bool align_centroids, double max_corr_distance, int num_corrs);*/
 
     has_converged = HasConverged();
 

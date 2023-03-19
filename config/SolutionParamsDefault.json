@@ -7,7 +7,10 @@
     "output_results": false, 
     "align_centroids": false,
     "correspondence_type": "P2POINT",
-    "max_corr_distance": 30000
+    "max_corr_distance": 10000,
+    "attenuate_corr_distance": true, 
+    "corr_bound_low": 1000, 
+    "attenuation_rate": 0.5
   },
   "convergence_options":
   {
@@ -31,7 +34,7 @@
     "cannny_low_threshold_cad": 100, 
     "canny_ratio_cad": 3, 
     "canny_kernel_size_cad": 7, 
-    "cannny_low_threshold_image": 65,
+    "cannny_low_threshold_image": 60,
     "canny_ratio_image": 3, 
     "canny_kernel_size_image": 3
   }

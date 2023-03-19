@@ -109,6 +109,21 @@ struct Params {
    */
   double max_corr_distance{10};
 
+  /**  option to decrease the maximum correspondence distance as the solution converges
+   * useful to deal with noise in auto-detected image features 
+   * provided a good initial estimate is given to the solver 
+   */
+  bool attenuate_corr_distance{false};
+
+  /**  minimum correspondence distance to reach asymptotically if attenuation is selected
+   */
+  double corr_bound_low{5000};
+
+  /**  rate parameter to control the speed of the maximum correspondence distance 
+   * formula : dist_k+1 = (dist_k-dist_low_bound)*rate + dist_low_bound
+   */
+  double attenuation_rate{0.8};
+
   // CONVERGENCE OPTIONS
 
   /**  convergence based on problem loss or transform geometry - options are
@@ -203,6 +218,9 @@ struct Params {
     align_centroids = J_solution_options["align_centroids"];
     max_corr_distance = J_solution_options["max_corr_distance"];
     output_results = J_solution_options["output_results"];
+    attenuate_corr_distance = J_solution_options["attenuate_corr_distance"];
+    corr_bound_low = J_solution_options["corr_bound_low"];
+    attenuation_rate = J_solution_options["attenuation_rate"];
 
     nlohmann::json J_convergence_options = J["convergence_options"];
 
