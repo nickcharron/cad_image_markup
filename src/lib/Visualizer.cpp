@@ -13,7 +13,7 @@ Visualizer::~Visualizer() {}
 void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_ =
       std::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
-  point_cloud_display_->setBackgroundColor(0, 0, 0);
+  point_cloud_display_->setBackgroundColor(255, 255, 255); //white
   point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
 
@@ -44,15 +44,19 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
 
   LOG_INFO("Visualizer: Displaying Clouds");
 
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> image_color(image_cloud, 125, 0, 125);
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cad_color(image_cloud, 0, 0, 0);
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> projected_color(image_cloud, 255, 0, 0);
+
   // if the visualizer does not already contain the image cloud, add it
   if (!display_called_) {
-    point_cloud_display_->addPointCloud(image_cloud, id_image);
+    point_cloud_display_->addPointCloud(image_cloud, image_color, id_image);
     point_cloud_display_->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, id_image);
-    point_cloud_display_->addPointCloud(cad_cloud, id_cad);
+    point_cloud_display_->addPointCloud(cad_cloud, cad_color, id_cad);
     point_cloud_display_->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, id_cad);
-    point_cloud_display_->addPointCloud(projected_cloud, id_projected);
+    point_cloud_display_->addPointCloud(projected_cloud, projected_color, id_projected);
     point_cloud_display_->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, id_projected);
     point_cloud_display_->resetCamera();
@@ -60,9 +64,9 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
 
   // otherwise, update the existing cloud
   else {
-    point_cloud_display_->updatePointCloud(image_cloud, id_image);
-    point_cloud_display_->updatePointCloud(cad_cloud, id_cad);
-    point_cloud_display_->updatePointCloud(projected_cloud, id_projected);
+    point_cloud_display_->updatePointCloud(image_cloud, image_color, id_image);
+    point_cloud_display_->updatePointCloud(cad_cloud, cad_color, id_cad);
+    point_cloud_display_->updatePointCloud(projected_cloud, projected_color, id_projected);
     point_cloud_display_->resetCamera();
   }
 
