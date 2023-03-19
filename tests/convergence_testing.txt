@@ -1,0 +1,90 @@
+SOLUTION CONVERGENCE TESTING
+
+DEFINE REAL IMAGE GROUND TRUTH POSES (from test data):
+
+view 1: 
+    translation:
+    quaternion: 
+
+view 2: 
+    translation: 
+    quaternion: 
+
+view 3: 
+    translation: 
+    quaternion: 
+
+view 4: 
+    translation: 
+    quaternion: 
+
+DEFINE PERTURBATION LEVELS 
+
+Translation: 
+    1: +/- 20 cm 
+    2: +/- 50 cm
+    3: +/- 1 m 
+    4: +/- 2 m 
+
+Rotation: 
+    1: +/- 5 degrees 
+    2: +/- 10 degrees 
+    3: +/- 15 degrees
+    4: +/- 20 degrees
+
+Combined: 
+    1: 1,1
+    2: 2,2
+    3: 3,3
+    4: 4,4
+
+RESULTS 
+
+-> 20 trials for each view, with each perturbation level for manual labelling (use combined for trials)
+-> 20 trials for each view, with each perturbation level for auto labelling (use combined for trials)
+-> average all views for each perturbation level for final results
+
+
+Manually labelled: 
+    view 1: 
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+    view 2:
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+    view 3: 
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+    view 4: 
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+
+Auto labelled: 
+    view 1: 
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+    view 2:
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+    view 3: 
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
+    view 4: 
+        level 1: 
+        level 2: 
+        level 3: 
+        level 4: 
