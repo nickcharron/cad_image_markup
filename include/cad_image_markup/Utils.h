@@ -196,9 +196,6 @@ void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
 
 /**
  * @brief Method to get the plane that best fits a cloud
- * @todo CAM: Why do we even need this function? We only have 2D clouds meaning
- * we know the plane parameters because all points lie in that plane, so you can
- * just take any 3 points to calculate the plane params
  * @param cloud point cloud
  * @return pcl model coefficients object, planar equation coefficients are
  * given in form: [0] = a , [1] = b, [2] = c, [3] = d
@@ -207,19 +204,34 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
 
 /**
  * @brief Method to get the plane that best fits a cloud
- * @todo CAM add more details
  * @param image_cloud
  * @param cad_cloud
  * @param target_plane pcl model coefficients object, planar equation
  * coefficients are given in form: [0] = a , [1] = b, [2] = c, [3] = d
- * @return
+ * @return image cloud points back projected into the plane of the cad cloud
  */
 PointCloud::Ptr BackProject(
     PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
     pcl::ModelCoefficients::ConstPtr target_plane,
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
+/**
+ * @brief Method to get the centroid of a cloud 
+ * @param cloud point cloud 
+ * @return point representing the centroid of the cloud
+ */
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
+
+/**
+ * @brief Method to downsample the points in a cloud 
+ *        a grid filter is passed over the cloud and the points 
+ *        in each grid volume are replaced with their centroid in 
+ *        the output cloud
+ * @param cloud point cloud 
+ * @param grid_size size of the grid to pass over the cloud, effectively in pixels
+ * @return downsampled point cloud
+ */
+PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud, const double grid_size);
 
 /**
  * @brief Method to apply perturbations to a transform in radians

@@ -74,6 +74,7 @@ class CadImageMarkup {
   std::shared_ptr<CameraModel> camera_model_;
 
   PointCloud::Ptr camera_points_CAMFRAME_;
+  PointCloud::Ptr camera_points_CAMFRAME_raw_;
   PointCloud::Ptr defect_points_CAMFRAME_;
   PointCloud::Ptr cad_points_CADFRAME_;
   PointCloud::Ptr cad_points_WORLDFRAME_;

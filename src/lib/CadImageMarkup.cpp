@@ -34,6 +34,7 @@ bool CadImageMarkup::Run() {
 
 bool CadImageMarkup::Setup() {
   LOG_INFO("MARKUP: Setting up problem");
+  camera_points_CAMFRAME_raw_ = std::make_shared<PointCloud>();
   camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
   cad_points_CADFRAME_ = std::make_shared<PointCloud>();
   defect_points_CAMFRAME_ = std::make_shared<PointCloud>();
@@ -62,33 +63,38 @@ bool CadImageMarkup::LoadData() {
   // read image points
   if (params_.feature_label_type == "MANUAL") {
 
-    if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_)) {
+    if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_raw_)) {
       LOG_ERROR("MARKUP: Cannot read image file at: %s", inputs_.image_path.c_str());
       return false;
     }
 
     LOG_INFO("MARKUP: Densifying feature points");
-    image_buffer_.DensifyPoints(camera_points_CAMFRAME_,
+    image_buffer_.DensifyPoints(camera_points_CAMFRAME_raw_,
                                 params_.cam_density_index);
   
   }
   else if (params_.feature_label_type == "AUTOMATIC") {
 
     // run Canny edge detection on input image
-    // TODO: make canny parameters configurable at runtime
     if (!image_buffer_.CannyEdgeDetect(inputs_.image_path,inputs_.canny_edge_image_path,
         params_.cannny_low_threshold_image,params_.canny_ratio_image,params_.canny_kernel_size_image)) {
       LOG_ERROR("MARKUP: Canny Edge Detection Failed");
       return false;
     }
 
-    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_image_path, camera_points_CAMFRAME_, "white",10)) {
+    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_image_path, camera_points_CAMFRAME_raw_, "white",10)) {
       LOG_WARN("MARKUP: Cannot read canny edge image file at: %s", inputs_.canny_edge_image_path.c_str());
     }
 
   }
   else 
     LOG_ERROR("MARKUP: Invalid feature_label_type value provided.");
+
+  // Downsample image points if configured
+  if (params_.downsample_image_cloud) 
+    camera_points_CAMFRAME_ = utils::DownSampleCloud(camera_points_CAMFRAME_raw_,params_.downsample_grid_size);
+  else 
+    camera_points_CAMFRAME_ = camera_points_CAMFRAME_raw_;
 
   
   // read cad model points

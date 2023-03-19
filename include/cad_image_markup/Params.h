@@ -188,6 +188,11 @@ struct Params {
   int cannny_low_threshold_cad, canny_ratio_cad, canny_kernel_size_cad; 
   int cannny_low_threshold_image, canny_ratio_image, canny_kernel_size_image; 
 
+  /** Option to downsample image cloud, useful with automatic line detection */
+  bool downsample_image_cloud{false};
+
+  /** Size of grid filter to use to downsample image cloud, units are effectively in pixels */
+  double downsample_grid_size{10};
 
   /**
    * @brief Loads params from a json file
@@ -251,6 +256,9 @@ struct Params {
     cannny_low_threshold_image = J_misc_options["cannny_low_threshold_image"];
     canny_ratio_image = J_misc_options["canny_ratio_image"];
     canny_kernel_size_image = J_misc_options["canny_kernel_size_image"];
+
+    downsample_image_cloud = J_misc_options["downsample_image_cloud"];
+    downsample_grid_size = J_misc_options["downsample_grid_size"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(

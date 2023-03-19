@@ -1,4 +1,5 @@
 #include <cad_image_markup/Utils.h>
+#include <pcl/filters/voxel_grid.h>
 
 namespace cad_image_markup {
 
@@ -340,6 +341,18 @@ pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud) {
   pcl::computeCentroid(*cloud, centroid);
   centroid.z = 0;
   return centroid;
+}
+
+PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud, const double grid_size) {
+  PointCloud::Ptr downsampled_cloud (new PointCloud);
+
+  pcl::VoxelGrid<pcl::PointXYZ> sor;
+  sor.setInputCloud (cloud);
+  sor.setLeafSize (grid_size, grid_size, 0); // image grid is 2D, don't need a z-direction
+  sor.filter (*downsampled_cloud);
+
+  return downsampled_cloud;
+
 }
 
 Eigen::Matrix4d PerturbTransformRadM(const Eigen::Matrix4d& T,
