@@ -90,11 +90,6 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
         params_.align_centroids, max_corr_distance,
         num_correspondences, source_cloud_);
 
-    /*void CorrespondenceEstimate(
-        PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
-        const Eigen::Matrix4d& T, pcl::CorrespondencesPtr corrs,
-        bool align_centroids, double max_corr_distance, int num_corrs);*/
-
     has_converged = HasConverged();
 
     solution_iterations_++;

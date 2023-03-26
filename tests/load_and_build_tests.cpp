@@ -100,15 +100,15 @@ TEST_CASE("Defect transfer test - real data.") {
   cad_image_markup::CadImageMarkup::Inputs inputs{
       .cad_path = data_root + "labelled_images/real_cad_feature_label.json",
       .cad_image_path = data_root + "cad/real_cad.png",
-      .image_path = data_root + "labelled_images/real_view_2_feature_label.json",
+      .image_path = data_root + "labelled_images/real_view_1_feature_label.json",
       .canny_edge_image_path = data_root + "canny_edge/canny_edges.png",
-      .defect_path = data_root + "marked_up_images/real_view_2_image.png",
+      .defect_path = data_root + "marked_up_images/real_view_1_image.png",
       .intrinsics_path = data_root + "Radtan_intrinsics_phone.json",
       .config_path = config_root + "SolutionParamsDefault.json",
       .ceres_config_path = config_root + "CeresParamsDefault.json",
       .initial_pose_path = data_root + "poses/initial_pose.json",
       .output_image_path =
-          data_root + "marked_up_cad/real_cad_view_2_markup.png"};
+          data_root + "marked_up_cad/real_cad_view_1_markup.png"};
 
   cad_image_markup::CadImageMarkup markup(inputs);
 

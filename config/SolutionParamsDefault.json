@@ -18,8 +18,8 @@
     "convergence_condition": "DIFFERENCE",
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
-    "converged_differential_translation_m": 0.01,
-    "converged_differential_rotation_deg": 0.1
+    "converged_differential_translation_m": 0.1,
+    "converged_differential_rotation_deg": 0.3
   },
   "output_options":
   {

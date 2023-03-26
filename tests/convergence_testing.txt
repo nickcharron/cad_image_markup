@@ -3,20 +3,20 @@ SOLUTION CONVERGENCE TESTING
 DEFINE REAL IMAGE GROUND TRUTH POSES (from test data):
 
 view 1: 
-    translation:
-    quaternion: 
+    matrix: 
+      0.999655 -0.0131739  0.0227275 -0.0386311
+    0.0136331   0.999704 -0.0201694 -0.0738061
+    -0.0224551  0.0204723   0.999538    2.20684
+            0          0          0          1
 
 view 2: 
-    translation: 
-    quaternion: 
+    matrix:
 
 view 3: 
-    translation: 
-    quaternion: 
+    matrix:
 
 view 4: 
-    translation: 
-    quaternion: 
+    matrix:
 
 DEFINE PERTURBATION LEVELS 
 
