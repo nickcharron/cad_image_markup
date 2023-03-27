@@ -42,7 +42,12 @@ class CadImageMarkup {
   ~CadImageMarkup() = default;
 
   /**
-   * @brief TODO
+   * @brief setter to set the initial pose programmatically - with transform matrix
+   */
+  void SetInitialPose(Eigen::Matrix4d& initial_pose);
+
+  /**
+   * @brief run
    */
   bool Run();
 
@@ -78,6 +83,9 @@ class CadImageMarkup {
   PointCloud::Ptr defect_points_CAMFRAME_;
   PointCloud::Ptr cad_points_CADFRAME_;
   PointCloud::Ptr cad_points_WORLDFRAME_;
+
+  Eigen::Matrix4d T_WORLD_CAMERA_init;
+
 };
 
 }  // namespace cad_image_markup

@@ -141,13 +141,12 @@ bool CadImageMarkup::LoadData() {
     LOG_WARN("MARKUP: Cannot read defect file at: %s", inputs_.defect_path.c_str());
   }
 
+  LoadInitialPose(inputs_.initial_pose_path, T_WORLD_CAMERA_init);
+
   return true;
 }
 
 bool CadImageMarkup::Solve() {
-  Eigen::Matrix4d T_WORLD_CAMERA_init;
-  LoadInitialPose(inputs_.initial_pose_path, T_WORLD_CAMERA_init);
-
 
   //cad_points_WORLDFRAME_ = utils::TransformCloud(cad_points_CADFRAME_,T_WORLD_CAMERA_init);
   // these two frames are effectively coincident for the rest of the solution
@@ -210,6 +209,7 @@ bool CadImageMarkup::Solve() {
 
 // [NOTE]: pose calculated with respect to camera focal point with Z pointing 
 // perpendicularly out from the frame and x any y along image dimensions 
+// pose vector is trans_x, trans_y, trans_z, rot_x, rot_y, rot_z
 void CadImageMarkup::LoadInitialPose(const std::string& path,
                                      Eigen::Matrix4d& T_WORLD_CAMERA) {
 
@@ -244,6 +244,10 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
   T_WORLD_CAMERA(0, 3) = J["pose"][0];
   T_WORLD_CAMERA(1, 3) = J["pose"][1];
   T_WORLD_CAMERA(2, 3) = J["pose"][2];
+}
+
+void CadImageMarkup::SetInitialPose(Eigen::Matrix4d& initial_pose) {
+  T_WORLD_CAMERA_init = initial_pose;
 }
 
 }  // namespace cad_image_markup

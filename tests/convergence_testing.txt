@@ -11,12 +11,25 @@ view 1:
 
 view 2: 
     matrix:
+    0.958018 -0.000869915     0.286708   -0.0508706
+   0.0129315     0.999109   -0.0401783    0.0167515
+   -0.286418    0.0421991     0.957175      1.93095
+           0            0            0            1
 
 view 3: 
     matrix:
+      0.946142   -0.02028   0.323117 0.00419045
+    0.0450889   0.996564   -0.06948 0.00905989
+    -0.320598  0.0803069   0.943805    2.30273
+            0          0          0          1
+
 
 view 4: 
     matrix:
+       0.998358  0.00461789  -0.0570924   -0.103161
+    -0.00327674    0.999717   0.0235622   0.0120111
+    0.0571851  -0.0233364    0.998091     1.93493
+            0           0           0           1
 
 DEFINE PERTURBATION LEVELS 
 
@@ -47,10 +60,18 @@ RESULTS
 
 Manually labelled: 
     view 1: 
-        level 1: 
-        level 2: 
-        level 3: 
-        level 4: 
+        tlevel 1: 
+        tlevel 2: 
+        tlevel 3: 
+        tlevel 4: 
+        rlevel 1: 
+        rlevel 2: 
+        rlevel 3: 
+        rlevel 4: 
+        clevel 1: 
+        clevel 2: 
+        clevel 3: 
+        clevel 4: 
     view 2:
         level 1: 
         level 2: 

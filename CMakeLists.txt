@@ -32,12 +32,26 @@ add_executable(${PROJECT_NAME}_load_and_build_tests
   tests/load_and_build_tests.cpp
 )
 
+add_executable(${PROJECT_NAME}_run_convergence_test
+  tests/convergence_tests.cpp
+)
+
 target_include_directories(${PROJECT_NAME}_load_and_build_tests
   PUBLIC
     include/cad_image_markup
 )
 
+target_include_directories(${PROJECT_NAME}_run_convergence_test
+  PUBLIC
+    include/cad_image_markup
+)
+
 target_link_libraries(${PROJECT_NAME}_load_and_build_tests
+  ${PROJECT_NAME}
+  Catch2::Catch2
+)
+
+target_link_libraries(${PROJECT_NAME}_run_convergence_test
   ${PROJECT_NAME}
   Catch2::Catch2
 )
