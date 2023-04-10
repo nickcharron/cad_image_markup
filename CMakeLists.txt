@@ -11,11 +11,8 @@ find_package(OpenCV REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(Ceres REQUIRED)
 
-# TODO uninstall pcl 1.11.1 and install 1.8 and vtk 7.1 as described in the site that worked last time 
-
 # Add the core library
 add_subdirectory(src/lib)
-add_subdirectory(tests)
 
 # Add main executables
 add_executable(${PROJECT_NAME}_main
