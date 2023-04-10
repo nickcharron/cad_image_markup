@@ -1,24 +1,8 @@
 #pragma once
-
-#include <cstdint>
-#include <fstream>
-#include <math.h>
-#include <string>
-#include <vector>
-
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
 #include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
-#include <pcl/common/common_headers.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/console/parse.h>
-#include <cad_image_markup/nlohmann/json.h>
 
 #include <cad_image_markup/Utils.h>
+
 
 
 namespace cad_image_markup {

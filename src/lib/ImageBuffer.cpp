@@ -1,6 +1,22 @@
 #include <cad_image_markup/ImageBuffer.h>
 
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include <boost/filesystem.hpp>
+#include <pcl/common/transforms.h>
+#include <pcl/common/common_headers.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/console/parse.h>
+#include <pcl/point_types.h>
+#include <cstdint>
+#include <fstream>
+#include <math.h>
+#include <string>
+#include <vector>
+
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace cad_image_markup {
 

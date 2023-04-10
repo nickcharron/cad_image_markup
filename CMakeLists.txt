@@ -21,7 +21,6 @@ add_executable(${PROJECT_NAME}_main
 
 target_link_libraries(${PROJECT_NAME}_main
 	${PROJECT_NAME}
-  #gflags
 )
 
 ################## tests ##################

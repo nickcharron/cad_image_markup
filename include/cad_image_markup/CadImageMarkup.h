@@ -1,11 +1,11 @@
 #pragma once
 
 #include <map>
-
 #include <cad_image_markup/ImageBuffer.h>
 #include <cad_image_markup/Solver.h>
-#include <cad_image_markup/Params.h>
 #include <cad_image_markup/Utils.h>
+#include <cad_image_markup/Params.h>
+
 
 namespace cad_image_markup {
 

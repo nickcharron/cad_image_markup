@@ -1,4 +1,5 @@
 #include <cad_image_markup/CadImageMarkup.h>
+
 #include <X11/Xlib.h>
 
 #include <boost/filesystem.hpp>
@@ -114,7 +115,6 @@ bool CadImageMarkup::LoadData() {
   else if (params_.feature_label_type == "AUTOMATIC") {
 
     // run Canny edge detection on input image
-    // TODO: make canny parameters configurable at runtime
     if (!image_buffer_.CannyEdgeDetect(inputs_.cad_image_path, inputs_.canny_edge_cad_path,
         params_.cannny_low_threshold_cad,params_.canny_ratio_cad,params_.canny_kernel_size_cad)) {
       LOG_ERROR("MARKUP: Canny Edge Detection Failed");
@@ -148,10 +148,7 @@ bool CadImageMarkup::LoadData() {
 
 bool CadImageMarkup::Solve() {
 
-  //cad_points_WORLDFRAME_ = utils::TransformCloud(cad_points_CADFRAME_,T_WORLD_CAMERA_init);
-  // these two frames are effectively coincident for the rest of the solution
   cad_points_WORLDFRAME_ = cad_points_CADFRAME_;
-
 
   LOG_INFO("MARKUP: Running solver");
   bool converged =
@@ -218,7 +215,7 @@ void CadImageMarkup::LoadInitialPose(const std::string& path,
         "MARKUP: No initial pose path provided. Assuming the image was collected about "
         "3 m from the structure, and taken perpendicularly.");
     T_WORLD_CAMERA = Eigen::Matrix4d::Identity();
-    T_WORLD_CAMERA(2,3) = 3; // cad model is assumed to be 3 m ahead of camera in z
+    T_WORLD_CAMERA(2,3) = 3; // cad model is assumed to be 3 m ahead of camera in z by default
     return;
   }
 
