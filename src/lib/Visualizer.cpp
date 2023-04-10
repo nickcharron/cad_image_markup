@@ -1,6 +1,16 @@
-#include <stdio.h>
-
 #include <cad_image_markup/Visualizer.h>
+
+#include <stdio.h>
+#include <atomic>
+#include <chrono>
+#include <cstdint>
+#include <fstream>
+#include <math.h>
+#include <mutex>
+
+#include <pcl/features/normal_3d.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/console/parse.h>
 
 namespace cad_image_markup {
 

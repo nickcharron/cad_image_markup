@@ -1,7 +1,6 @@
 #include <cad_image_markup/CadImageMarkup.h>
 
 #include <X11/Xlib.h>
-
 #include <boost/filesystem.hpp>
 
 namespace cad_image_markup {

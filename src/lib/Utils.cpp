@@ -1,5 +1,17 @@
 #include <cad_image_markup/Utils.h>
+
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/console/parse.h>
+#include <pcl/registration/correspondence_estimation.h>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <unsupported/Eigen/MatrixFunctions>
+#include <Eigen/Dense>
+
+#include <cad_image_markup/Log.h>
 
 namespace cad_image_markup {
 

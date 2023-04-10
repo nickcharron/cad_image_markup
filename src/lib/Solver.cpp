@@ -1,5 +1,11 @@
 #include <cad_image_markup/Solver.h>
 
+#include <ceres/autodiff_cost_function.h>
+#include <ceres/rotation.h>
+
+#include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
+#include <cad_image_markup/optimization/PointToLineCost.h>
+
 namespace cad_image_markup {
 
 Solver::Solver(

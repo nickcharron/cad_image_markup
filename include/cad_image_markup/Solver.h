@@ -3,17 +3,12 @@
 #include <fstream>
 #include <stdio.h>
 #include <csignal>
-
 #include <ceres/ceres.h>
-#include <ceres/autodiff_cost_function.h>
-#include <ceres/rotation.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 #include <cad_image_markup/camera_models/CameraModel.h>
-#include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
 #include <cad_image_markup/optimization/CeresParams.h>
-#include <cad_image_markup/optimization/PointToLineCost.h>
 #include <cad_image_markup/Utils.h>
 #include <cad_image_markup/Params.h>
 #include <cad_image_markup/Visualizer.h>

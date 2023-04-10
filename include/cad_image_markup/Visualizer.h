@@ -1,26 +1,15 @@
 #pragma once
-
-#include <atomic>
-#include <chrono>
-#include <cstdint>
-#include <fstream>
-#include <math.h>
-#include <mutex>
 #include <string>
 #include <thread>
 
-//#include <pcl/point_cloud.h>
-//#include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <pcl/common/common_headers.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/console/parse.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/registration/correspondence_estimation.h>
 
-#include <cad_image_markup/nlohmann/json.h>
 #include <cad_image_markup/Utils.h>
+
 
 namespace cad_image_markup { 
 
