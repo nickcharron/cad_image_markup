@@ -11,12 +11,12 @@ main()
 install_routine()
 {
     sudo -v
-    #install_eigen3
-    #install_ceres
-    #install_pcl
+    install_eigen3
+    install_ceres
+    install_pcl
     install_gflags
-    #install_catch2
-    #install_opencv
+    install_catch2
+    install_opencv
 }
 
 install_ceres()

@@ -53,4 +53,27 @@ The argument descriptions can be displayed using:
 ./cad_image_markup_main --help
 ```
 
+## Tests
+### Running existing tests
+There five tests provided for demonstration. They are run by exectuting the load_and_build_tests executable: 
+```
+cd root_directory/cad_image_markup/build
+./cad_image_markup_laod_and_build_tests
+```
+
+These tests wrap the main object and call it with the required arguments corresponding to the provided test data. The five tests are the following: 
+
+1. Build test: instantiate the markup program. 
+2. Defect transfer test - simulated data: run the defect transfer using an image taken in a simulation environment with manually labelled edges. 
+3. Defect transfer test - simulated data - automated edge detection: run the defect transfer using an image taken in a simulation environment with automatically detected edges
+4. 
+
+### Test data 
+
+### Creating a new test 
+
+## Configuration 
+### Solution Parameters
+
+### Ceres Optimization Parameters
 
