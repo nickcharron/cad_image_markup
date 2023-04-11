@@ -63,11 +63,11 @@ cd root_directory/cad_image_markup/build
 
 These tests wrap the main CAD markup object and call it with the required arguments corresponding to the provided test data. The five tests are the following: 
 
-1. Build test: instantiate the markup program. 
-2. Defect transfer test - simulated data: run the defect transfer using an image taken in a simulation environment with manually labelled edges. 
-3. Defect transfer test - simulated data - automated edge detection: run the defect transfer using an image taken in a simulation environment with automatically detected edges
-4. Defect transfer test - real data: run the defect transfer using a real image with manually labelled edges.
-5. Defect transfer test - real data - automatic edge detection: run the defect transfer using a real image  with automatically detected edges
+1. **Build test**: instantiate the markup program. 
+2. **Defect transfer test - simulated data**: run the defect transfer using an image taken in a simulation environment with manually labelled edges. 
+3. **Defect transfer test - simulated data - automated edge detection**: run the defect transfer using an image taken in a simulation environment with automatically detected edges
+4. **Defect transfer test - real data**: run the defect transfer using a real image with manually labelled edges.
+5. **Defect transfer test - real data - automatic edge detection**: run the defect transfer using a real image  with automatically detected edges
 
 The tests can be run individually by commenting the others in the load_and_build_tests.cpp file and rebuilding.
 
@@ -75,15 +75,16 @@ The tests can be run individually by commenting the others in the load_and_build
 
 The test data provides examples for the data and files required for the CAD image markup and a template for how they may be organized. The contents of each folder, and whether they are read (READ) or written to (WRITE) by the CAD image markup are summarized below: 
 
-    - cad/: (READ) The CAD drawing of the structure to be marked-up. In .png format.
-    - canney_edges/: (WRITE) The output of the edge detection process. The structure point cloud used for pose estimation of the camera is downsampled from the white pixels in this image. This image is only generated if automatic edge detection is selected. In .png format.
-    - images/: (READ) The original camera images of the structure used for the image to CAD markup process. This is only required to be provided if automatic edge detection is selected. In .png format.
-    - labelled_images/: (READ) Files containing the structure edge labels generated using the (Slava label tool)[https://github.com/Slava/label-tool]. 
+- cad/: (READ) The CAD drawing of the structure to be marked-up. In .png format.
+- canney_edges/: (WRITE) The output of the edge detection process. The structure point cloud used for pose estimation of the camera is downsampled from the white pixels in this image. This image is only generated if automatic edge detection is selected. In .png format.
+- images/: (READ) The original camera images of the structure used for the image to CAD markup process. This is only required to be provided if automatic edge detection is selected. In .png format.
+- labelled_images/: (READ) Files containing the structure edge labels generated using the (Slava label tool)[https://github.com/Slava/label-tool]. 
     If using manual edges, the edges from the CAD drawing should be included here as well. The label files are in .json format. 
-    - marked_up_cad/: (WRITE) The output of the image to CAD markup process. This is the input CAD drawing with the defects superimposed on it. In .png format.
-    - marked_up_images/: (READ) The original camera image with the defects to be transfered drawn on with a configurable color. In .png format.
-    - poses/: (READ) The initial estimate of the pose of the CAD frame in the camera frame. The Camera frame is defined with the z-axis pointing out of the lense, with the x-axis pointing right and the y-axis down. The CAD frame is considered to originate at the centroid of the planar point cloud generated from the CAD drawing provided. The pose format is as follows, with translations in meters and rotations in degrees.
-    ```json
+- marked_up_cad/: (WRITE) The output of the image to CAD markup process. This is the input CAD drawing with the defects superimposed on it. In .png format.
+- marked_up_images/: (READ) The original camera image with the defects to be transfered drawn on with a configurable color. In .png format.
+- poses/: (READ) The initial estimate of the pose of the CAD frame in the camera frame. The Camera frame is defined with the z-axis pointing out of the lense, with the x-axis pointing right and the y-axis down. The CAD frame is considered to originate at the centroid of the planar point cloud generated from the CAD drawing provided. The pose format is as follows, with translations in meters and rotations in degrees.
+    
+    ```
     {"pose":[<x translation>,<y translation>,<z translation>,<x rotation>,<y rotation>,<z rotation>]}
     ```
 
