@@ -96,17 +96,17 @@ A new test can be created by copying one of the existing test cases in the load_
 
 ```cpp
 cad_image_markup::CadImageMarkup::Inputs inputs{
-      .cad_path = data_root + "labelled_images/<your_labelled_cad_drawing>.json",
-      .cad_image_path = data_root + "cad/<your_cad_drawing>.png",
-      .canny_edge_cad_path = data_root + "canny_edge/<your_edges_from_your_cad_drawing>.png",
-      .image_path = data_root + "images/<your_camera_image>.png",   // or  "images/<your_labelled_camera_image>.json" for manual labelling   
-      .canny_edge_image_path = data_root + "canny_edge/<your_edges_from_your_image>.png",
-      .defect_path = data_root + "marked_up_images/<your_image_with_defects_drawn_on>.png",
-      .intrinsics_path = data_root + "<your camera intrinsics file>.json",
-      .config_path = config_root + "SolutionParamsDefault.json",
-      .ceres_config_path = config_root + "CeresParamsDefault.json",
-      .initial_pose_path = data_root + "poses/<your_initial_pose_guess>.json",
-      .output_image_path =
+      .cad_path = data_root + "labelled_images/<your_labelled_cad_drawing>.json",               // INPUT (required for manual labelling)
+      .cad_image_path = data_root + "cad/<your_cad_drawing>.png",                               // INPUT (required for automatic labelling)
+      .canny_edge_cad_path = data_root + "canny_edge/<your_edges_from_your_cad_drawing>.png",   // OUTPUT
+      .image_path = data_root + "images/<your_camera_image>.png",                               // INPUT (or  "images/<your_labelled_camera_image>.json" for manual labelling)
+      .canny_edge_image_path = data_root + "canny_edge/<your_edges_from_your_image>.png",       // OUTPUT
+      .defect_path = data_root + "marked_up_images/<your_image_with_defects_drawn_on>.png",     // INPUT
+      .intrinsics_path = data_root + "<your camera intrinsics file>.json",                      // INPUT
+      .config_path = config_root + "SolutionParamsDefault.json",                                // INPUT
+      .ceres_config_path = config_root + "CeresParamsDefault.json",                             // INPUT
+      .initial_pose_path = data_root + "poses/<your_initial_pose_guess>.json",                  // INPUT
+      .output_image_path =                                                                      // OUTPUT
           data_root + "marked_up_cad/<your_marked_up_cad_drawing>.png"};
 ```
 
