@@ -3,7 +3,7 @@
   {
     "cad_cloud_scale": 0.003,
     "max_solution_iterations": 30,
-    "visualize": false,
+    "visualize": true,
     "output_results": false, 
     "align_centroids": false,
     "correspondence_type": "P2POINT",
@@ -28,8 +28,6 @@
   "misc_options":
   {
     "defect_color": "red",
-    "cad_crop_offset_x": 0,
-    "cad_crop_offset_y": 0, 
     "feature_label_type": "AUTOMATIC",
     "cannny_low_threshold_cad": 100, 
     "canny_ratio_cad": 3, 

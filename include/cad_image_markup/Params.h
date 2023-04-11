@@ -245,9 +245,6 @@ struct Params {
 
     defect_color = J_misc_options["defect_color"];
 
-    cad_crop_offset_x = J_misc_options["cad_crop_offset_x"];
-    cad_crop_offset_y = J_misc_options["cad_crop_offset_y"];
-
     feature_label_type = J_misc_options["feature_label_type"];
 
     cannny_low_threshold_cad = J_misc_options["cannny_low_threshold_cad"];
