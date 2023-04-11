@@ -78,7 +78,7 @@ The test data provides examples for the data and files required for the CAD imag
 - cad/: (READ) The CAD drawing of the structure to be marked-up. In .png format.
 - canney_edges/: (WRITE) The output of the edge detection process. The structure point cloud used for pose estimation of the camera is downsampled from the white pixels in this image. This image is only generated if automatic edge detection is selected. In .png format.
 - images/: (READ) The original camera images of the structure used for the image to CAD markup process. This is only required to be provided if automatic edge detection is selected. In .png format.
-- labelled_images/: (READ) Files containing the structure edge labels generated using the (Slava label tool)[https://github.com/Slava/label-tool]. 
+- labelled_images/: (READ) Files containing the structure edge labels generated using the [Slava label tool](https://github.com/Slava/label-tool). 
     If using manual edges, the edges from the CAD drawing should be included here as well. The label files are in .json format. 
 - marked_up_cad/: (WRITE) The output of the image to CAD markup process. This is the input CAD drawing with the defects superimposed on it. In .png format.
 - marked_up_images/: (READ) The original camera image with the defects to be transfered drawn on with a configurable color. In .png format.
@@ -88,7 +88,7 @@ The test data provides examples for the data and files required for the CAD imag
     {"pose":[<x translation>,<y translation>,<z translation>,<x rotation>,<y rotation>,<z rotation>]}
     ```
 
-The test data folder also provides two example camera model configuration files. Both are for the the Radtan camera model. The Radtan_intrinsics.json file provides example settings for a 4:3 ratio camera. The Radtan_intrinsics_phone.json file provides settings for a cell phone camera. To add intrinsics for another camera, these may be modified or a new file created with the calibration data for your camera. This can be determined with the (Camera Calibrator App)[https://www.mathworks.com/help/vision/ug/using-the-single-camera-calibrator-app.html] from Matlab for example.
+The test data folder also provides two example camera model configuration files. Both are for the the Radtan camera model. The Radtan_intrinsics.json file provides example settings for a 4:3 ratio camera. The Radtan_intrinsics_phone.json file provides settings for a cell phone camera. To add intrinsics for another camera, these may be modified or a new file created with the calibration data for your camera. This can be determined with the [Camera Calibrator App](https://www.mathworks.com/help/vision/ug/using-the-single-camera-calibrator-app.html) from Matlab for example.
 
 ### Creating a new test 
 
