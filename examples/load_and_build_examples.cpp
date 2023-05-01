@@ -6,15 +6,15 @@
 
 std::string GetDataPathRoot() {
   std::string file_location = __FILE__;
-  std::string current_file_path = "load_and_build_tests.cpp";
+  std::string current_file_path = "load_and_build_examples.cpp";
   file_location.erase(file_location.end() - current_file_path.length(),
                       file_location.end());
-  return file_location + "test_data/";
+  return file_location + "example_data/";
 }
 
 std::string GetConfigPathRoot() {
   std::string file_location = __FILE__;
-  std::string current_file_path = "tests/load_and_build_tests.cpp";
+  std::string current_file_path = "examples/load_and_build_examples.cpp";
   file_location.erase(file_location.end() - current_file_path.length(),
                       file_location.end());
   return file_location + "config/";

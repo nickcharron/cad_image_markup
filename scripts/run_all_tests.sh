@@ -1,6 +1,6 @@
 cd ..
 cd build
-./cad_image_markup_load_and_build_tests 
+./cad_image_markup_load_and_build_examples 
 
 # --cad = "cad_points/file/path" \
 #                       --image "image_points/file/path" \

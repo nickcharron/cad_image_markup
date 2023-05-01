@@ -55,7 +55,7 @@ The argument descriptions can be displayed using:
 
 ## Tests
 ### Running existing tests
-There five tests provided for demonstration. They are run by exectuting the load_and_build_tests executable: 
+There five tests provided for demonstration. They are run by exectuting the load_and_build_examples executable: 
 ```
 cd root_directory/cad_image_markup/build
 ./cad_image_markup_laod_and_build_tests
@@ -69,7 +69,7 @@ These tests wrap the main CAD markup object and call it with the required argume
 4. **Defect transfer test - real data**: run the defect transfer using a real image with manually labelled edges.
 5. **Defect transfer test - real data - automatic edge detection**: run the defect transfer using a real image  with automatically detected edges
 
-The tests can be run individually by commenting the others in the load_and_build_tests.cpp file and rebuilding.
+The tests can be run individually by commenting the others in the load_and_build_examples.cpp file and rebuilding.
 
 ### Test data 
 
@@ -92,7 +92,7 @@ The test data folder also provides two example camera model configuration files.
 
 ### Creating a new test 
 
-A new test can be created by copying one of the existing test cases in the load_and_build_tests.cpp file and adding it to the end of the file. The paths for the files to read from and write to must be provided. Using the existing test_data folder structure, this would look something like: 
+A new test can be created by copying one of the existing test cases in the load_and_build_examples.cpp file and adding it to the end of the file. The paths for the files to read from and write to must be provided. Using the existing test_data folder structure, this would look something like: 
 
 ```cpp
 cad_image_markup::CadImageMarkup::Inputs inputs{
@@ -110,7 +110,7 @@ cad_image_markup::CadImageMarkup::Inputs inputs{
           data_root + "marked_up_cad/<your_marked_up_cad_drawing>.png"};
 ```
 
-The test can be added to the load_and_build_tests executable by rebuilding the project.
+The test can be added to the load_and_build_examples executable by rebuilding the project.
 
 The solution and optimization parameters should also be updated depending on your test data. This can be done at runtime but depending on the filetypes provided as input, some options are not available. This is explained along with all the configurable parameters in the next section.
 
