@@ -41,7 +41,7 @@ TEST_CASE("Build test.") {
 
   REQUIRE(1);
 }
-/*
+
 TEST_CASE("Defect transfer test - simulated data.") {
   // Define these at compile time for testing since catch has a hard time with
   // command line arguments
@@ -65,7 +65,7 @@ TEST_CASE("Defect transfer test - simulated data.") {
 
   REQUIRE(markup.Run());
 }
-*/
+
 /*
 TEST_CASE("Defect transfer test - simulated data - automated edge detection.") {
   // Define these at compile time for testing since catch has a hard time with
@@ -115,7 +115,7 @@ TEST_CASE("Defect transfer test - real data.") {
   REQUIRE(markup.Run());
 }
 */
-
+/*
 TEST_CASE("Defect transfer test - real data - automatic edge detection.") {
   // Define these at compile time for testing since catch has a hard time with
   // command line arguments
@@ -139,3 +139,4 @@ TEST_CASE("Defect transfer test - real data - automatic edge detection.") {
 
   REQUIRE(markup.Run());
 }
+*/

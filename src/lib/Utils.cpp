@@ -312,29 +312,29 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
   return coefficients;
 }
 
-PointCloud::Ptr BackProject(
-    PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
-    pcl::ModelCoefficients::ConstPtr target_plane,
+PointCloud::Ptr BackProject( 
+    Eigen::Matrix4d T_WORLD_CAMERA,
+    PointCloud::ConstPtr image_cloud,
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
+
   PointCloud::Ptr back_projected_cloud (new PointCloud);
 
   // get cad surface normal and point on the cad plane
-  Eigen::Vector3d cad_normal(target_plane->values[0], target_plane->values[1],
-                             target_plane->values[2]);
-  Eigen::Vector3d cad_point(cad_cloud->at(0).x, cad_cloud->at(0).y,
-                            cad_cloud->at(0).z);
+  Eigen::Vector3d cad_normal_cad(0, 0, 1);
+  Eigen::Vector3d cad_normal_image = T_WORLD_CAMERA.block(0,0,3,3)*cad_normal_cad;
 
   for (uint32_t i = 0; i < image_cloud->size(); i++) {
-    Eigen::Vector3d image_point(0, 0, 0);
+    Eigen::Vector3d image_origin(0, 0, 0);
     Eigen::Vector2i image_pixel(image_cloud->at(i).x, image_cloud->at(i).y);
+
     if (camera_model->BackProject(image_pixel).has_value()) {
       Eigen::Vector3d ray_unit_vector =
         camera_model->BackProject(image_pixel).value().normalized();
-      double prod1 = (image_point - cad_point).dot(cad_normal);
 
-      double len = prod1 / (ray_unit_vector.dot(cad_normal));
+      double nlength = (image_origin - T_WORLD_CAMERA.block(0,3,3,1)).dot(cad_normal_image);
+      double scale = nlength / (ray_unit_vector.dot(cad_normal_image));
 
-      Eigen::Vector3d back_projected_point = image_point - ray_unit_vector * len;
+      Eigen::Vector3d back_projected_point = image_origin - ray_unit_vector * scale;
 
       pcl::PointXYZ back_projected_cloud_point(back_projected_point[0],
                                               back_projected_point[1],

@@ -3,7 +3,7 @@
   {
     "cad_cloud_scale": 0.003,
     "max_solution_iterations": 30,
-    "visualize": true,
+    "visualize": false,
     "output_results": false, 
     "align_centroids": false,
     "correspondence_type": "P2POINT",
@@ -18,8 +18,8 @@
     "convergence_condition": "DIFFERENCE",
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
-    "converged_differential_translation_m": 0.1,
-    "converged_differential_rotation_deg": 0.3
+    "converged_differential_translation_m": 0.01,
+    "converged_differential_rotation_deg": 1
   },
   "output_options":
   {
@@ -28,14 +28,14 @@
   "misc_options":
   {
     "defect_color": "red",
-    "feature_label_type": "AUTOMATIC",
+    "feature_label_type": "MANUAL",
     "cannny_low_threshold_cad": 100, 
     "canny_ratio_cad": 3, 
     "canny_kernel_size_cad": 7, 
     "cannny_low_threshold_image": 60,
     "canny_ratio_image": 3, 
     "canny_kernel_size_image": 3,
-    "downsample_image_cloud": true,
+    "downsample_image_cloud": false,
     "downsample_grid_size": 20
   }
 }

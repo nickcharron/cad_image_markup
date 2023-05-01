@@ -193,15 +193,14 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
 
 /**
  * @brief Method to get the plane that best fits a cloud
- * @param image_cloud
- * @param cad_cloud
- * @param target_plane pcl model coefficients object, planar equation
- * coefficients are given in form: [0] = a , [1] = b, [2] = c, [3] = d
+ * @param T_WORLD_CAMERA transformation matrix from world (model) frame to camera
+ * @param image_cloud point cloud of pixel coordinates to back project
+ * @param camera_model camera model used for the back projection
  * @return image cloud points back projected into the plane of the cad cloud
  */
-PointCloud::Ptr BackProject(
-    PointCloud::ConstPtr image_cloud, PointCloud::ConstPtr cad_cloud,
-    pcl::ModelCoefficients::ConstPtr target_plane,
+PointCloud::Ptr BackProject( 
+    Eigen::Matrix4d T_WORLD_CAMERA,
+    PointCloud::ConstPtr image_cloud,
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 /**

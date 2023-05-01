@@ -171,7 +171,7 @@ bool CadImageMarkup::Solve() {
 
   LOG_INFO("MARKUP: Got CAD plane in the camera frame");
 
-  PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(defect_points_CAMFRAME_, cad_points_CAMFRAME, cad_plane_CAMFRAME, camera_model_);
+  PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(T_WORLD_CAMERA, defect_points_CAMFRAME_, camera_model_);
   LOG_INFO("MARKUP: Back projected defect points into cad plane");
 
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
