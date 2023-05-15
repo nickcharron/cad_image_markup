@@ -113,7 +113,7 @@ bool CadImageMarkup::LoadData() {
   }
   else if (params_.feature_label_type == "AUTOMATIC") {
 
-    // run Canny edge detection on input image
+    // run Canny edge detection on input cad image
     if (!image_buffer_.CannyEdgeDetect(inputs_.cad_image_path, inputs_.canny_edge_cad_path,
         params_.cannny_low_threshold_cad,params_.canny_ratio_cad,params_.canny_kernel_size_cad)) {
       LOG_ERROR("MARKUP: Canny Edge Detection Failed");

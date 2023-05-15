@@ -134,14 +134,12 @@ bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename,
 
   dst.create(src.size(), src.type());
 
+  // detect edges 
   cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
-
   cv::blur(src_gray, detected_edges, cv::Size(5,5));
-
   cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size);
 
   dst = cv::Scalar::all(0);
-
   src.copyTo(dst, detected_edges);
 
   LOG_INFO("INPUT BUFFER: Saving canny edge image to: %s", target_filename.c_str());
