@@ -24,27 +24,13 @@ target_link_libraries(${PROJECT_NAME}_main
 )
 
 ################## tests ##################
-add_executable(${PROJECT_NAME}_load_and_build_examples
-  examples/load_and_build_examples.cpp
-)
-
 add_executable(${PROJECT_NAME}_run_convergence_test
   examples/convergence_tests.cpp
-)
-
-target_include_directories(${PROJECT_NAME}_load_and_build_examples
-  PUBLIC
-    include/cad_image_markup
 )
 
 target_include_directories(${PROJECT_NAME}_run_convergence_test
   PUBLIC
     include/cad_image_markup
-)
-
-target_link_libraries(${PROJECT_NAME}_load_and_build_examples
-  ${PROJECT_NAME}
-  Catch2::Catch2
 )
 
 target_link_libraries(${PROJECT_NAME}_run_convergence_test

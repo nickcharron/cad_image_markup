@@ -1,0 +1,41 @@
+{
+  "solution_options":
+  {
+    "cad_cloud_scale": 0.003,
+    "max_solution_iterations": 30,
+    "visualize": true,
+    "output_results": false, 
+    "align_centroids": true,
+    "correspondence_type": "P2POINT",
+    "max_corr_distance": 100000,
+    "attenuate_corr_distance": true, 
+    "corr_bound_low": 2000, 
+    "attenuation_rate": 0.5
+  },
+  "convergence_options":
+  {
+    "convergence_type": "GEOMETRIC",
+    "convergence_condition": "DIFFERENCE",
+    "converged_differential_cost": 10,
+    "converged_absolute_cost": 5000,
+    "converged_differential_translation_m": 0.1,
+    "converged_differential_rotation_deg": 3
+  },
+  "output_options":
+  {
+    "output_image": true
+  },
+  "misc_options":
+  {
+    "defect_color": "red",
+    "feature_label_type": "MANUAL",
+    "cannny_low_threshold_cad": 100, 
+    "canny_ratio_cad": 3, 
+    "canny_kernel_size_cad": 7, 
+    "cannny_low_threshold_image": 100,
+    "canny_ratio_image": 3, 
+    "canny_kernel_size_image": 7,
+    "downsample_image_cloud": true,
+    "downsample_grid_size": 20
+  }
+}

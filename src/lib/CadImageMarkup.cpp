@@ -5,6 +5,22 @@
 
 namespace cad_image_markup {
 
+void CadImageMarkup::Inputs::Print(){
+ std::cout << "\nCadImageMarkup Inputs:\n"
+           << "cad_path: " << cad_path << "\n"
+           << "cad_image_path: " << cad_image_path << "\n"
+           << "canny_edge_cad_path: " << canny_edge_cad_path << "\n"
+           << "image_path: " << image_path << "\n"
+           << "canny_edge_image_path: " << canny_edge_image_path << "\n"
+           << "defect_path: " << defect_path << "\n"
+           << "intrinsics_path: " << intrinsics_path << "\n"
+           << "config_path: " << config_path << "\n"
+           << "ceres_config_path: " << ceres_config_path << "\n"
+           << "initial_pose_path: " << initial_pose_path << "\n"
+           << "output_image_path: " << output_image_path << "\n\n";  
+}
+
+
 CadImageMarkup::CadImageMarkup(const Inputs& inputs) : inputs_(inputs) {}
 
 bool CadImageMarkup::Run() {
@@ -16,6 +32,8 @@ bool CadImageMarkup::Run() {
   }
 
   LOG_INFO("MARKUP: Setup Complete");
+
+  inputs_.Print();
 
   if (!LoadData()) {
     return false;
@@ -59,10 +77,8 @@ bool CadImageMarkup::Setup() {
 bool CadImageMarkup::LoadData() {
   
   LOG_INFO("MARKUP: Loading camera data");
-
   // read image points
   if (params_.feature_label_type == "MANUAL") {
-
     if (!image_buffer_.ReadPoints(inputs_.image_path, camera_points_CAMFRAME_raw_)) {
       LOG_ERROR("MARKUP: Cannot read image file at: %s", inputs_.image_path.c_str());
       return false;
@@ -74,21 +90,19 @@ bool CadImageMarkup::LoadData() {
   
   }
   else if (params_.feature_label_type == "AUTOMATIC") {
-
     // run Canny edge detection on input image
     if (!image_buffer_.CannyEdgeDetect(inputs_.image_path,inputs_.canny_edge_image_path,
         params_.cannny_low_threshold_image,params_.canny_ratio_image,params_.canny_kernel_size_image)) {
       LOG_ERROR("MARKUP: Canny Edge Detection Failed");
       return false;
     }
-
     if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_image_path, camera_points_CAMFRAME_raw_, "white",10)) {
       LOG_WARN("MARKUP: Cannot read canny edge image file at: %s", inputs_.canny_edge_image_path.c_str());
     }
-
   }
-  else 
+  else {
     LOG_ERROR("MARKUP: Invalid feature_label_type value provided.");
+  }
 
   // Downsample image points if configured
   if (params_.downsample_image_cloud) 
@@ -96,7 +110,6 @@ bool CadImageMarkup::LoadData() {
   else 
     camera_points_CAMFRAME_ = camera_points_CAMFRAME_raw_;
 
-  
   // read cad model points
   LOG_INFO("MARKUP: Loading CAD model data");
 

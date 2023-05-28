@@ -29,6 +29,8 @@ class CadImageMarkup {
     std::string ceres_config_path;
     std::string initial_pose_path;  // T_WORLD_CAM
     std::string output_image_path;
+
+    void Print();
   };
 
   /**
