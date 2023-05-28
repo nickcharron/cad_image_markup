@@ -15,24 +15,6 @@
 
 namespace cad_image_markup { namespace utils {
 
-// Provide default definitions for namespace variables
-double image_offset_x_ = 0;
-double image_offset_y_ = 0;
-bool center_image_called_ = false;
-std::shared_ptr<cad_image_markup::CameraModel> camera_model_ = nullptr;
-
-std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel() {
-  return camera_model_;
-}
-
-void ReadCameraModel(std::string intrinsics_file_path) {
-  camera_model_ = cad_image_markup::CameraModel::Create(intrinsics_file_path);
-}
-
-void SetCameraID(uint8_t cam_ID) {
-  camera_model_->SetCameraID(cam_ID);
-}
-
 void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
   // restore offset to all points
   for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
@@ -51,14 +33,16 @@ void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid) {
   }
 }
 
-PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud) {
+PointCloud::Ptr ProjectCloud(
+    PointCloud::Ptr cloud,
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
   PointCloud::Ptr proj_cloud(new PointCloud);
 
   for (uint16_t i = 0; i < cloud->size(); i++) {
     Eigen::Vector3d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z);
     cad_image_markup::optional<Eigen::Vector2d> pixel_projected;
 
-    pixel_projected = camera_model_->ProjectPointPrecise(point);
+    pixel_projected = camera_model->ProjectPointPrecise(point);
     if (pixel_projected.has_value()) {
       pcl::PointXYZ proj_point(pixel_projected.value()(0),
                                pixel_projected.value()(1), 0);
@@ -94,23 +78,12 @@ void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T) {
   }
 }
 
-void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
-                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
-                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
-                        uint16_t max_dist_) {
-  pcl::registration::CorrespondenceEstimation<pcl::PointXYZ, pcl::PointXYZ>
-      corr_est;
-  corr_est.setInputSource(source_coud_);
-  corr_est.setInputTarget(target_cloud_);
-  corr_est.determineCorrespondences(*corrs_, max_dist_);
-}
-
-void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
-                            PointCloud::ConstPtr camera_cloud,
-                            const Eigen::Matrix4d& T,
-                            pcl::CorrespondencesPtr corrs, bool align_centroids,
-                            double max_corr_distance, int num_corrs,
-                            std::string source) {
+void CorrespondenceEstimate(
+    PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
+    const Eigen::Matrix4d& T, pcl::CorrespondencesPtr corrs,
+    bool align_centroids, double max_corr_distance, int num_corrs,
+    std::string source,
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model) {
   // clear the previous correspondences
   corrs->clear();
 
@@ -119,7 +92,7 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
   trans_cloud = TransformCloud(cad_cloud, T);
 
   // project the transformed points to the camera plane
-  PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud);
+  PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud, camera_model);
 
   // merge centroids for correspondence estimation (projected -> camera)
   if (align_centroids) {

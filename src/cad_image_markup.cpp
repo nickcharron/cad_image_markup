@@ -25,11 +25,6 @@ DEFINE_string(defect_image, "",
               "Full path to image file with labelled defects (Optional)");
 DEFINE_string(output_image, "",
               "Full path to marked-up output image (Optional)");
-
-// TODO CAM: Is this correct? We should have some default pose that we supply
-// the optimizer if no pose file was given. We could realistically tell
-// inspectors to stand back 3m from structure and be perpendicular. Then set the
-// initial guess to this.
 DEFINE_string(
     initial_pose, "",
     "Full path to initial pose json (Optional). This is the "

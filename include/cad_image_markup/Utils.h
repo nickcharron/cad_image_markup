@@ -19,34 +19,6 @@ typedef Eigen::aligned_allocator<Eigen::Vector2d> AlignVec2d;
 
 namespace utils {
 
-extern double image_offset_x_;
-extern double image_offset_y_;
-extern bool center_image_called_;
-extern std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
-
-/**
- * @brief Accessor method to retrieve camera model
- * @return camera model
- * CAM NOTE: not sure if this should return the utility camera model, or a copy
- * (probably the pointer since you might need to change it)
- */
-std::shared_ptr<cad_image_markup::CameraModel> GetCameraModel();
-
-/**
- * @brief Method to read the camera model used by the utility object from a
- * config file
- * @param intrinsics_file_path_ absolute path to the camera configuration file
- * @note There can exist only one utility camera model at a time
- */
-void ReadCameraModel(std::string intrinsics_file_path);
-
-/**
- * @brief Method to set the camera ID used by the camera model
- * this is currently only applicable to the ladybug camera model
- * @param cam_ID_ ID of the camera intrinsics set to use
- */
-void SetCameraID(uint8_t cam_ID);
-
 /**
  * @brief Method to offset a cloud in x and y
  * @param cloud cloud to be offset
@@ -66,9 +38,10 @@ void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid);
  * @brief Method to use camera model to project a point cloud into the xy
  * plane
  * @param cloud point cloud to project
+ * @param camera_model camera model used for projection
  * @return projected planar cloud in the xy plane
  */
-PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud);
+PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud, const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 /**
  * @brief Method to apply a transform to a point cloud, same behavior as pcl
@@ -88,12 +61,6 @@ PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
  */
 void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
 
-// TODO: add info - old version of correspondence estimation
-void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
-                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
-                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
-                        uint16_t max_dist_);
-
 /**
  * @brief Method to get single correspondences between a CAD cloud projection
  * and an image cloud given transformation matrix
@@ -109,13 +76,14 @@ void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
  * @param num_corrs number of targets points for each source point(1 or 2)
  * @param align_centroids
  * @param source source of the correspondences, "projected" or "camera"
+ * @param camera_model camera model used for projection
  */
 void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                             PointCloud::ConstPtr camera_cloud,
                             const Eigen::Matrix4d& T,
                             pcl::CorrespondencesPtr corrs, bool align_centroids,
                             double max_corr_distance, int num_corrs,
-                            std::string source);
+                            std::string source, const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 /**
  * @brief Method to convert a vector of quaternions and translations to a

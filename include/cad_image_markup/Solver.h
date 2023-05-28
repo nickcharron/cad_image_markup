@@ -1,17 +1,17 @@
 #pragma once
 
-#include <fstream>
-#include <stdio.h>
-#include <csignal>
-#include <ceres/ceres.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+#include <ceres/ceres.h>
+#include <csignal>
+#include <fstream>
+#include <stdio.h>
 
+#include <cad_image_markup/Params.h>
+#include <cad_image_markup/Utils.h>
+#include <cad_image_markup/Visualizer.h>
 #include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/optimization/CeresParams.h>
-#include <cad_image_markup/Utils.h>
-#include <cad_image_markup/Params.h>
-#include <cad_image_markup/Visualizer.h>
 
 namespace cad_image_markup {
 
@@ -19,8 +19,7 @@ namespace cad_image_markup {
  * @brief Class to solve camera pose estimation problem
  */
 class Solver {
- public:
-
+public:
   struct ResultsSummary {
     ceres::Solver::Summary ceres_summary;
     uint8_t solution_iterations{0};
@@ -67,14 +66,16 @@ class Solver {
   /**
    * @brief method for accessing results summary
    */
-  //ceres::Solver::Summary::FullReport GetResultsSummary();
+  // ceres::Solver::Summary::FullReport GetResultsSummary();
 
- private:
+private:
   /**
    * @brief Method for building the Ceres problem by adding the residual blocks
    */
-  std::shared_ptr<ceres::Problem> BuildCeresProblem(pcl::CorrespondencesPtr proj_corrs, std::shared_ptr<cad_image_markup::CameraModel> camera_model, 
-                         PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud);
+  std::shared_ptr<ceres::Problem> BuildCeresProblem(
+      pcl::CorrespondencesPtr proj_corrs,
+      std::shared_ptr<cad_image_markup::CameraModel> camera_model,
+      PointCloud::ConstPtr camera_cloud, PointCloud::ConstPtr cad_cloud);
 
   /**
    * @brief Method to call the ceres solver on the individual ceres problem
@@ -89,10 +90,12 @@ class Solver {
 
   /**
    * @brief Method to update the visualization display
-   * @note Holds the solution until user enters 'n' to progress to the next iteration
-   *       or 'r' to cancel the solution
+   * @note Holds the solution until user enters 'n' to progress to the next
+   * iteration or 'r' to cancel the solution
    */
-  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled, Eigen::Matrix4d& T_WORLD_CAMERA, pcl::CorrespondencesPtr proj_corrs);
+  bool UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
+                        Eigen::Matrix4d& T_WORLD_CAMERA,
+                        pcl::CorrespondencesPtr proj_corrs);
 
   // options
   const Params& params_;
@@ -116,4 +119,4 @@ class Solver {
   std::string source_cloud_;
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

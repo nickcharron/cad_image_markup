@@ -65,7 +65,7 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
   utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA,
                                 proj_corrs, params_.align_centroids,
                                 max_corr_distance, num_correspondences,
-                                source_cloud_);
+                                source_cloud_, camera_model_);
 
   LOG_INFO("SOLVER: Initial Correspondences Estimated: %ld",
            proj_corrs->size());
@@ -94,10 +94,10 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
                           params_.corr_bound_low;
 
     // transform, project, and get correspondences
-    utils::CorrespondenceEstimate(CAD_cloud_scaled, camera_cloud_,
-                                  T_WORLD_CAMERA, proj_corrs,
-                                  params_.align_centroids, max_corr_distance,
-                                  num_correspondences, source_cloud_);
+    utils::CorrespondenceEstimate(
+        CAD_cloud_scaled, camera_cloud_, T_WORLD_CAMERA, proj_corrs,
+        params_.align_centroids, max_corr_distance, num_correspondences,
+        source_cloud_, camera_model_);
 
     has_converged = HasConverged();
 
@@ -284,7 +284,7 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
            trans_cloud->at(100).z);
 
   // project cloud for visualizer
-  PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud);
+  PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud, camera_model_);
 
   // blow up the transformed cloud for visualization
   utils::ScaleCloud(trans_cloud, 1.0 / params_.cad_cloud_scale);
@@ -296,7 +296,7 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
   // wait on user input to continue or cancel the solution
   char end = ' ';
 
-  std::cout "Enter 'n' to continue or 'q' to quit\n";
+  std::cout << "Enter 'n' to continue or 'q' to quit\n";
   while (end != 'n' && end != 'r') { cin >> end; }
 
   if (end == 'q') return false;

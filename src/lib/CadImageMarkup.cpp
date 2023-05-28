@@ -55,7 +55,6 @@ bool CadImageMarkup::Setup() {
   }
 
   camera_model_ = CameraModel::Create(inputs_.intrinsics_path);
-  utils::ReadCameraModel(inputs_.intrinsics_path);
 
   solver_ = std::make_unique<Solver>(camera_model_, params_,
                                      inputs_.ceres_config_path);

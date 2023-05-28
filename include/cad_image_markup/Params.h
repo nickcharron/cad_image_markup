@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <map>
 #include <stdio.h>
 #include <string>
@@ -205,7 +206,7 @@ struct Params {
   inline bool LoadFromJson(const std::string& path) {
     if (path.empty()) { return true; }
 
-    if (!boost::filesystem::exists(path)) {
+    if (!std::filesystem::exists(path)) {
       LOG_ERROR("Invalid path to config file: %s", path.c_str());
       return false;
     }
