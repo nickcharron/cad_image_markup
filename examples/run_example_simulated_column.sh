@@ -23,7 +23,7 @@ DATA_ROOT="$SCRIPT_DIR/example_data"
 CONFIG_ROOT="$SCRIPT_DIR/example_config"
 
 CAD="$DATA_ROOT/labelled_images/sim_cad_feature_label.json"
-CAD_IMG="$DATA_ROOT/cad/sim_cad.png"
+CAD_IMG="$DATA_ROOT/cad/sim_cad.jpg"
 IMAGE="$DATA_ROOT/labelled_images/sim_view_2_feature_label.json"
 DEFECT_IMG="$DATA_ROOT/marked_up_images/sim_view_2_image_markup.png"
 INTRINSICS="$DATA_ROOT/Radtan_intrinsics.json"
