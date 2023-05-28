@@ -73,7 +73,6 @@ The test data provides examples for the data and files required for the CAD imag
     {"pose":[<x translation>,<y translation>,<z translation>,<x rotation>,<y rotation>,<z rotation>]}
     ```
 
-
 ## Examples
 
 We provide 3 example datasets:
