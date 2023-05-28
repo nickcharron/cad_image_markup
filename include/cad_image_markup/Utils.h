@@ -2,15 +2,15 @@
 #include <stdio.h>
 #include <string>
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
+#include <Eigen/Geometry>
 #include <pcl/common/common_headers.h>
 #include <pcl/common/transforms.h>
-#include <Eigen/Geometry>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
-#include <cad_image_markup/camera_models/CameraModel.h>
 #include <cad_image_markup/Optional.h>
 #include <cad_image_markup/Params.h>
+#include <cad_image_markup/camera_models/CameraModel.h>
 
 namespace cad_image_markup {
 
@@ -88,12 +88,11 @@ PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
  */
 void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
 
-
 // TODO: add info - old version of correspondence estimation
-void GetCorrespondences(pcl::CorrespondencesPtr corrs_, 
-                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
-                              pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
-                              uint16_t max_dist_);
+void GetCorrespondences(pcl::CorrespondencesPtr corrs_,
+                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr source_coud_,
+                        pcl::PointCloud<pcl::PointXYZ>::ConstPtr target_cloud_,
+                        uint16_t max_dist_);
 
 /**
  * @brief Method to get single correspondences between a CAD cloud projection
@@ -115,7 +114,8 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
                             PointCloud::ConstPtr camera_cloud,
                             const Eigen::Matrix4d& T,
                             pcl::CorrespondencesPtr corrs, bool align_centroids,
-                            double max_corr_distance, int num_corrs, std::string source);
+                            double max_corr_distance, int num_corrs,
+                            std::string source);
 
 /**
  * @brief Method to convert a vector of quaternions and translations to a
@@ -124,22 +124,23 @@ void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
  * by translations)
  * @return transformation matrix
  */
-Eigen::Matrix4d QuaternionAndTranslationToTransformMatrix(
-    const std::vector<double>& pose);
+Eigen::Matrix4d
+    QuaternionAndTranslationToTransformMatrix(const std::vector<double>& pose);
 
 /**
  * @brief Method convert a transformation matrix to a quaternion and translation
  * @param T transformation matrix
- * @param q quaternion representing the rotation encapsulated in the transformation matrix
- * @param p vector representing the translation encapsulated in the transformation matrix
+ * @param q quaternion representing the rotation encapsulated in the
+ * transformation matrix
+ * @param p vector representing the translation encapsulated in the
+ * transformation matrix
  * @return void
  */
 void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
                                                Eigen::Quaterniond& q,
                                                Eigen::Vector3d& p);
 
-
-Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T);                                             
+Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T);
 
 /**
  * @brief Method to get the scale in x and y of a cloud with respect to the
@@ -182,7 +183,6 @@ PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
  */
 void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
 
-
 /**
  * @brief Method to get the plane that best fits a cloud
  * @param cloud point cloud
@@ -193,33 +193,35 @@ pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
 
 /**
  * @brief Method to get the plane that best fits a cloud
- * @param T_WORLD_CAMERA transformation matrix from world (model) frame to camera
+ * @param T_WORLD_CAMERA transformation matrix from world (model) frame to
+ * camera
  * @param image_cloud point cloud of pixel coordinates to back project
  * @param camera_model camera model used for the back projection
  * @return image cloud points back projected into the plane of the cad cloud
  */
-PointCloud::Ptr BackProject( 
-    Eigen::Matrix4d T_WORLD_CAMERA,
-    PointCloud::ConstPtr image_cloud,
+PointCloud::Ptr BackProject(
+    Eigen::Matrix4d T_WORLD_CAMERA, PointCloud::ConstPtr image_cloud,
     const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 /**
- * @brief Method to get the centroid of a cloud 
- * @param cloud point cloud 
+ * @brief Method to get the centroid of a cloud
+ * @param cloud point cloud
  * @return point representing the centroid of the cloud
  */
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
 
 /**
- * @brief Method to downsample the points in a cloud 
- *        a grid filter is passed over the cloud and the points 
- *        in each grid volume are replaced with their centroid in 
+ * @brief Method to downsample the points in a cloud
+ *        a grid filter is passed over the cloud and the points
+ *        in each grid volume are replaced with their centroid in
  *        the output cloud
- * @param cloud point cloud 
- * @param grid_size size of the grid to pass over the cloud, effectively in pixels
+ * @param cloud point cloud
+ * @param grid_size size of the grid to pass over the cloud, effectively in
+ * pixels
  * @return downsampled point cloud
  */
-PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud, const double grid_size);
+PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud,
+                                const double grid_size);
 
 /**
  * @brief Method to apply perturbations to a transform in radians
@@ -249,6 +251,6 @@ double DegToRad(double d);
 
 double RadToDeg(double d);
 
-}  // namespace utils
+} // namespace utils
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

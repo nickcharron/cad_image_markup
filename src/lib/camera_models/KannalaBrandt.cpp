@@ -15,8 +15,9 @@ KannalaBrandt::KannalaBrandt(const std::string& file_path) {
   k4_ = intrinsics_[7];
 }
 
-opt<Eigen::Vector2d> KannalaBrandt::ProjectPointPrecise(
-    const Eigen::Vector3d& point, bool& outside_domain) {
+opt<Eigen::Vector2d>
+    KannalaBrandt::ProjectPointPrecise(const Eigen::Vector3d& point,
+                                       bool& outside_domain) {
   outside_domain = false;
 
   Eigen::Vector2d out_point;
@@ -40,9 +41,7 @@ opt<Eigen::Vector2d> KannalaBrandt::ProjectPointPrecise(
   out_point[0] = fx_ * d * (x / r) + cx_;
   out_point[1] = fy_ * d * (y / r) + cy_;
 
-  if (PixelInImage(out_point)) {
-    return out_point;
-  }
+  if (PixelInImage(out_point)) { return out_point; }
   return {};
 }
 
@@ -124,9 +123,7 @@ opt<Eigen::Vector2i> KannalaBrandt::ProjectPoint(const Eigen::Vector3d& point,
 }
 
 opt<Eigen::Vector3d> KannalaBrandt::BackProject(const Eigen::Vector2i& pixel) {
-  if (!PixelInImage(pixel)) {
-    return {};
-  }
+  if (!PixelInImage(pixel)) { return {}; }
 
   Eigen::Vector3d out_ray;
 
@@ -161,4 +158,4 @@ opt<Eigen::Vector3d> KannalaBrandt::BackProject(const Eigen::Vector2i& pixel) {
   return out_ray;
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

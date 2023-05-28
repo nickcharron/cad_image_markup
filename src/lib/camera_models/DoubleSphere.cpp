@@ -13,8 +13,9 @@ DoubleSphere::DoubleSphere(const std::string& file_path) {
   alpha_ = intrinsics_[5];
 }
 
-opt<Eigen::Vector2d> DoubleSphere::ProjectPointPrecise(
-    const Eigen::Vector3d& point, bool& outside_domain) {
+opt<Eigen::Vector2d>
+    DoubleSphere::ProjectPointPrecise(const Eigen::Vector3d& point,
+                                      bool& outside_domain) {
   outside_domain = false;
 
   double w1;
@@ -42,9 +43,7 @@ opt<Eigen::Vector2d> DoubleSphere::ProjectPointPrecise(
       fy_ * point[1] / (alpha_ * d2 + (1 - alpha_) * (eps_ * d1 + point[2])) +
       cy_;
 
-  if (PixelInImage(point_projected)) {
-    return point_projected;
-  }
+  if (PixelInImage(point_projected)) { return point_projected; }
   return {};
 }
 
@@ -103,9 +102,7 @@ opt<Eigen::Vector3d> DoubleSphere::BackProject(const Eigen::Vector2i& pixel) {
   double r2 = mx * mx + my * my;
 
   // check pixels are valid for back projection
-  if (alpha_ > 0.5 && r2 > 1 / (2 * alpha_ - 1)) {
-    return {};
-  }
+  if (alpha_ > 0.5 && r2 > 1 / (2 * alpha_ - 1)) { return {}; }
 
   double mz = (1 - alpha_ * alpha_ * r2) /
               (alpha_ * sqrt(1 - (2 * alpha_ - 1) * r2) + 1 - alpha_);
@@ -114,4 +111,4 @@ opt<Eigen::Vector3d> DoubleSphere::BackProject(const Eigen::Vector2i& pixel) {
   return Eigen::Vector3d(A * mx, A * my, A * mz - eps_);
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

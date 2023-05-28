@@ -6,10 +6,14 @@ DEFINE_validator(cad, &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(cad_image, "",
               "Full path to CAD image file in png or jpg (Required).");
 DEFINE_validator(cad_image, &cad_image_markup::gflags::ValidateFileMustExist);
-DEFINE_string(canny_edge_cad, "", "Full path to canny_edge detected cad image (Optional, used when AUTOMATIC feature detection is enabled).");
+DEFINE_string(canny_edge_cad, "",
+              "Full path to canny_edge detected cad image (Optional, used when "
+              "AUTOMATIC feature detection is enabled).");
 DEFINE_string(image, "", "Full path to image (Required).");
 DEFINE_validator(image, &cad_image_markup::gflags::ValidateFileMustExist);
-DEFINE_string(canny_edge_image, "", "Full path to canny_edge detected image (Optional, used when AUTOMATIC feature detection is enabled).");
+DEFINE_string(canny_edge_image, "",
+              "Full path to canny_edge detected image (Optional, used when "
+              "AUTOMATIC feature detection is enabled).");
 DEFINE_string(intrinsics, "",
               "Full path to intrinsics file in json format (Required).");
 DEFINE_validator(intrinsics,
@@ -34,7 +38,7 @@ DEFINE_string(
     "the CAD mode. If not provided, we will assume the inspector was ~3m from "
     "the surface and the image was collected perpendicular to the surface.");
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   cad_image_markup::CadImageMarkup::Inputs inputs{

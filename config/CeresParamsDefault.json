@@ -1,6 +1,5 @@
 {
-  "solver_options":
-  {
+  "solver_options": {
     "minimizer_progress_to_stdout": false,
     "max_num_iterations": 50,
     "max_solver_time_in_seconds": 1e6,
@@ -11,14 +10,12 @@
     "preconditioner_type": "SCHUR_JACOBI",
     "output_results": false
   },
-  "problem_options":
-  {
+  "problem_options": {
     "local_parameterization_take_ownership": false,
     "cost_function_take_ownership": false,
     "loss_function_take_ownership": false
   },
-  "loss_function": 
-  {
+  "loss_function": {
     "type": "HUBER",
     "scaling": 1
   }

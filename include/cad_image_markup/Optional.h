@@ -8,7 +8,7 @@ namespace cad_image_markup {
 
 template <class T>
 class optional : public boost::optional<T> {
- public:
+public:
   optional() : boost::optional<T>() {}
 
   optional(T const& v) : boost::optional<T>(v) {}
@@ -30,4 +30,4 @@ class optional : public boost::optional<T> {
 template <class T>
 using opt = optional<T>;
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

@@ -1,16 +1,16 @@
 #include <cad_image_markup/Visualizer.h>
 
-#include <stdio.h>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <fstream>
 #include <math.h>
 #include <mutex>
+#include <stdio.h>
 
+#include <pcl/console/parse.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/console/parse.h>
 
 namespace cad_image_markup {
 
@@ -23,16 +23,17 @@ Visualizer::~Visualizer() {}
 void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_ =
       std::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
-  point_cloud_display_->setBackgroundColor(255, 255, 255); //white
+  point_cloud_display_->setBackgroundColor(255, 255, 255); // white
   point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
 
-  // align the visualizer camera with the image source when the visualizer first displayed
-  point_cloud_display_->setCameraPosition(0, 0, -3,    0, 0, 1,   0, -1, 0);
+  // align the visualizer camera with the image source when the visualizer first
+  // displayed
+  point_cloud_display_->setCameraPosition(0, 0, -3, 0, 0, 1, 0, -1, 0);
 
   continue_flag_.test_and_set(std::memory_order_relaxed);
 
-  //start the visualizer spinning in its own thread
+  // start the visualizer spinning in its own thread
   vis_thread_ = std::thread(&Visualizer::Spin, this);
 }
 
@@ -46,17 +47,19 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
                                PointCloud::Ptr projected_cloud,
                                pcl::CorrespondencesConstPtr corrs,
                                std::string id_image, std::string id_cad,
-                               std::string id_projected, 
-                               std::string source) {
+                               std::string id_projected, std::string source) {
   // get mutex for visulalizer spinning in vis thread and
   // either create a new cloud or update the existing one
   mtx_.lock();
 
   LOG_INFO("Visualizer: Displaying Clouds");
 
-  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> image_color(image_cloud, 125, 0, 125);
-  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cad_color(image_cloud, 0, 0, 0);
-  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> projected_color(image_cloud, 255, 0, 0);
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> image_color(
+      image_cloud, 125, 0, 125);
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cad_color(
+      image_cloud, 0, 0, 0);
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>
+      projected_color(image_cloud, 255, 0, 0);
 
   // if the visualizer does not already contain the image cloud, add it
   if (!display_called_) {
@@ -66,7 +69,8 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
     point_cloud_display_->addPointCloud(cad_cloud, cad_color, id_cad);
     point_cloud_display_->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, id_cad);
-    point_cloud_display_->addPointCloud(projected_cloud, projected_color, id_projected);
+    point_cloud_display_->addPointCloud(projected_cloud, projected_color,
+                                        id_projected);
     point_cloud_display_->setPointCloudRenderingProperties(
         pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, id_projected);
     point_cloud_display_->resetCamera();
@@ -76,7 +80,8 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
   else {
     point_cloud_display_->updatePointCloud(image_cloud, image_color, id_image);
     point_cloud_display_->updatePointCloud(cad_cloud, cad_color, id_cad);
-    point_cloud_display_->updatePointCloud(projected_cloud, projected_color, id_projected);
+    point_cloud_display_->updatePointCloud(projected_cloud, projected_color,
+                                           id_projected);
     point_cloud_display_->resetCamera();
   }
 
@@ -88,7 +93,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
 
   // illustrate correspondences
   for (uint16_t i = 0; i < corrs->size(); i++) {
-
     uint16_t proj_point_index, cam_point_index;
 
     // source camera
@@ -96,7 +100,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
       proj_point_index = corrs->at(i).index_match;
       cam_point_index = corrs->at(i).index_query;
     }
-
 
     // source CAD
     if (source == "projected") {
@@ -115,12 +118,11 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
   display_called_ = true;
 
   mtx_.unlock();
-
 }
 
 void Visualizer::Spin() {
   while (continue_flag_.test_and_set(std::memory_order_relaxed) &&
-          !(point_cloud_display_->wasStopped())) {
+         !(point_cloud_display_->wasStopped())) {
     mtx_.lock();
     point_cloud_display_->spinOnce(3);
     mtx_.unlock();
@@ -128,4 +130,4 @@ void Visualizer::Spin() {
   }
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

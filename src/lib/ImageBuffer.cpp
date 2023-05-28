@@ -1,18 +1,18 @@
 #include <cad_image_markup/ImageBuffer.h>
 
 #include <boost/filesystem.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <pcl/common/transforms.h>
-#include <pcl/common/common_headers.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/console/parse.h>
-#include <pcl/point_types.h>
 #include <cstdint>
 #include <fstream>
 #include <math.h>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <pcl/common/common_headers.h>
+#include <pcl/common/transforms.h>
+#include <pcl/console/parse.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 #include <string>
 #include <vector>
 
@@ -20,7 +20,7 @@
 
 namespace cad_image_markup {
 
-bool ImageBuffer::ReadPoints(const std::string &filename,
+bool ImageBuffer::ReadPoints(const std::string& filename,
                              PointCloud::Ptr points) {
   points->clear();
 
@@ -37,9 +37,7 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   nlohmann::json J_shapes = J["shapes"];
   for (auto J_point : J_shapes[0]["points"]) {
     std::vector<float> point_vec;
-    for (auto val : J_point) {
-      point_vec.push_back(val.get<float>());
-    }
+    for (auto val : J_point) { point_vec.push_back(val.get<float>()); }
     if (point_vec.size() != 2) {
       LOG_ERROR("Invalid point in points file.");
       return false;
@@ -51,9 +49,10 @@ bool ImageBuffer::ReadPoints(const std::string &filename,
   return true;
 }
 
-bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr points, std::string color, int rate) {
-  if (!boost::filesystem::exists(filename)) 
-    return false;
+bool ImageBuffer::ReadPointsPNG(const std::string& filename,
+                                PointCloud::Ptr points, std::string color,
+                                int rate) {
+  if (!boost::filesystem::exists(filename)) return false;
 
   int threshold = 200;
   int whitethreshold = 25;
@@ -62,71 +61,64 @@ bool ImageBuffer::ReadPointsPNG(const std::string& filename, PointCloud::Ptr poi
 
   cv::Mat img = cv::imread(filename, cv::IMREAD_COLOR);
 
-  // get all pixels of specified color 
+  // get all pixels of specified color
   for (int i = 0; i < img.rows; i++) {
     for (int j = 0; j < img.cols; j++) {
-
-      std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i,j)[2], img.at<cv::Vec3b>(i,j)[1], img.at<cv::Vec3b>(i,j)[0]};
-      pcl::PointXYZ point_pcl(j, i, 0); 
+      std::vector<int> pixel_vals = {img.at<cv::Vec3b>(i, j)[2],
+                                     img.at<cv::Vec3b>(i, j)[1],
+                                     img.at<cv::Vec3b>(i, j)[0]};
+      pcl::PointXYZ point_pcl(j, i, 0);
 
       if (color == "red") {
-        if (pixel_vals[0] >= threshold && pixel_vals[1] < (255 -threshold) && pixel_vals[2] < (255 -threshold)) {
-          if (pixel_point_count%rate == 0)
-            points->push_back(point_pcl);
-          pixel_point_count ++;
-        }
-          
-      }
-      else if (color == "green") {
-        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] >= threshold && pixel_vals[2] < (255 -threshold)) {
-          if (pixel_point_count%rate == 0)
-            points->push_back(point_pcl);
-          pixel_point_count ++;
-        }
-          
-      }
-      else if (color == "blue") {
-        if (pixel_vals[0] < (255 -threshold) && pixel_vals[1] < (255 -threshold) && pixel_vals[2] >= threshold) {
-          if (pixel_point_count%rate == 0)
-            points->push_back(point_pcl);
-          pixel_point_count ++;
+        if (pixel_vals[0] >= threshold && pixel_vals[1] < (255 - threshold) &&
+            pixel_vals[2] < (255 - threshold)) {
+          if (pixel_point_count % rate == 0) points->push_back(point_pcl);
+          pixel_point_count++;
         }
 
-      } 
-      else if (color == "white") {
-        if (pixel_vals[0] >= whitethreshold && pixel_vals[1] >= whitethreshold && pixel_vals[2] >= whitethreshold) {
-          if (pixel_point_count%rate == 0)
-            points->push_back(point_pcl);
-          pixel_point_count ++;
+      } else if (color == "green") {
+        if (pixel_vals[0] < (255 - threshold) && pixel_vals[1] >= threshold &&
+            pixel_vals[2] < (255 - threshold)) {
+          if (pixel_point_count % rate == 0) points->push_back(point_pcl);
+          pixel_point_count++;
         }
 
-      }
-      else if (color == "black") {
-        if (pixel_vals[0] < (250 -threshold) && pixel_vals[1] < (250 -threshold) && pixel_vals[2] < (250 -threshold)) {
-          if (pixel_point_count%rate == 0)
-            points->push_back(point_pcl);
-          pixel_point_count ++;
+      } else if (color == "blue") {
+        if (pixel_vals[0] < (255 - threshold) &&
+            pixel_vals[1] < (255 - threshold) && pixel_vals[2] >= threshold) {
+          if (pixel_point_count % rate == 0) points->push_back(point_pcl);
+          pixel_point_count++;
         }
-      }
-      else {
+
+      } else if (color == "white") {
+        if (pixel_vals[0] >= whitethreshold &&
+            pixel_vals[1] >= whitethreshold &&
+            pixel_vals[2] >= whitethreshold) {
+          if (pixel_point_count % rate == 0) points->push_back(point_pcl);
+          pixel_point_count++;
+        }
+
+      } else if (color == "black") {
+        if (pixel_vals[0] < (250 - threshold) &&
+            pixel_vals[1] < (250 - threshold) &&
+            pixel_vals[2] < (250 - threshold)) {
+          if (pixel_point_count % rate == 0) points->push_back(point_pcl);
+          pixel_point_count++;
+        }
+      } else {
         LOG_WARN("Invalid color selected for defect detection");
         return false;
       }
-
-
     }
   }
 
   return true;
-  
 }
 
-bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename, 
-                     const std::string& target_filename, 
-                     const int lowThreshold,
-                     const int ratio,
-                     const int kernel_size
-                     ) {
+bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename,
+                                  const std::string& target_filename,
+                                  const int lowThreshold, const int ratio,
+                                  const int kernel_size) {
   cv::Mat src, src_gray;
   cv::Mat dst, detected_edges;
 
@@ -134,25 +126,23 @@ bool ImageBuffer::CannyEdgeDetect(const std::string& src_filename,
 
   dst.create(src.size(), src.type());
 
-  // detect edges 
+  // detect edges
   cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
-  cv::blur(src_gray, detected_edges, cv::Size(5,5));
-  cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size);
+  cv::blur(src_gray, detected_edges, cv::Size(5, 5));
+  cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold * ratio,
+            kernel_size);
 
   dst = cv::Scalar::all(0);
   src.copyTo(dst, detected_edges);
 
-  LOG_INFO("INPUT BUFFER: Saving canny edge image to: %s", target_filename.c_str());
+  LOG_INFO("INPUT BUFFER: Saving canny edge image to: %s",
+           target_filename.c_str());
   bool written = cv::imwrite(target_filename, dst);
-  if (!written) {
-    LOG_ERROR("INPUT BUFFER: Unable to write image.");
-  }
+  if (!written) { LOG_ERROR("INPUT BUFFER: Unable to write image."); }
   return written;
-
 }
 
 void ImageBuffer::DensifyPoints(PointCloud::Ptr points, uint8_t density_index) {
-
   // add additional point between existing points according to scale
   // will help to converge solution
   uint16_t init_length = points->size();
@@ -255,8 +245,8 @@ void ImageBuffer::ScalePoints(PointCloud::Ptr points, float scale) {
 }
 
 bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
-                               const std::string &src_file_name,
-                               const std::string &target_file_name, uint8_t r,
+                               const std::string& src_file_name,
+                               const std::string& target_file_name, uint8_t r,
                                uint8_t g, uint8_t b) {
   // [NOTE] opencv use BGR not RGB
   cv::Vec3b color;
@@ -265,7 +255,8 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
   color[2] = r;
 
   if (!boost::filesystem::exists(src_file_name)) {
-    LOG_ERROR("OUTPUT BUFFER: Invalid path to input image: %s", src_file_name.c_str());
+    LOG_ERROR("OUTPUT BUFFER: Invalid path to input image: %s",
+              src_file_name.c_str());
     return false;
   }
   LOG_INFO("OUTPUT BUFFER: Reading image: %s", src_file_name.c_str());
@@ -273,16 +264,15 @@ bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
   cv::Mat image;
   image = cv::imread(src_file_name, 1);
   for (uint32_t i = 0; i < points->size(); i++) {
-    if (points->at(i).x >= 0 && points->at(i).x <=  image.cols && points->at(i).y >= 0 && points->at(i).y <= image.rows) 
+    if (points->at(i).x >= 0 && points->at(i).x <= image.cols &&
+        points->at(i).y >= 0 && points->at(i).y <= image.rows)
       image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
   }
 
   LOG_INFO("OUTPUT BUFFER: Saving image to: %s", target_file_name.c_str());
   bool written = cv::imwrite(target_file_name, image);
-  if (!written) {
-    LOG_ERROR("OUTPUT BUFFER: Unable to write image.");
-  }
+  if (!written) { LOG_ERROR("OUTPUT BUFFER: Unable to write image."); }
   return written;
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup
