@@ -6,7 +6,7 @@
 
 ```
 cd root_directory
-git clone https://github.com/nickcharron/cad_image_markup.git
+git clone --recursive https://github.com/nickcharron/cad_image_markup.git
 ```
 
 ### Install dependencies
