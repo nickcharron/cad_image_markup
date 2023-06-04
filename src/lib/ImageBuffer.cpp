@@ -244,10 +244,10 @@ void ImageBuffer::ScalePoints(PointCloud::Ptr points, float scale) {
   }
 }
 
-bool ImageBuffer::WriteToImage(PointCloud::Ptr points,
+bool ImageBuffer::WriteToImage(const PointCloud::Ptr& points,
                                const std::string& src_file_name,
                                const std::string& target_file_name, uint8_t r,
-                               uint8_t g, uint8_t b) {
+                               uint8_t g, uint8_t b) const {
   // [NOTE] opencv use BGR not RGB
   cv::Vec3b color;
   color[0] = b;

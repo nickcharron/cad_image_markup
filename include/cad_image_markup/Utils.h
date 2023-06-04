@@ -1,4 +1,6 @@
 #pragma once
+#include <chrono>
+#include <ctime>
 #include <stdio.h>
 #include <string>
 
@@ -16,15 +18,10 @@ namespace cad_image_markup {
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 typedef Eigen::aligned_allocator<Eigen::Vector2d> AlignVec2d;
+typedef std::chrono::steady_clock Clock;
+typedef std::chrono::time_point<Clock> TimePoint;
 
 namespace utils {
-
-/**
- * @brief Method to offset a cloud in x and y
- * @param cloud cloud to be offset
- * @param offset x and y offset to ba applied to the cloud
- */
-void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset);
 
 /**
  * @brief Method to center a cloud on the origin in the xy plane
@@ -41,25 +38,9 @@ void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid);
  * @param camera_model camera model used for projection
  * @return projected planar cloud in the xy plane
  */
-PointCloud::Ptr ProjectCloud(PointCloud::Ptr cloud, const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
-
-/**
- * @brief Method to apply a transform to a point cloud, same behavior as pcl
- * transform function but Easier to use with rest of project
- * @param cloud_ original point cloud
- * @param T_ transformation matrix
- * @return transformed point cloud
- */
-PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
-                               const Eigen::Matrix4d& T);
-
-/**
- * @brief Method to apply a transform to a point cloud by updating the original
- * cloud
- * @param cloud_ point cloud to transform
- * @param T_ transformation matrix
- */
-void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
+PointCloud::Ptr ProjectCloud(
+    PointCloud::Ptr cloud,
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 /**
  * @brief Method to get single correspondences between a CAD cloud projection
@@ -78,12 +59,12 @@ void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T);
  * @param source source of the correspondences, "projected" or "camera"
  * @param camera_model camera model used for projection
  */
-void CorrespondenceEstimate(PointCloud::ConstPtr cad_cloud,
-                            PointCloud::ConstPtr camera_cloud,
-                            const Eigen::Matrix4d& T,
-                            pcl::CorrespondencesPtr corrs, bool align_centroids,
-                            double max_corr_distance, int num_corrs,
-                            std::string source, const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
+void CorrespondenceEstimate(
+    PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
+    const Eigen::Matrix4d& T, pcl::CorrespondencesPtr corrs,
+    bool align_centroids, double max_corr_distance, int num_corrs,
+    std::string source,
+    const std::shared_ptr<cad_image_markup::CameraModel>& camera_model);
 
 /**
  * @brief Method to convert a vector of quaternions and translations to a
@@ -111,53 +92,11 @@ void TransformMatrixToQuaternionAndTranslation(const Eigen::Matrix4d& T,
 Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T);
 
 /**
- * @brief Method to get the scale in x and y of a cloud with respect to the
- * original structure dimensions
- * @param cloud scaled point cloud
- * @param max_x_dim maximum x dimension of the real structure (likely from
- * CAD drawing)
- * @param max_y_dim maximum y dimension of the real structure (likely from
- * CAD drawing)
- * @param x_scale scale in x direction (CAD unit/pixel)
- * @param y_scale scale in y direction (CAD unit/pixel)
- */
-void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
-                   double max_y_dim, double x_scale, double y_scale);
-
-/**
  * @brief Method to scale a cloud (in xyz)
  * @param cloud cloud to scale
  * @param scale scale to apply (updated cloud = original cloud * scale)
  */
 void ScaleCloud(PointCloud::Ptr cloud, float scale);
-
-/**
- * @brief Method to scale a cloud (in xyz)
- * @param cloud cloud to scale
- * @param scale scale to apply (updated cloud = original cloud * scale)
- * @return scaled cloud
- */
-PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale);
-
-/**
- * @brief Method to scale a cloud in x and y with different scales in each
- * dimension
- * @param cloud cloud to scale
- * @param x_scale scale to apply in x (updated cloud = original cloud *
- * scale)
- * @param y_scale scale to apply in y (updated cloud = original cloud *
- * scale)
- * @todo not sure if we really need this one
- */
-void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale);
-
-/**
- * @brief Method to get the plane that best fits a cloud
- * @param cloud point cloud
- * @return pcl model coefficients object, planar equation coefficients are
- * given in form: [0] = a , [1] = b, [2] = c, [3] = d
- */
-pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud);
 
 /**
  * @brief Method to get the plane that best fits a cloud
@@ -218,6 +157,8 @@ Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V);
 double DegToRad(double d);
 
 double RadToDeg(double d);
+
+std::string ConvertTimeToDate(std::chrono::system_clock::time_point time);
 
 } // namespace utils
 

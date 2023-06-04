@@ -68,9 +68,7 @@ TEST_CASE("Convergence Testing - Manual Labels") {
         .intrinsics_path = data_root + "Radtan_intrinsics_phone.json",
         .config_path = config_root + "SolutionParamsDefault.json",
         .ceres_config_path = config_root + "CeresParamsDefault.json",
-        .initial_pose_path = data_root + "poses/initial_pose.json",
-        .output_image_path = data_root + "marked_up_cad/real_cad_view_" +
-                             std::to_string(view) + "_markup.png"};
+        .initial_pose_path = data_root + "poses/initial_pose.json"};
 
     float level_count_t[4] = {0, 0, 0, 0};
     float level_count_r[4] = {0, 0, 0, 0};

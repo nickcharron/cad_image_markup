@@ -15,11 +15,35 @@ find_package(Ceres REQUIRED)
 add_subdirectory(src/lib)
 
 # Add main executables
-add_executable(${PROJECT_NAME}_main
+add_executable(${PROJECT_NAME}_main_obsolete
 	src/cad_image_markup.cpp
 )
 
+target_link_libraries(${PROJECT_NAME}_main_obsolete
+	${PROJECT_NAME}
+)
+
+add_executable(${PROJECT_NAME}_main
+	src/align_and_markup_cad.cpp
+)
+
 target_link_libraries(${PROJECT_NAME}_main
+	${PROJECT_NAME}
+)
+
+add_executable(${PROJECT_NAME}_extract_edges_canny
+	src/extract_edges_using_canny.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}_extract_edges_canny
+	${PROJECT_NAME}
+)
+
+add_executable(${PROJECT_NAME}_visualize_markups
+	src/visualize_markups.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}_visualize_markups
 	${PROJECT_NAME}
 )
 

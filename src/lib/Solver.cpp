@@ -43,7 +43,8 @@ bool Solver::Solve(PointCloud::ConstPtr cad_cloud,
               results_init_translation.x(), results_init_translation.y(),
               results_init_translation.z()};
 
-  PointCloud::Ptr CAD_cloud_scaled = utils::ScaleCloud(cad_cloud, 1.0);
+  PointCloud::Ptr CAD_cloud_scaled = std::make_shared<PointCloud>(*cad_cloud);
+  utils::ScaleCloud(CAD_cloud_scaled, 1.0);
 
   // correspondence object tells the cost function which points to compare
   pcl::CorrespondencesPtr proj_corrs(new pcl::Correspondences);
@@ -275,22 +276,23 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
                               pcl::CorrespondencesPtr proj_corrs) {
   // update the position of the transformed cloud based on
   // the upated transformation matrix for visualization
-  PointCloud::Ptr trans_cloud =
-      utils::TransformCloud(CAD_cloud_scaled, T_WORLD_CAMERA);
+  PointCloud::Ptr cloud_in_world = std::make_shared<PointCloud>();
+  pcl::transformPointCloud(*CAD_cloud_scaled, *cloud_in_world, T_WORLD_CAMERA);
 
   LOG_INFO("SOLVER: Sample CAD cloud point in camera frame (for "
            "visualization): %f,%f,%f",
-           trans_cloud->at(100).x, trans_cloud->at(100).y,
-           trans_cloud->at(100).z);
+           cloud_in_world->at(100).x, cloud_in_world->at(100).y,
+           cloud_in_world->at(100).z);
 
   // project cloud for visualizer
-  PointCloud::Ptr proj_cloud = utils::ProjectCloud(trans_cloud, camera_model_);
+  PointCloud::Ptr proj_cloud =
+      utils::ProjectCloud(cloud_in_world, camera_model_);
 
   // blow up the transformed cloud for visualization
-  utils::ScaleCloud(trans_cloud, 1.0 / params_.cad_cloud_scale);
+  utils::ScaleCloud(cloud_in_world, 1.0 / params_.cad_cloud_scale);
 
-  visualizer_->DisplayClouds(camera_cloud_, trans_cloud, proj_cloud, proj_corrs,
-                             "camera_cloud", "transformed_cloud",
+  visualizer_->DisplayClouds(camera_cloud_, cloud_in_world, proj_cloud,
+                             proj_corrs, "camera_cloud", "transformed_cloud",
                              "projected_cloud", source_cloud_);
 
   // wait on user input to continue or cancel the solution

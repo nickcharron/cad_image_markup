@@ -86,9 +86,10 @@ public:
    * @todo update to interpolate pixels (lines? splines?) to color between
    * points
    */
-  bool WriteToImage(PointCloud::Ptr points, const std::string& src_file_name,
+  bool WriteToImage(const PointCloud::Ptr& points,
+                    const std::string& src_file_name,
                     const std::string& target_file_name, uint8_t r = 0,
-                    uint8_t g = 0, uint8_t b = 0);
+                    uint8_t g = 0, uint8_t b = 0) const;
 };
 
 } // namespace cad_image_markup

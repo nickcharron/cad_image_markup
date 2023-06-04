@@ -15,14 +15,6 @@
 
 namespace cad_image_markup { namespace utils {
 
-void OffsetCloudxy(PointCloud::Ptr cloud, Eigen::Vector2d offset) {
-  // restore offset to all points
-  for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
-    cloud->at(point_index).x += static_cast<int>(offset(0));
-    cloud->at(point_index).y += static_cast<int>(offset(1));
-  }
-}
-
 void OriginCloudxy(PointCloud::Ptr cloud, const pcl::PointXYZ& centroid) {
   uint16_t num_points = cloud->size();
 
@@ -53,31 +45,6 @@ PointCloud::Ptr ProjectCloud(
   return proj_cloud;
 }
 
-PointCloud::Ptr TransformCloud(PointCloud::ConstPtr cloud,
-                               const Eigen::Matrix4d& T) {
-  PointCloud::Ptr trans_cloud(new PointCloud);
-
-  for (uint16_t i = 0; i < cloud->size(); i++) {
-    Eigen::Vector4d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
-    Eigen::Vector4d point_transformed = T * point;
-    pcl::PointXYZ pcl_point_transformed(
-        point_transformed(0), point_transformed(1), point_transformed(2));
-    trans_cloud->push_back(pcl_point_transformed);
-  }
-
-  return trans_cloud;
-}
-
-void TransformCloudUpdate(PointCloud::Ptr cloud, const Eigen::Matrix4d& T) {
-  for (uint16_t i = 0; i < cloud->size(); i++) {
-    Eigen::Vector4d point(cloud->at(i).x, cloud->at(i).y, cloud->at(i).z, 1);
-    Eigen::Vector4d point_transformed = T * point;
-    pcl::PointXYZ pcl_point_transformed(
-        point_transformed(0), point_transformed(1), point_transformed(2));
-    cloud->at(i) = pcl_point_transformed;
-  }
-}
-
 void CorrespondenceEstimate(
     PointCloud::ConstPtr cad_cloud, PointCloud::ConstPtr camera_cloud,
     const Eigen::Matrix4d& T, pcl::CorrespondencesPtr corrs,
@@ -89,7 +56,7 @@ void CorrespondenceEstimate(
 
   // transform the CAD cloud points to the camera frame
   PointCloud::Ptr trans_cloud(new PointCloud);
-  trans_cloud = TransformCloud(cad_cloud, T);
+  pcl::transformPointCloud(*cad_cloud, *trans_cloud, T);
 
   // project the transformed points to the camera plane
   PointCloud::Ptr proj_cloud = ProjectCloud(trans_cloud, camera_model);
@@ -103,7 +70,7 @@ void CorrespondenceEstimate(
     T1(0, 3) = camera_centroid.x - proj_centroid.x;
     T1(1, 3) = camera_centroid.y - proj_centroid.y;
     T1(2, 3) = camera_centroid.z - proj_centroid.z;
-    TransformCloudUpdate(proj_cloud, T1);
+    pcl::transformPointCloud(*proj_cloud, *proj_cloud, T1);
   }
 
   // Get correspondences (source camera)
@@ -212,67 +179,12 @@ Eigen::Matrix4d InvertTransformMatrix(const Eigen::Matrix4d& T) {
   return inverse_transform;
 }
 
-void GetCloudScale(PointCloud::ConstPtr cloud, double max_x_dim,
-                   double max_y_dim, double x_scale, double y_scale) {
-  // get max cloud dimensions in x and y
-  float max_x = 0;
-  float max_y = 0;
-  float min_x = cloud->at(0).x;
-  float min_y = cloud->at(0).y;
-  for (uint16_t point_index = 0; point_index < cloud->size(); point_index++) {
-    if (cloud->at(point_index).x > max_x) max_x = cloud->at(point_index).x;
-    if (cloud->at(point_index).y > max_y) max_y = cloud->at(point_index).y;
-    if (cloud->at(point_index).x < min_x) min_x = cloud->at(point_index).x;
-    if (cloud->at(point_index).y < min_y) min_y = cloud->at(point_index).y;
-  }
-
-  // CAD unit/pixel
-  x_scale = (max_x_dim / (max_x - min_x));
-  y_scale = (max_y_dim / (max_y - min_y));
-}
-
 void ScaleCloud(PointCloud::Ptr cloud, float scale) {
   for (uint16_t i = 0; i < cloud->size(); i++) {
     cloud->at(i).x *= scale;
     cloud->at(i).y *= scale;
     cloud->at(i).z *= scale;
   }
-}
-
-PointCloud::Ptr ScaleCloud(PointCloud::ConstPtr cloud, float scale) {
-  PointCloud::Ptr scaled_cloud(new PointCloud);
-  for (uint16_t i = 0; i < cloud->size(); i++) {
-    pcl::PointXYZ to_add;
-    to_add.x = cloud->at(i).x * scale;
-    to_add.y = cloud->at(i).y * scale;
-    to_add.z = cloud->at(i).z * scale;
-    scaled_cloud->push_back(to_add);
-  }
-  return scaled_cloud;
-}
-
-void ScaleCloud(PointCloud::Ptr cloud, float x_scale, float y_scale) {
-  for (uint16_t i = 0; i < cloud->size(); i++) {
-    cloud->at(i).x *= x_scale;
-    cloud->at(i).y *= y_scale;
-  }
-}
-
-pcl::ModelCoefficients::Ptr GetCloudPlane(PointCloud::ConstPtr cloud) {
-  pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
-  pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-
-  // Create the segmentation object
-  pcl::SACSegmentation<pcl::PointXYZ> seg;
-  seg.setOptimizeCoefficients(true);
-  seg.setModelType(pcl::SACMODEL_PLANE);
-  seg.setMethodType(pcl::SAC_RANSAC);
-  seg.setDistanceThreshold(0.01);
-
-  seg.setInputCloud(cloud);
-  seg.segment(*inliers, *coefficients);
-
-  return coefficients;
 }
 
 PointCloud::Ptr BackProject(
@@ -376,6 +288,21 @@ double DegToRad(double d) {
 }
 double RadToDeg(double r) {
   return r * (180 / M_PI);
+}
+
+std::string ConvertTimeToDate(std::chrono::system_clock::time_point time) {
+  using namespace std;
+  using namespace std::chrono;
+  system_clock::duration tp = time.time_since_epoch();
+  time_t tt = system_clock::to_time_t(time);
+  tm local_tm = *localtime(&tt);
+
+  string outputTime =
+      to_string(local_tm.tm_year + 1900) + "_" +
+      to_string(local_tm.tm_mon + 1) + "_" + to_string(local_tm.tm_mday) + "_" +
+      to_string(local_tm.tm_hour) + "_" + to_string(local_tm.tm_min) + "_" +
+      to_string(local_tm.tm_sec);
+  return outputTime;
 }
 
 }} // namespace cad_image_markup::utils

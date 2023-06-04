@@ -27,7 +27,6 @@ public:
     std::string config_path;
     std::string ceres_config_path;
     std::string initial_pose_path; // T_WORLD_CAM
-    std::string output_image_path;
 
     void Print();
   };
@@ -46,12 +45,16 @@ public:
    * @brief setter to set the initial pose programmatically - with transform
    * matrix
    */
-  void SetInitialPose(Eigen::Matrix4d& initial_pose);
+  void SetInitialPose(const Eigen::Matrix4d& T_WORLD_CAM);
 
   /**
    * @brief run
    */
   bool Run();
+
+  Eigen::Matrix4d GetFinalT_World_Camera() const;
+
+  bool SaveResults(const std::string& output_directory) const;
 
 private:
   bool Setup();
@@ -60,14 +63,7 @@ private:
 
   bool Solve();
 
-  /**
-   * @brief Method to load initial poses
-   * @param path absolute path to json file with initial pose
-   * @param T_WORLD_CAMERA transformation matrix to which the read pose is
-   * applied
-   */
-  void LoadInitialPose(const std::string& path,
-                       Eigen::Matrix4d& T_WORLD_CAMERA);
+  bool LoadInitialPose();
 
   Inputs inputs_;
   Params params_;
@@ -86,7 +82,9 @@ private:
   PointCloud::Ptr cad_points_CADFRAME_;
   PointCloud::Ptr cad_points_WORLDFRAME_;
 
-  Eigen::Matrix4d T_WORLD_CAMERA_init;
+  Eigen::Matrix4d T_WORLD_CAMERA_init_;
+
+  bool solution_converged_{false};
 };
 
 } // namespace cad_image_markup

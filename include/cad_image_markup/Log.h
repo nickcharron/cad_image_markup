@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <cstring>
 
 namespace cad_image_markup {
 
