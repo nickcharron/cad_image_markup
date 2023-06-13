@@ -9,7 +9,7 @@
     "correspondence_type": "P2POINT",
     "max_corr_distance": 100000,
     "attenuate_corr_distance": true, 
-    "corr_bound_low": 2000, 
+    "corr_bound_low": 4000, 
     "attenuation_rate": 0.5
   },
   "convergence_options":
@@ -19,7 +19,7 @@
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
     "converged_differential_translation_m": 0.1,
-    "converged_differential_rotation_deg": 3
+    "converged_differential_rotation_deg": 1
   },
   "output_options":
   {
@@ -36,6 +36,6 @@
     "canny_ratio_image": 3, 
     "canny_kernel_size_image": 7,
     "downsample_image_cloud": true,
-    "downsample_grid_size": 20
+    "downsample_grid_size": 40
   }
 }

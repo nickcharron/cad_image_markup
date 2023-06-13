@@ -125,15 +125,15 @@ TEST_CASE("Defect transfer test - real data - automatic edge detection.") {
       .cad_path = data_root + "labelled_images/real_cad_feature_label.json",
       .cad_image_path = data_root + "cad/real_cad.png",
       .canny_edge_cad_path = data_root + "canny_edge/canny_edges_cad.png",
-      .image_path = data_root + "images/real_view_1_mask.png",               // switch between raw image and json here for feature label modes
+      .image_path = data_root + "images/real_view_2_mask.png",               // switch between raw image and json here for feature label modes
       .canny_edge_image_path = data_root + "canny_edge/canny_edges_image.png",
-      .defect_path = data_root + "marked_up_images/real_view_1_image.png",
+      .defect_path = data_root + "marked_up_images/real_view_2_image.png",
       .intrinsics_path = data_root + "Radtan_intrinsics_phone.json",
       .config_path = config_root + "SolutionParamsDefault.json",
       .ceres_config_path = config_root + "CeresParamsDefault.json",
       .initial_pose_path = data_root + "poses/initial_pose.json",
       .output_image_path =
-          data_root + "marked_up_cad/real_cad_view_1_markup.png"};
+          data_root + "marked_up_cad/real_cad_view_2_markup.png"};
 
   cad_image_markup::CadImageMarkup markup(inputs);
 
