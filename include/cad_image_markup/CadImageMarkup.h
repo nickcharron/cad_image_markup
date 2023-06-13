@@ -1,11 +1,10 @@
 #pragma once
 
-#include <map>
 #include <cad_image_markup/ImageBuffer.h>
+#include <cad_image_markup/Params.h>
 #include <cad_image_markup/Solver.h>
 #include <cad_image_markup/Utils.h>
-#include <cad_image_markup/Params.h>
-
+#include <map>
 
 namespace cad_image_markup {
 
@@ -13,7 +12,7 @@ namespace cad_image_markup {
  * @brief TODO
  */
 class CadImageMarkup {
- public:
+public:
   /**
    * @brief Struct for containing all inputs needed for this class
    */
@@ -27,8 +26,9 @@ class CadImageMarkup {
     std::string intrinsics_path;
     std::string config_path;
     std::string ceres_config_path;
-    std::string initial_pose_path;  // T_WORLD_CAM
-    std::string output_image_path;
+    std::string initial_pose_path; // T_WORLD_CAM
+
+    void Print();
   };
 
   /**
@@ -42,30 +42,28 @@ class CadImageMarkup {
   ~CadImageMarkup() = default;
 
   /**
-   * @brief setter to set the initial pose programmatically - with transform matrix
+   * @brief setter to set the initial pose programmatically - with transform
+   * matrix
    */
-  void SetInitialPose(Eigen::Matrix4d& initial_pose);
+  void SetInitialPose(const Eigen::Matrix4d& T_WORLD_CAM);
 
   /**
    * @brief run
    */
   bool Run();
 
- private:
+  Eigen::Matrix4d GetFinalT_World_Camera() const;
+
+  bool SaveResults(const std::string& output_directory) const;
+
+private:
   bool Setup();
 
   bool LoadData();
 
   bool Solve();
 
-  /**
-   * @brief Method to load initial poses
-   * @param path absolute path to json file with initial pose
-   * @param T_WORLD_CAMERA transformation matrix to which the read pose is
-   * applied
-   */
-  void LoadInitialPose(const std::string& path,
-                       Eigen::Matrix4d& T_WORLD_CAMERA);
+  bool LoadInitialPose();
 
   Inputs inputs_;
   Params params_;
@@ -84,8 +82,9 @@ class CadImageMarkup {
   PointCloud::Ptr cad_points_CADFRAME_;
   PointCloud::Ptr cad_points_WORLDFRAME_;
 
-  Eigen::Matrix4d T_WORLD_CAMERA_init;
+  Eigen::Matrix4d T_WORLD_CAMERA_init_;
 
+  bool solution_converged_{false};
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

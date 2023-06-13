@@ -8,7 +8,7 @@ namespace cad_image_markup {
  * @brief Derived class for Double Sphere model
  */
 class DoubleSphere : public CameraModel {
- public:
+public:
   /**
    * @brief Constructor. All code was implemented from the following paper:
    * https://arxiv.org/pdf/1807.08957.pdf
@@ -38,9 +38,9 @@ class DoubleSphere : public CameraModel {
    * @param outside_domain optional parameter, set if point is outside camera
    * model domain
    */
-  opt<Eigen::Vector2i> ProjectPoint(
-      const Eigen::Vector3d& point,
-      bool& outside_domain = outside_domain_default_) override;
+  opt<Eigen::Vector2i>
+      ProjectPoint(const Eigen::Vector3d& point,
+                   bool& outside_domain = outside_domain_default_) override;
 
   /**
    * @brief Overload projection function for computing jacobian of projection
@@ -51,9 +51,9 @@ class DoubleSphere : public CameraModel {
    * model domain For ProjectPoint: [u,v]^T = [P1(x, y, z), P2(x, y, z)]^T J = |
    * dP1/dx , dP1/dy, dP1/dz | | dP2/dx , dP2/dy, dP2/dz |
    */
-  opt<Eigen::Vector2i> ProjectPoint(
-      const Eigen::Vector3d& point, Eigen::MatrixXd& J,
-      bool& outside_domain = outside_domain_default_) override;
+  opt<Eigen::Vector2i>
+      ProjectPoint(const Eigen::Vector3d& point, Eigen::MatrixXd& J,
+                   bool& outside_domain = outside_domain_default_) override;
 
   /**
    * @brief Method back projecting
@@ -62,7 +62,7 @@ class DoubleSphere : public CameraModel {
    */
   opt<Eigen::Vector3d> BackProject(const Eigen::Vector2i& pixel) override;
 
- protected:
+protected:
   double fx_;
   double fy_;
   double cx_;
@@ -71,4 +71,4 @@ class DoubleSphere : public CameraModel {
   double alpha_;
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

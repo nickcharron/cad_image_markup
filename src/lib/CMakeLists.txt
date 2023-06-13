@@ -7,6 +7,8 @@ add_library(${PROJECT_NAME}
   camera_models/KannalaBrandt.cpp
   camera_models/Radtan.cpp
   CadImageMarkup.cpp
+  EdgeExtractorCanny.cpp
+  MarkupVisualizer.cpp
   Gflags.cpp
   ImageBuffer.cpp
   Utils.cpp

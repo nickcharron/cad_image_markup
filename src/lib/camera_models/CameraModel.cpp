@@ -39,9 +39,13 @@ std::shared_ptr<CameraModel> CameraModel::Create(std::string& file_location) {
   return camera_model;
 }
 
-void CameraModel::SetCameraID(const unsigned int id) { cam_id_ = id; }
+void CameraModel::SetCameraID(const unsigned int id) {
+  cam_id_ = id;
+}
 
-void CameraModel::SetFrameID(const std::string& id) { frame_id_ = id; }
+void CameraModel::SetFrameID(const std::string& id) {
+  frame_id_ = id;
+}
 
 void CameraModel::SetCalibrationDate(const std::string& date) {
   calibration_date_ = date;
@@ -62,32 +66,32 @@ void CameraModel::SetIntrinsics(const Eigen::VectorXd& intrinsics) {
   }
 }
 
-const std::string CameraModel::GetFrameID() const { return frame_id_; }
+const std::string CameraModel::GetFrameID() const {
+  return frame_id_;
+}
 
 const std::string CameraModel::GetCalibrationDate() const {
-  if (calibration_date_ == "") {
-    LOG_WARN("Calibration date empty.");
-  }
+  if (calibration_date_ == "") { LOG_WARN("Calibration date empty."); }
   return calibration_date_;
 }
 
 uint32_t CameraModel::GetHeight() const {
-  if (image_height_ == 0) {
-    LOG_WARN("Image height not set.");
-  }
+  if (image_height_ == 0) { LOG_WARN("Image height not set."); }
   return image_height_;
 }
 
 uint32_t CameraModel::GetWidth() const {
-  if (image_width_ == 0) {
-    LOG_WARN("Image width not set.");
-  }
+  if (image_width_ == 0) { LOG_WARN("Image width not set."); }
   return image_width_;
 }
 
-const Eigen::VectorXd CameraModel::GetIntrinsics() const { return intrinsics_; }
+const Eigen::VectorXd CameraModel::GetIntrinsics() const {
+  return intrinsics_;
+}
 
-CameraType CameraModel::GetType() const { return type_; }
+CameraType CameraModel::GetType() const {
+  return type_;
+}
 
 bool CameraModel::PixelInImage(const Eigen::Vector2i& pixel) {
   if (pixel[0] < 0 || pixel[1] < 0 ||
@@ -115,9 +119,7 @@ void CameraModel::LoadJSON(const std::string& file_location) {
   for (std::map<std::string, CameraType>::iterator it =
            intrinsics_types_.begin();
        it != intrinsics_types_.end(); it++) {
-    if (intrinsics_types_[it->first] == type_) {
-      class_type = it->first;
-    }
+    if (intrinsics_types_[it->first] == type_) { class_type = it->first; }
   }
   // check type
   std::string camera_type = J["camera_type"];
@@ -128,10 +130,9 @@ void CameraModel::LoadJSON(const std::string& file_location) {
               camera_type.c_str());
     OutputCameraTypes();
   } else if (intrinsics_types_[camera_type] != type_) {
-    LOG_ERROR(
-        "Camera type read from JSON does not match expected type. "
-        "Type read: %s, Expected: %s",
-        camera_type.c_str(), class_type.c_str());
+    LOG_ERROR("Camera type read from JSON does not match expected type. "
+              "Type read: %s, Expected: %s",
+              camera_type.c_str(), class_type.c_str());
   }
   // get params
   calibration_date_ = J["date"];
@@ -172,19 +173,17 @@ void CameraModel::WriteJSON(const std::string& file_location,
   for (std::map<std::string, CameraType>::iterator it =
            intrinsics_types_.begin();
        it != intrinsics_types_.end(); it++) {
-    if (intrinsics_types_[it->first] == type_) {
-      class_type = it->first;
-    }
+    if (intrinsics_types_[it->first] == type_) { class_type = it->first; }
   }
   J["camera_type"] = class_type;
   J["image_width"] = this->GetWidth();
   J["image_height"] = this->GetHeight();
   J["frame_id"] = this->GetFrameID();
   Eigen::VectorXd intrinsics_eigen = this->GetIntrinsics();
-  std::vector<double> intrinsics_vec(
-      &intrinsics_eigen[0],
-      intrinsics_eigen.data() +
-          intrinsics_eigen.cols() * intrinsics_eigen.rows());
+  std::vector<double> intrinsics_vec(&intrinsics_eigen[0],
+                                     intrinsics_eigen.data() +
+                                         intrinsics_eigen.cols() *
+                                             intrinsics_eigen.rows());
   J["intrinsics"] = intrinsics_vec;
   std::ofstream out(file_location);
   out << std::setw(4) << J << std::endl;
@@ -199,4 +198,4 @@ void CameraModel::OutputCameraTypes() {
   }
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

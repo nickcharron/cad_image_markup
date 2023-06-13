@@ -51,9 +51,7 @@ opt<Eigen::Vector2d> Radtan::ProjectPointPrecise(const Eigen::Vector3d& point,
   out_point[0] = (fx_ * xx + cx_);
   out_point[1] = (fy_ * yy + cy_);
 
-  if (PixelInImage(out_point)) {
-    return out_point;
-  }
+  if (PixelInImage(out_point)) { return out_point; }
   return {};
 }
 
@@ -102,9 +100,7 @@ opt<Eigen::Vector2i> Radtan::ProjectPoint(const Eigen::Vector3d& point,
 }
 
 opt<Eigen::Vector3d> Radtan::BackProject(const Eigen::Vector2i& pixel) {
-  if (!PixelInImage(pixel)) {
-    return {};
-  }
+  if (!PixelInImage(pixel)) { return {}; }
 
   Eigen::Vector3d out_point;
   Eigen::Vector2d kp;
@@ -159,8 +155,8 @@ Eigen::Vector2d Radtan::DistortPixel(const Eigen::Vector2d& pixel) {
   return coords;
 }
 
-Eigen::Matrix2d Radtan::ComputeDistortionJacobian(
-    const Eigen::Vector2d& pixel) {
+Eigen::Matrix2d
+    Radtan::ComputeDistortionJacobian(const Eigen::Vector2d& pixel) {
   Eigen::Matrix2d out_jacobian;
   double x = pixel[0];
   double y = pixel[1];
@@ -180,4 +176,4 @@ Eigen::Matrix2d Radtan::ComputeDistortionJacobian(
   return out_jacobian;
 }
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

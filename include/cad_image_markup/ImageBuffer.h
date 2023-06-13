@@ -3,8 +3,6 @@
 
 #include <cad_image_markup/Utils.h>
 
-
-
 namespace cad_image_markup {
 
 /**
@@ -12,7 +10,7 @@ namespace cad_image_markup {
  * labelled image data and writing to ouput images
  */
 class ImageBuffer {
- public:
+public:
   /**
    * @brief Default constructor
    */
@@ -29,36 +27,34 @@ class ImageBuffer {
    * @param points pointcloud of points to fill in
    * @return read success
    */
-  bool ReadPoints(const std::string& filename,
-                  PointCloud::Ptr points);
+  bool ReadPoints(const std::string& filename, PointCloud::Ptr points);
 
   /**
-   * @brief Method for reading labelled data from a png file 
+   * @brief Method for reading labelled data from a png file
    * @param filename_ absolute path to the png file to read the data from
    * @param points pointcloud of points to fill in
-   * @param color pixel color to extract, options: "red", "green", "blue", "white", "black"
+   * @param color pixel color to extract, options: "red", "green", "blue",
+   * "white", "black"
    * @param rate rate at which to convert pixels to points in the cloud
    * @return read success
    */
-  bool ReadPointsPNG(const std::string& filename,
-                  PointCloud::Ptr points, 
-                  std::string color,
-                  int rate = 1);
+  bool ReadPointsPNG(const std::string& filename, PointCloud::Ptr points,
+                     std::string color, int rate = 1);
 
   /**
-   * @brief Method to perform Canny edge detection on the input images and CAD drawings
+   * @brief Method to perform Canny edge detection on the input images and CAD
+   * drawings
    * @param src_filename path to source file, supported types: .png
-   * @param target_filename path to output file, supported types: .png 
-   * @param lowThreshold Canny low threshold 
+   * @param target_filename path to output file, supported types: .png
+   * @param lowThreshold Canny low threshold
    * @param ratio Canny upper to lower threshold ratio
-   * @param kernel_size Canny kernel size for internal Sobel convolution operations
+   * @param kernel_size Canny kernel size for internal Sobel convolution
+   * operations
    */
-  bool CannyEdgeDetect(const std::string& src_filename, 
-                       const std::string& target_filename, 
-                       const int lowThreshold = 50,
-                       const int ratio = 3,
-                       const int kernel_size = 3
-                       );
+  bool CannyEdgeDetect(const std::string& src_filename,
+                       const std::string& target_filename,
+                       const int lowThreshold = 50, const int ratio = 3,
+                       const int kernel_size = 3);
 
   /**
    * @brief Method for interpolating points for a more
@@ -66,8 +62,7 @@ class ImageBuffer {
    * @param points feature points
    * @param density_index number of points to add for every ten pixels
    */
-  void DensifyPoints(PointCloud::Ptr points,
-                     uint8_t density_index);
+  void DensifyPoints(PointCloud::Ptr points, uint8_t density_index);
 
   /**
    * @brief Method for scaling the 2D feature points wrt the origin (top let
@@ -91,9 +86,10 @@ class ImageBuffer {
    * @todo update to interpolate pixels (lines? splines?) to color between
    * points
    */
-  bool WriteToImage(PointCloud::Ptr points, const std::string& src_file_name,
-                    const std::string& target_file_name,
-                    uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
+  bool WriteToImage(const PointCloud::Ptr& points,
+                    const std::string& src_file_name,
+                    const std::string& target_file_name, uint8_t r = 0,
+                    uint8_t g = 0, uint8_t b = 0) const;
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

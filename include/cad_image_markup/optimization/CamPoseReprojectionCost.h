@@ -92,7 +92,6 @@ struct CeresReprojectionCostFunction {
 
   template <typename T>
   bool operator()(const T* const T_CR, T* residuals) const {
-
     T P_STRUCT[3];
     P_STRUCT[0] = P_STRUCT_.cast<T>()[0];
     P_STRUCT[1] = P_STRUCT_.cast<T>()[1];
@@ -128,7 +127,6 @@ struct CeresReprojectionCostFunction {
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check, outside_domain);
 
     return !outside_domain;
-
   }
 
   // Factory to hide the construction of the CostFunction object from
@@ -147,7 +145,7 @@ struct CeresReprojectionCostFunction {
   std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   std::unique_ptr<ceres::CostFunctionToFunctor<2, 3>> compute_projection;
 
- private:
+private:
   bool checkDomain(const double* P) {
     Eigen::Vector3d P_CAMERA_eig{P[0], P[1], P[2]};
     bool outside_domain = false;

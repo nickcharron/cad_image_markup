@@ -1,20 +1,22 @@
 #pragma once
 
+#include <filesystem>
+#include <map>
 #include <stdio.h>
 #include <string>
-#include <map>
 
-#include <cad_image_markup/nlohmann/json.h>
 #include <cad_image_markup/Log.h>
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace cad_image_markup {
 
 // Enum class for different convergence types
-enum class ConvergenceType { GEOMETRIC = 0, LOSS = 1};
+enum class ConvergenceType { GEOMETRIC = 0, LOSS = 1 };
 
 // Map for storing string input
 static std::map<std::string, ConvergenceType> ConvergenceTypeStringMap = {
-    {"GEOMETRIC", ConvergenceType::GEOMETRIC}, {"LOSS", ConvergenceType::LOSS}};
+    {"GEOMETRIC", ConvergenceType::GEOMETRIC},
+    {"LOSS", ConvergenceType::LOSS}};
 
 // function for listing types of Descriptor available
 inline std::string GetConvergenceTypes() {
@@ -29,7 +31,7 @@ inline std::string GetConvergenceTypes() {
 }
 
 // Enum class for different convergence conditions
-enum class ConvergenceCondition { DIFFERENCE = 0, ABSOLUTE = 1};
+enum class ConvergenceCondition { DIFFERENCE = 0, ABSOLUTE = 1 };
 
 // Map for storing string input
 static std::map<std::string, ConvergenceCondition>
@@ -80,8 +82,9 @@ struct Params {
   double cad_cloud_scale_x{100};
   double cad_cloud_scale_y{100};
 
-  /** Alternatively, can provide surface dimensions (in working unit) to calculate scale automatically */
-  double max_x_dim{1.5}; 
+  /** Alternatively, can provide surface dimensions (in working unit) to
+   * calculate scale automatically */
+  double max_x_dim{1.5};
   double max_y_dim{3};
 
   /** maximum number of correspondence iterations of the overall solution
@@ -109,18 +112,19 @@ struct Params {
    */
   double max_corr_distance{10};
 
-  /**  option to decrease the maximum correspondence distance as the solution converges
-   * useful to deal with noise in auto-detected image features 
-   * provided a good initial estimate is given to the solver 
+  /**  option to decrease the maximum correspondence distance as the solution
+   * converges useful to deal with noise in auto-detected image features
+   * provided a good initial estimate is given to the solver
    */
   bool attenuate_corr_distance{false};
 
-  /**  minimum correspondence distance to reach asymptotically if attenuation is selected
+  /**  minimum correspondence distance to reach asymptotically if attenuation is
+   * selected
    */
   double corr_bound_low{5000};
 
-  /**  rate parameter to control the speed of the maximum correspondence distance 
-   * formula : dist_k+1 = (dist_k-dist_low_bound)*rate + dist_low_bound
+  /**  rate parameter to control the speed of the maximum correspondence
+   * distance formula : dist_k+1 = (dist_k-dist_low_bound)*rate + dist_low_bound
    */
   double attenuation_rate{0.8};
 
@@ -154,7 +158,8 @@ struct Params {
   /** number of points to interpolate between each point in input cad cloud */
   double cad_density_index{0.01};
 
-  /** number of points to interpolate between each point in input camera cloud */
+  /** number of points to interpolate between each point in input camera cloud
+   */
   double cam_density_index{0.02};
 
   /** source cloud for correspondences, "camera" or "projected" */
@@ -172,26 +177,26 @@ struct Params {
   double cad_crop_offset_x{0};
   double cad_crop_offset_y{0};
 
-  /** how the reference features are provided to the solver, options are: 
-   * MANUAL: a .json file is provided with manually labeled features in the form of polygons
-   * AUTOMATIC: only an image file is provided and the system performs Canny edge detection to 
-   *            extract the features to match 
-   */ 
+  /** how the reference features are provided to the solver, options are:
+   * MANUAL: a .json file is provided with manually labeled features in the form
+   * of polygons AUTOMATIC: only an image file is provided and the system
+   * performs Canny edge detection to extract the features to match
+   */
   std::string feature_label_type{"MANUAL"};
 
-
   /** Canny algorithm parameters for automatic edge detection
-   * lowThreshold:  Canny low threshold 
+   * lowThreshold:  Canny low threshold
    * ratio:  Canny upper to lower threshold ratio
    * kernel_size: Canny kernel size for internal Sobel convolution operations
    */
-  int cannny_low_threshold_cad, canny_ratio_cad, canny_kernel_size_cad; 
-  int cannny_low_threshold_image, canny_ratio_image, canny_kernel_size_image; 
+  int cannny_low_threshold_cad, canny_ratio_cad, canny_kernel_size_cad;
+  int cannny_low_threshold_image, canny_ratio_image, canny_kernel_size_image;
 
   /** Option to downsample image cloud, useful with automatic line detection */
   bool downsample_image_cloud{false};
 
-  /** Size of grid filter to use to downsample image cloud, units are effectively in pixels */
+  /** Size of grid filter to use to downsample image cloud, units are
+   * effectively in pixels */
   double downsample_grid_size{10};
 
   /**
@@ -199,11 +204,9 @@ struct Params {
    * @param path full path to json
    */
   inline bool LoadFromJson(const std::string& path) {
-    if (path.empty()) {
-      return true;
-    }
+    if (path.empty()) { return true; }
 
-    if (!boost::filesystem::exists(path)) {
+    if (!std::filesystem::exists(path)) {
       LOG_ERROR("Invalid path to config file: %s", path.c_str());
       return false;
     }
@@ -296,9 +299,8 @@ struct Params {
     // validate CC and CT
     if (convergence_condition == ConvergenceCondition::ABSOLUTE &&
         convergence_type == ConvergenceType::GEOMETRIC) {
-      LOG_ERROR(
-          "Absolute convergence condition is not available for geometric "
-          "convergence type. Exiting...");
+      LOG_ERROR("Absolute convergence condition is not available for geometric "
+                "convergence type. Exiting...");
       return false;
     }
 
@@ -306,4 +308,4 @@ struct Params {
   }
 };
 
-}  // namespace cad_image_markup
+} // namespace cad_image_markup

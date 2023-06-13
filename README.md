@@ -53,25 +53,10 @@ The argument descriptions can be displayed using:
 ./cad_image_markup_main --help
 ```
 
-## Tests
-### Running existing tests
-There five tests provided for demonstration. They are run by exectuting the load_and_build_examples executable: 
-```
-cd root_directory/cad_image_markup/build
-./cad_image_markup_laod_and_build_tests
-```
+TODO: move these descriptions to the main executable gflags which can be read using --help. 
+We want these to all be in ont spot so they only need to be updated once
 
-These tests wrap the main CAD markup object and call it with the required arguments corresponding to the provided test data. The five tests are the following: 
-
-1. **Build test**: instantiate the markup program. 
-2. **Defect transfer test - simulated data**: run the defect transfer using an image taken in a simulation environment with manually labelled edges. 
-3. **Defect transfer test - simulated data - automated edge detection**: run the defect transfer using an image taken in a simulation environment with automatically detected edges
-4. **Defect transfer test - real data**: run the defect transfer using a real image with manually labelled edges.
-5. **Defect transfer test - real data - automatic edge detection**: run the defect transfer using a real image  with automatically detected edges
-
-The tests can be run individually by commenting the others in the load_and_build_examples.cpp file and rebuilding.
-
-### Test data 
+### Parameter descriptions
 
 The test data provides examples for the data and files required for the CAD image markup and a template for how they may be organized. The contents of each folder, and whether they are read (READ) or written to (WRITE) by the CAD image markup are summarized below: 
 
@@ -88,33 +73,24 @@ The test data provides examples for the data and files required for the CAD imag
     {"pose":[<x translation>,<y translation>,<z translation>,<x rotation>,<y rotation>,<z rotation>]}
     ```
 
-The test data folder also provides two example camera model configuration files. Both are for the the Radtan camera model. The Radtan_intrinsics.json file provides example settings for a 4:3 ratio camera. The Radtan_intrinsics_phone.json file provides settings for a cell phone camera. To add intrinsics for another camera, these may be modified or a new file created with the calibration data for your camera. This can be determined with the [Camera Calibrator App](https://www.mathworks.com/help/vision/ug/using-the-single-camera-calibrator-app.html) from Matlab for example.
+## Examples
 
-### Creating a new test 
+We provide 3 example datasets:
 
-A new test can be created by copying one of the existing test cases in the load_and_build_examples.cpp file and adding it to the end of the file. The paths for the files to read from and write to must be provided. Using the existing test_data folder structure, this would look something like: 
+1. Simulation: simulation dataset created using Gazebo where a T-shaped bridge pier is captured
+2. Train Station: real dataset of a sloped colum taken from a train station
+2. Bridge: real dataset captured of a rectangular bridge pier
 
-```cpp
-cad_image_markup::CadImageMarkup::Inputs inputs{
-      .cad_path = data_root + "labelled_images/<your_labelled_cad_drawing>.json",               // INPUT (required for manual labelling)
-      .cad_image_path = data_root + "cad/<your_cad_drawing>.png",                               // INPUT (required for automatic labelling)
-      .canny_edge_cad_path = data_root + "canny_edge/<your_edges_from_your_cad_drawing>.png",   // OUTPUT
-      .image_path = data_root + "images/<your_camera_image>.png",                               // INPUT (or  "images/<your_labelled_camera_image>.json" for manual labelling)
-      .canny_edge_image_path = data_root + "canny_edge/<your_edges_from_your_image>.png",       // OUTPUT
-      .defect_path = data_root + "marked_up_images/<your_image_with_defects_drawn_on>.png",     // INPUT
-      .intrinsics_path = data_root + "<your camera intrinsics file>.json",                      // INPUT
-      .config_path = config_root + "SolutionParamsDefault.json",                                // INPUT
-      .ceres_config_path = config_root + "CeresParamsDefault.json",                             // INPUT
-      .initial_pose_path = data_root + "poses/<your_initial_pose_guess>.json",                  // INPUT
-      .output_image_path =                                                                      // OUTPUT
-          data_root + "marked_up_cad/<your_marked_up_cad_drawing>.png"};
-```
+To help understand the inputs, we provide scripts for running these examples:
 
-The test can be added to the load_and_build_examples executable by rebuilding the project.
+1. run_example_simulated_column.sh: TODO (describe test)
+2. run_example_train_station.sh: TODO (describe test)
+3. ... TODO
 
-The solution and optimization parameters should also be updated depending on your test data. This can be done at runtime but depending on the filetypes provided as input, some options are not available. This is explained along with all the configurable parameters in the next section.
 
 ## Configuration 
+
+TODO: update this when code refactor is complete
 
 The CAD image markup process can be configured at runtime by modifying configuration files in .json format. These files should inlcude the same fields and have the same structure as the provided CeresParamsDefault.json and SolutionParamsDefault.json files. The configurable parameters are explained below.
 

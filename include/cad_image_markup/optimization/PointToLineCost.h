@@ -18,7 +18,7 @@
  * detected pixel in the image
  */
 
-namespace point_to_line_cost { 
+namespace point_to_line_cost {
 
 struct CameraProjectionFunctor {
   CameraProjectionFunctor(
@@ -27,14 +27,12 @@ struct CameraProjectionFunctor {
       : camera_model_(camera_model), pixel_detected_(pixel_detected) {}
 
   bool operator()(const double* P, double* pixel) const {
-
     // P [0..2] -> P1
     // P [3..5] -> P2
     // pixel [0,1] -> pixel1
     // pixel [2,3] -> pixel2
 
-
-    Eigen::Vector3d P1_CAMERA_eig{P[0], P[1], P[2]}; 
+    Eigen::Vector3d P1_CAMERA_eig{P[0], P[1], P[2]};
     Eigen::Vector3d P2_CAMERA_eig{P[3], P[4], P[5]};
 
     cad_image_markup::opt<Eigen::Vector2d> pixel_projected1 =
@@ -52,22 +50,20 @@ struct CameraProjectionFunctor {
     // calculate the nearest edge point to the detected point
     // if the projection failed, set the projected point to
     // be the nearest edge point to the detected point
-    int near_u =
-        (width - pixel_detected_[0]) < pixel_detected_[0] ? width : 0;
+    int near_u = (width - pixel_detected_[0]) < pixel_detected_[0] ? width : 0;
     int dist_u = (width - pixel_detected_[0]) < pixel_detected_[0]
-                      ? (width - pixel_detected_[0])
-                      : pixel_detected_[0];
+                     ? (width - pixel_detected_[0])
+                     : pixel_detected_[0];
     int near_v =
         (height - pixel_detected_[1]) < pixel_detected_[1] ? height : 0;
     int dist_v = (height - pixel_detected_[1]) < pixel_detected_[1]
-                      ? (height - pixel_detected_[1])
-                      : pixel_detected_[1];
+                     ? (height - pixel_detected_[1])
+                     : pixel_detected_[1];
 
     if (pixel_projected1.has_value()) {
       pixel[0] = pixel_projected1.value()[0];
       pixel[1] = pixel_projected1.value()[1];
     } else {
-
       if (dist_u <= dist_v) {
         pixel[0] = near_u;
         pixel[1] = pixel_detected_[1];
@@ -81,7 +77,6 @@ struct CameraProjectionFunctor {
       pixel[2] = pixel_projected2.value()[0];
       pixel[3] = pixel_projected2.value()[1];
     } else {
-
       if (dist_u <= dist_v) {
         pixel[2] = near_u;
         pixel[3] = pixel_detected_[1];
@@ -109,7 +104,8 @@ struct CameraProjectionFunctor {
  */
 struct CeresReprojectionCostFunction {
   CeresReprojectionCostFunction(
-      Eigen::Vector2d pixel_detected, Eigen::Vector3d P_STRUCT1, Eigen::Vector3d P_STRUCT2,
+      Eigen::Vector2d pixel_detected, Eigen::Vector3d P_STRUCT1,
+      Eigen::Vector3d P_STRUCT2,
       std::shared_ptr<cad_image_markup::CameraModel> camera_model)
       : pixel_detected_(pixel_detected),
         P_STRUCT1_(P_STRUCT1),
@@ -123,7 +119,6 @@ struct CeresReprojectionCostFunction {
 
   template <typename T>
   bool operator()(const T* const T_CR, T* residuals) const {
-
     T _P_REF1[3];
     _P_REF1[0] = P_STRUCT1_.cast<T>()[0];
     _P_REF1[1] = P_STRUCT1_.cast<T>()[1];
@@ -194,11 +189,9 @@ struct CeresReprojectionCostFunction {
     d2[1] = pixel_detected_.cast<T>()[0] - pixel_projected2[1];
     d2[2] = (T)0;
 
-
     d12[0] = pixel_projected1[0] - pixel_projected2[0];
     d12[1] = pixel_projected1[1] - pixel_projected2[1];
     d12[2] = (T)0;
-
 
     T cross[3];
     ceres::CrossProduct(d1, d2, cross);
@@ -211,11 +204,11 @@ struct CeresReprojectionCostFunction {
 
     // Check if either projection is outside the domain of the camera model
     Eigen::Vector3d P_CAMERA_eig_check1{*P_CAMERA_check1_x, *P_CAMERA_check1_y,
-                                       *P_CAMERA_check1_z};
+                                        *P_CAMERA_check1_z};
 
     Eigen::Vector3d P_CAMERA_eig_check2{*P_CAMERA_check2_x, *P_CAMERA_check2_y,
-                                       *P_CAMERA_check2_z};
-    
+                                        *P_CAMERA_check2_z};
+
     bool outside_domain = false;
     cad_image_markup::opt<Eigen::Vector2d> pixel_projected_check1 =
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check1, outside_domain);
@@ -224,7 +217,6 @@ struct CeresReprojectionCostFunction {
         camera_model_->ProjectPointPrecise(P_CAMERA_eig_check2, outside_domain);
 
     return !outside_domain;
-
   }
 
   // Factory to hide the construction of the CostFunction object from
@@ -235,8 +227,8 @@ struct CeresReprojectionCostFunction {
       const std::shared_ptr<cad_image_markup::CameraModel> camera_model) {
     return (
         new ceres::AutoDiffCostFunction<CeresReprojectionCostFunction, 2, 7>(
-            new CeresReprojectionCostFunction(pixel_detected, P_STRUCT1, P_STRUCT2,
-                                              camera_model)));
+            new CeresReprojectionCostFunction(pixel_detected, P_STRUCT1,
+                                              P_STRUCT2, camera_model)));
   }
 
   Eigen::Vector2d pixel_detected_;
@@ -244,7 +236,6 @@ struct CeresReprojectionCostFunction {
   Eigen::Vector3d P_STRUCT2_;
   std::shared_ptr<cad_image_markup::CameraModel> camera_model_;
   std::unique_ptr<ceres::CostFunctionToFunctor<2, 3>> compute_projection;
-
 };
 
-} // point_to_line_cost
+} // namespace point_to_line_cost
