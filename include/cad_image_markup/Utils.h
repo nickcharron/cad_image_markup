@@ -118,6 +118,21 @@ PointCloud::Ptr BackProject(
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
 
 /**
+ * @brief Method to perform Canny edge detection on the input images and CAD
+ * drawings and store the result in a mat type
+ * @param src_filename path to source file, supported types: .png
+ * @param target pcl cloud datatype to write detected edges to
+ * @param lowThreshold Canny low threshold
+ * @param ratio Canny upper to lower threshold ratio
+ * @param kernel_size Canny kernel size for internal Sobel convolution
+ * operations
+ */
+void CannyEdgeDetectToCloud(const std::string& src_filename,
+                    PointCloud::Ptr target,
+                    const int lowThreshold = 50, const int ratio = 3,
+                    const int kernel_size = 3);
+
+/**
  * @brief Method to downsample the points in a cloud
  *        a grid filter is passed over the cloud and the points
  *        in each grid volume are replaced with their centroid in

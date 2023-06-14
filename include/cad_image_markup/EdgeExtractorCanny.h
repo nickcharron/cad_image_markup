@@ -13,16 +13,16 @@ public:
   /**
    * @brief constructor
    */
-  EdgeExtractorCanny(const std::string& image_path, const std::string& config);
+  EdgeExtractorCanny(const std::string& image_path, const std::string& config_path);
 
   /**
    * @brief default deconstructor
    */
   ~EdgeExtractorCanny() = default;
 
-  bool ExtractEdges();
+  void ExtractEdges();
 
-  void SaveResults(const std::string& output_json);
+  bool SaveResults(const std::string& output_json);
 
 private:
 
@@ -31,6 +31,7 @@ private:
   PointCloud::Ptr edges_cloud_;
 
   bool LoadConfig(const std::string& config);
+  nlohmann::json CreateEdgesJSON();
 
 };
 

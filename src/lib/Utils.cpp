@@ -1,6 +1,9 @@
 #include <cad_image_markup/Utils.h>
 
 #include <Eigen/Dense>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <pcl/ModelCoefficients.h>
 #include <pcl/console/parse.h>
 #include <pcl/features/normal_3d.h>
@@ -228,6 +231,40 @@ pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud) {
   pcl::computeCentroid(*cloud, centroid);
   centroid.z = 0;
   return centroid;
+}
+
+void CannyEdgeDetectToCloud(const std::string& src_filename,
+                                          PointCloud::Ptr target,
+                                          const int lowThreshold, 
+                                          const int ratio,
+                                          const int kernel_size) {
+  cv::Mat src, src_gray;
+  cv::Mat dst, detected_edges;
+
+  src = cv::imread(src_filename, cv::IMREAD_COLOR);
+
+  dst.create(src.size(), src.type());
+
+  // detect edges
+  cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
+  cv::blur(src_gray, detected_edges, cv::Size(5, 5));
+  cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold * ratio,
+            kernel_size);
+
+  dst = cv::Scalar::all(0);
+  src.copyTo(dst, detected_edges);
+
+  // get all non-black pixels
+  for (int i = 0; i < dst.rows; i++) {
+    for (int j = 0; j < dst.cols; j++) {
+      int sum_pixel_vals = dst.at<cv::Vec3b>(i, j)[2] + dst.at<cv::Vec3b>(i, j)[1] + dst.at<cv::Vec3b>(i, j)[0];
+      pcl::PointXYZ point_pcl(j, i, 0);
+
+      if (sum_pixel_vals > 0)
+        target->push_back(point_pcl);
+    }
+  }
+
 }
 
 PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud,

@@ -1,6 +1,9 @@
+#include <fstream>
+
 #include <cad_image_markup/EdgeExtractorCanny.h>
-#include <cad_image_markup/ImageBuffer.h>
 #include <cad_image_markup/Log.h>
+#include <cad_image_markup/nlohmann/json.h>
+
 
 namespace cad_image_markup {
 
@@ -24,19 +27,56 @@ bool EdgeExtractorCanny::LoadConfig(const std::string& config_path) {
 }
 
 
-bool EdgeExtractorCanny::ExtractEdges() {
-  /*
-  ImageBuffer::CannyEdgeDetectToCloud(image_path_,
-                                      edges_cloud_,
+void EdgeExtractorCanny::ExtractEdges() {
+  PointCloud::Ptr edges_cloud_interim;
+  utils::CannyEdgeDetectToCloud(image_path_,
+                                      edges_cloud_interim,
                                       params_.cannny_low_threshold,
                                       params_.canny_ratio,
                                       params_.canny_kernel_size);
-  */
-  return false;
+
+  if (params_.downsample_image_cloud)  {
+    edges_cloud_ = utils::DownSampleCloud(edges_cloud_interim, params_.downsample_grid_size);
+  }
+  else {
+    edges_cloud_ = edges_cloud_interim;
+  }
+  
+  return;
+                        
 }
 
-void EdgeExtractorCanny::SaveResults(const std::string& output_json) {
-  // TODO
+bool EdgeExtractorCanny::SaveResults(const std::string& output_json) {
+
+  // Generate json file from the edge points
+  nlohmann::json J = CreateEdgesJSON();
+
+  std::cout << J << std::endl; 
+  std::cout << output_json << std::endl;
+
+  std::ofstream file(output_json);
+  file << J;
+  
+  return true;
+}
+
+nlohmann::json EdgeExtractorCanny::CreateEdgesJSON() {
+
+  nlohmann::json j; 
+
+  std::vector<std::vector<int>> edges_points;
+
+  std::cout << edges_cloud_->size() << std::endl;
+
+  for (uint32_t i = 0; i < edges_cloud_->size(); i++) {
+    std::cout << (int)edges_cloud_->at(i).x << " , " << (int)edges_cloud_->at(i).y << std::endl;
+    edges_points.push_back({(int)edges_cloud_->at(i).x, (int)edges_cloud_->at(i).y});
+  }
+
+  j["shapes"]["points"] = edges_points;
+
+  return j;
+
 }
 
 } // namespace cad_image_markup

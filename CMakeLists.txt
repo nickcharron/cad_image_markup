@@ -49,7 +49,7 @@ target_link_libraries(${PROJECT_NAME}_visualize_markups
 
 ################## tests ##################
 add_executable(${PROJECT_NAME}_run_convergence_test
-  examples/convergence_tests.cpp
+  tests/convergence_tests.cpp
 )
 
 target_include_directories(${PROJECT_NAME}_run_convergence_test
@@ -58,6 +58,20 @@ target_include_directories(${PROJECT_NAME}_run_convergence_test
 )
 
 target_link_libraries(${PROJECT_NAME}_run_convergence_test
+  ${PROJECT_NAME}
+  Catch2::Catch2
+)
+
+add_executable(${PROJECT_NAME}_run_edge_extractor_canny_test
+  tests/edge_extractor_canny_tests.cpp
+)
+
+target_include_directories(${PROJECT_NAME}_run_edge_extractor_canny_test
+  PUBLIC
+    include/cad_image_markup
+)
+
+target_link_libraries(${PROJECT_NAME}_run_edge_extractor_canny_test
   ${PROJECT_NAME}
   Catch2::Catch2
 )

@@ -12,9 +12,11 @@ int main(int argc, char** argv) {
 
   cad_image_markup::EdgeExtractorCanny extractor(FLAGS_image_path,
                                                  FLAGS_config);
-  if (extractor.ExtractEdges()) {
+
+  extractor.ExtractEdges();
+
+  if (extractor.SaveResults(FLAGS_output_json)) {
     LOG_INFO("Successfully extracted edges!");
-    extractor.SaveResults(FLAGS_output_json);
   } else {
     LOG_ERROR("Failed extracting edges!");
   }
