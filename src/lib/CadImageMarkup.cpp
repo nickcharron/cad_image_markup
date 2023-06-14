@@ -14,8 +14,9 @@ void CadImageMarkup::Inputs::Print() {
             << "canny_edge_image_path: " << canny_edge_image_path << "\n"
             << "defect_path: " << defect_path << "\n"
             << "intrinsics_path: " << intrinsics_path << "\n"
-            << "config_path: " << config_path << "\n"
+            << "config_path: " << solution_config_path << "\n"
             << "ceres_config_path: " << ceres_config_path << "\n"
+            << "canny_config_path: " << canny_config_path << "\n"
             << "initial_pose_path: " << initial_pose_path << "\n\n";
 }
 
@@ -48,8 +49,13 @@ bool CadImageMarkup::Setup() {
   cad_points_CADFRAME_ = std::make_shared<PointCloud>();
   defect_points_CAMFRAME_ = std::make_shared<PointCloud>();
 
-  if (!params_.LoadFromJson(inputs_.config_path)) {
-    LOG_ERROR("MARKUP: MARKUP: Could not load params. Exiting ...");
+  if (!params_.LoadSolutionParamsFromJSON(inputs_.solution_config_path)) {
+    LOG_ERROR("MARKUP: MARKUP: Could not load solution params. Exiting ...");
+    return false;
+  }
+
+  if (!params_.LoadCannyParamsFromJSON(inputs_.canny_config_path)) {
+    LOG_ERROR("MARKUP: MARKUP: Could not load solution params. Exiting ...");
     return false;
   }
 

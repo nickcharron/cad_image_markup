@@ -31,14 +31,16 @@ INTRINSICS="$DATA_ROOT/Radtan_intrinsics_phone.json"
 DEFECT_IMG="$DATA_ROOT/marked_up_images/real_view_1_image.png"
 POSE="$DATA_ROOT/poses/initial_pose.json"
 
-CONFIG="$CONFIG_ROOT/SolutionParamsExampleTrainStation.json"
+SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleTrainStation.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"
+CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleTrainStation.json"
+
 
 # combine into one command
 cmd="$EXECUTABLE_PATH --cad $CAD --cad_image $CAD_IMG --canny_edge_cad $CANNY"
 cmd="$cmd --image $IMAGE --canny_edge_image $CANNY_IMAGE --intrinsics $INTRINSICS"
 cmd="$cmd --defect_image $DEFECT_IMG --output_directory $2 --initial_pose $POSE"
-cmd="$cmd --config $CONFIG --ceres_config $CERES_CONFIG"
+cmd="$cmd --solution_config $SOLUTION_CONFIG --ceres_config $CERES_CONFIG --canny_config $CANNY_CONFIG"
 
 # display command to user and run
 echo "Running command: "

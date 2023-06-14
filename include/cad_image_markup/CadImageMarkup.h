@@ -24,8 +24,9 @@ public:
     std::string canny_edge_image_path;
     std::string defect_path;
     std::string intrinsics_path;
-    std::string config_path;
+    std::string solution_config_path;
     std::string ceres_config_path;
+    std::string canny_config_path;
     std::string initial_pose_path; // T_WORLD_CAM
 
     void Print();

@@ -29,14 +29,14 @@ DEFECT_IMG="$DATA_ROOT/marked_up_images/sim_view_2_image_markup.png"
 INTRINSICS="$DATA_ROOT/Radtan_intrinsics.json"
 POSE="$DATA_ROOT/poses/initial_pose.json"
 
-CONFIG="$CONFIG_ROOT/SolutionParamsExampleSim.json"
+SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleSim.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"
 
 # combine into one command
 cmd="$EXECUTABLE_PATH --cad $CAD --cad_image $CAD_IMG"
 cmd="$cmd --image $IMAGE --intrinsics $INTRINSICS"
 cmd="$cmd --defect_image $DEFECT_IMG --output_directory $2 --initial_pose $POSE"
-cmd="$cmd --config $CONFIG --ceres_config $CERES_CONFIG"
+cmd="$cmd --solution_config $SOLUTION_CONFIG --ceres_config $CERES_CONFIG"
 
 # display command to user and run
 echo "Running command: "

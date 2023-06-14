@@ -19,9 +19,10 @@ DEFINE_string(intrinsics, "",
               "Full path to intrinsics file in json format (Required).");
 DEFINE_validator(intrinsics,
                  &cad_image_markup::gflags::ValidateJsonFileMustExist);
-DEFINE_string(config, "", "Full path to json config file (Optional).");
+DEFINE_string(solution_config, "", "Full path to json solution config file (Optional).");
 DEFINE_string(ceres_config, "",
               "Full path to json config file for Ceres optimizer (Optional).");
+DEFINE_string(canny_config, "",  "Full path to json canny config file (Optional).");
 DEFINE_string(defect_image, "",
               "Full path to image file with labelled defects (Optional)");
 DEFINE_string(output_directory, "", "Full path to output directory (Optional)");
@@ -45,8 +46,9 @@ int main(int argc, char** argv) {
       .canny_edge_image_path = FLAGS_canny_edge_image,
       .defect_path = FLAGS_defect_image,
       .intrinsics_path = FLAGS_intrinsics,
-      .config_path = FLAGS_config,
+      .solution_config_path = FLAGS_solution_config,
       .ceres_config_path = FLAGS_ceres_config,
+      .canny_config_path = FLAGS_canny_config,
       .initial_pose_path = FLAGS_initial_pose};
 
   cad_image_markup::CadImageMarkup markup(inputs);
