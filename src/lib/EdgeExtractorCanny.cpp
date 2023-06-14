@@ -5,21 +5,33 @@
 namespace cad_image_markup {
 
 EdgeExtractorCanny::EdgeExtractorCanny(const std::string& image_path,
-                                       const std::string& config) {
-  LoadConfig(config);
-  LoadImage(image_path);
+                                       const std::string& config_path) {
+  
+  if (LoadConfig(config_path));
+    LOG_INFO("MARKUP: CANNY: Successfully loaded canny params.");
+  image_path_ = image_path;
 }
 
-void EdgeExtractorCanny::LoadConfig(const std::string& config) {
-  // TODO
+bool EdgeExtractorCanny::LoadConfig(const std::string& config_path) {
+
+  if (!params_.LoadCannyParamsFromJSON(config_path)) {
+    LOG_ERROR("MARKUP: CANNY: Could not load solution params. Exiting ...");
+    return false;
+  }
+
+  return true;
+
 }
 
-void EdgeExtractorCanny::LoadImage(const std::string& image_path) {
-  // TODO
-}
 
 bool EdgeExtractorCanny::ExtractEdges() {
-  // TODO
+  /*
+  ImageBuffer::CannyEdgeDetectToCloud(image_path_,
+                                      edges_cloud_,
+                                      params_.cannny_low_threshold,
+                                      params_.canny_ratio,
+                                      params_.canny_kernel_size);
+  */
   return false;
 }
 

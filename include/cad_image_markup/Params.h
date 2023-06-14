@@ -189,8 +189,8 @@ struct Params {
    * ratio:  Canny upper to lower threshold ratio
    * kernel_size: Canny kernel size for internal Sobel convolution operations
    */
-  int cannny_low_threshold_cad, canny_ratio_cad, canny_kernel_size_cad;
-  int cannny_low_threshold_image, canny_ratio_image, canny_kernel_size_image;
+  int cannny_low_threshold, canny_ratio, canny_kernel_size;
+
 
   /** Option to downsample image cloud, useful with automatic line detection */
   bool downsample_image_cloud{false};
@@ -318,12 +318,9 @@ struct Params {
 
     nlohmann::json J_canny_options = J["canny_options"];
 
-    cannny_low_threshold_cad = J_canny_options["cannny_low_threshold_cad"];
-    canny_ratio_cad = J_canny_options["canny_ratio_cad"];
-    canny_kernel_size_cad = J_canny_options["canny_kernel_size_cad"];
-    cannny_low_threshold_image = J_canny_options["cannny_low_threshold_image"];
-    canny_ratio_image = J_canny_options["canny_ratio_image"];
-    canny_kernel_size_image = J_canny_options["canny_kernel_size_image"];
+    cannny_low_threshold = J_canny_options["cannny_low_threshold"];
+    canny_ratio = J_canny_options["canny_ratio"];
+    canny_kernel_size = J_canny_options["canny_kernel_size"];
 
     downsample_image_cloud = J_canny_options["downsample_image_cloud"];
     downsample_grid_size = J_canny_options["downsample_grid_size"];

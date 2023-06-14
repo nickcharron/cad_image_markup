@@ -43,7 +43,7 @@ public:
 
   /**
    * @brief Method to perform Canny edge detection on the input images and CAD
-   * drawings
+   * drawings and save the resulting image
    * @param src_filename path to source file, supported types: .png
    * @param target_filename path to output file, supported types: .png
    * @param lowThreshold Canny low threshold
@@ -53,6 +53,21 @@ public:
    */
   bool CannyEdgeDetect(const std::string& src_filename,
                        const std::string& target_filename,
+                       const int lowThreshold = 50, const int ratio = 3,
+                       const int kernel_size = 3);
+
+  /**
+   * @brief Method to perform Canny edge detection on the input images and CAD
+   * drawings and store the result in a mat type
+   * @param src_filename path to source file, supported types: .png
+   * @param target pcl cloud datatype to write detected edges to
+   * @param lowThreshold Canny low threshold
+   * @param ratio Canny upper to lower threshold ratio
+   * @param kernel_size Canny kernel size for internal Sobel convolution
+   * operations
+   */
+  bool CannyEdgeDetectToCloud(const std::string& src_filename,
+                       PointCloud::Ptr target,
                        const int lowThreshold = 50, const int ratio = 3,
                        const int kernel_size = 3);
 
