@@ -165,6 +165,14 @@ Eigen::Matrix4d PerturbTransformRadM(const Eigen::Matrix4d& T,
 Eigen::Matrix4d PerturbTransformDegM(const Eigen::Matrix4d& T,
                                      const Eigen::VectorXd& perturbation);
 
+/**
+ * @brief Method for reading labelled image feature data from a json file
+ * @param filename_ absolute path to the json file to read data from
+ * @param points pointcloud of points to fill in
+ * @return read success
+ */
+bool ReadPoints(const std::string& filename, PointCloud::Ptr points);
+
 Eigen::Matrix3d LieAlgebraToR(const Eigen::Vector3d& eps);
 
 Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V);
@@ -174,6 +182,8 @@ double DegToRad(double d);
 double RadToDeg(double d);
 
 std::string ConvertTimeToDate(std::chrono::system_clock::time_point time);
+
+
 
 } // namespace utils
 

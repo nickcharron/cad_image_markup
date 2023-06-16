@@ -24,6 +24,8 @@ public:
 
   bool SaveResults(const std::string& output_json);
 
+  PointCloud::Ptr GetEdgesCloud();
+
 private:
 
   Params params_;

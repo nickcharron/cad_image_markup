@@ -13,6 +13,7 @@
 #include <pcl/registration/correspondence_estimation.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <unsupported/Eigen/MatrixFunctions>
+#include <vector>
 
 #include <cad_image_markup/Log.h>
 
@@ -238,8 +239,7 @@ void CannyEdgeDetectToCloud(const std::string& src_filename,
                                           const int lowThreshold, 
                                           const int ratio,
                                           const int kernel_size) {
-  cv::Mat src, src_gray;
-  cv::Mat dst, detected_edges;
+  cv::Mat src, src_gray, dst, detected_edges;
 
   src = cv::imread(src_filename, cv::IMREAD_COLOR);
 
@@ -257,10 +257,11 @@ void CannyEdgeDetectToCloud(const std::string& src_filename,
   // get all non-black pixels
   for (int i = 0; i < dst.rows; i++) {
     for (int j = 0; j < dst.cols; j++) {
-      int sum_pixel_vals = dst.at<cv::Vec3b>(i, j)[2] + dst.at<cv::Vec3b>(i, j)[1] + dst.at<cv::Vec3b>(i, j)[0];
+      int pixel_val = (int)dst.at<u_char>(i, j);
+
       pcl::PointXYZ point_pcl(j, i, 0);
 
-      if (sum_pixel_vals > 0)
+      if (pixel_val > 0)
         target->push_back(point_pcl);
     }
   }
@@ -300,6 +301,34 @@ Eigen::Matrix4d PerturbTransformDegM(const Eigen::Matrix4d& T,
   perturbation_rad[1] = DegToRad(perturbation_rad[1]);
   perturbation_rad[2] = DegToRad(perturbation_rad[2]);
   return PerturbTransformRadM(T, perturbation_rad);
+}
+
+bool ReadPoints(const std::string& filename, PointCloud::Ptr points) {
+  points->clear();
+
+  if (!boost::filesystem::exists(filename)) {
+    LOG_ERROR("Invalid path to points file: %s", filename.c_str());
+    return false;
+  }
+  LOG_INFO("Loading points file: %s", filename.c_str());
+
+  nlohmann::json J;
+  std::ifstream file(filename);
+  file >> J;
+
+  nlohmann::json J_shapes = J["shapes"];
+  for (auto J_point : J_shapes[0]["points"]) {
+    std::vector<float> point_vec;
+    for (auto val : J_point) { point_vec.push_back(val.get<float>()); }
+    if (point_vec.size() != 2) {
+      LOG_ERROR("Invalid point in points file.");
+      return false;
+    }
+    pcl::PointXYZ point_pcl(point_vec.at(0), point_vec.at(1), 0);
+    points->push_back(point_pcl);
+  }
+
+  return true;
 }
 
 Eigen::Matrix3d LieAlgebraToR(const Eigen::Vector3d& eps) {
