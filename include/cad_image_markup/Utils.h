@@ -146,6 +146,26 @@ PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud,
                                 const double grid_size);
 
 /**
+ * @brief Method for interpolating points for a more
+ * dense outline of a feature - helps to converge minimization solution
+ * @param points feature points
+ * @param density_index number of points to add for every ten pixels
+ */
+void DensifyPoints(PointCloud::Ptr points, uint8_t density_index);
+
+/**
+ * @brief Method for reading labelled data from a png file
+ * @param filename_ absolute path to the png file to read the data from
+ * @param points pointcloud of points to fill in
+ * @param color pixel color to extract, options: "red", "green", "blue",
+ * "white", "black"
+ * @param rate rate at which to convert pixels to points in the cloud
+ * @return read success
+ */
+bool ReadPointsPNG(const std::string& filename, PointCloud::Ptr points,
+                    std::string color, int rate = 1);
+
+/**
  * @brief Method to apply perturbations to a transform in radians
  * @param T unperturbed transform
  * @param perturbation perturbations (euler angles and translations) to

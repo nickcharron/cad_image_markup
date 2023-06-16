@@ -28,7 +28,7 @@ DEFINE_string(
     "The world frame is the centroid of the structural element in "
     "the CAD mode. If not provided, we will assume the inspector was ~3m from "
     "the surface and the image was collected perpendicular to the surface.");
-DEFINE_string(config, "", "Full path to json config file (Optional).");
+DEFINE_string(solution_config, "", "Full path to json solution config file (Optional).");
 DEFINE_string(ceres_config, "",
               "Full path to json config file for Ceres optimizer (Optional).");
 
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
       .defect_labels = FLAGS_defect_labels,
       .intrinsics = FLAGS_intrinsics,
       .initial_pose = FLAGS_initial_pose,
-      .config = FLAGS_config,
+      .solution_config = FLAGS_solution_config,
       .ceres_config = FLAGS_ceres_config};
 
   cad_image_markup::CadImageMarkup markup(inputs);

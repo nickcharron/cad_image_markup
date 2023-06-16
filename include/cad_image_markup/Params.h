@@ -172,17 +172,10 @@ struct Params {
 
   // MISC OPTIONS
 
+  int min_num_points_to_densify{50};
   std::string defect_color{"red"};
 
-  double cad_crop_offset_x{0};
-  double cad_crop_offset_y{0};
-
-  /** how the reference features are provided to the solver, options are:
-   * MANUAL: a .json file is provided with manually labeled features in the form
-   * of polygons AUTOMATIC: only an image file is provided and the system
-   * performs Canny edge detection to extract the features to match
-   */
-  std::string feature_label_type{"MANUAL"};
+  // CANNY OPTIONS
 
   /** Canny algorithm parameters for automatic edge detection
    * lowThreshold:  Canny low threshold
@@ -243,12 +236,6 @@ struct Params {
     nlohmann::json J_output_options = J["output_options"];
 
     output_image = J_output_options["output_image"];
-
-    nlohmann::json J_misc_options = J["misc_options"];
-
-    defect_color = J_misc_options["defect_color"];
-
-    feature_label_type = J_misc_options["feature_label_type"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(

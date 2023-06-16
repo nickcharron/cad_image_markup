@@ -75,3 +75,17 @@ target_link_libraries(${PROJECT_NAME}_run_edge_extractor_canny_test
   ${PROJECT_NAME}
   Catch2::Catch2
 )
+
+add_executable(${PROJECT_NAME}_run_align_and_markup_test
+  tests/align_and_markup_tests.cpp
+)
+
+target_include_directories(${PROJECT_NAME}_run_align_and_markup_test
+  PUBLIC
+    include/cad_image_markup
+)
+
+target_link_libraries(${PROJECT_NAME}_run_align_and_markup_test
+  ${PROJECT_NAME}
+  Catch2::Catch2
+)

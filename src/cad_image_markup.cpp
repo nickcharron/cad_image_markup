@@ -36,6 +36,9 @@ DEFINE_string(
     "surface.");
 
 int main(int argc, char** argv) {
+
+// OBSOLETE:
+/*
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   cad_image_markup::CadImageMarkup::Inputs inputs{
@@ -58,5 +61,6 @@ int main(int argc, char** argv) {
     LOG_ERROR("Failed CAD markup!");
   }
   markup.SaveResults(FLAGS_output_directory);
+*/
   return 0;
 }

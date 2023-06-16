@@ -2,7 +2,7 @@
   "solution_options": {
     "cad_cloud_scale": 0.003,
     "max_solution_iterations": 30,
-    "visualize": true,
+    "visualize": false,
     "output_results": false,
     "align_centroids": true,
     "correspondence_type": "P2POINT",
@@ -23,7 +23,5 @@
     "output_image": true
   },
   "misc_options": {
-    "defect_color": "red",
-    "feature_label_type": "AUTOMATIC"
   }
 }
