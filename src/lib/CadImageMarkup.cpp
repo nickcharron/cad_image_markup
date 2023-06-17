@@ -97,7 +97,7 @@ bool CadImageMarkup::LoadData() {
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_, cad_centroid_);
   utils::ScaleCloud(cad_points_CADFRAME_, params_.cad_cloud_scale);
-  
+
   LOG_INFO("MARKUP: Done loading CAD dimension data");
 
   // attempt to read defect data
@@ -154,7 +154,11 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
   pcl::transformPointCloud(*defect_points_CADFRAME, *defect_points_CADFRAME, T_CAMERA_WORLD);
 
+  // [NOTE] Add an offset here if the target drawing was cropped from the
+  // labelled drawing
   pcl::PointXYZ centroid_offset(-cad_centroid_.x, -cad_centroid_.y, 0);
+  centroid_offset.x -= 0;
+  centroid_offset.y -= 0;
 
   pcl::transformPointCloud(*cad_points_CAMFRAME, *cad_points_CAMFRAME, T_CAMERA_WORLD);
   utils::ScaleCloud(cad_points_CAMFRAME, 1.0 / params_.cad_cloud_scale);
@@ -177,8 +181,8 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   image_buffer_.WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
                              output_cad.string(), 255, 0, 0);
 
-  image_buffer_.WriteToImage(cad_points_CAMFRAME, inputs_.image_path,
-                             output_img.string(), 50, 200, 100);
+  image_buffer_.WriteToImage(cad_points_CAMFRAME, output_cad.string(),
+                             output_cad.string(), 0, 255, 0);
 
   // copy input data for easy comparison
   std::string extension_cad =
@@ -190,7 +194,7 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   std::string extension_img =
       std::filesystem::path(inputs_.cad_image_path).extension();
   std::filesystem::path output_img_orig =
-     output_dir_stamped / std::filesystem::path("img_original" + extension_img);
+      output_dir_stamped / std::filesystem::path("img_original" + extension_img);
   std::filesystem::copy(inputs_.image_path, output_img_orig);
 
   return true;
