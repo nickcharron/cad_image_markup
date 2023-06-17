@@ -182,7 +182,7 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
                              output_cad.string(), 255, 0, 0);
 
   image_buffer_.WriteToImage(cad_points_CAMFRAME, output_cad.string(),
-                             output_cad.string(), 0, 255, 0);
+                             output_cad.string(), 0, 255, 255);
 
   // copy input data for easy comparison
   std::string extension_cad =
