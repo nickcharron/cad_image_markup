@@ -39,6 +39,14 @@ target_link_libraries(${PROJECT_NAME}_extract_edges_canny
 	${PROJECT_NAME}
 )
 
+add_executable(${PROJECT_NAME}_extract_annotated_defects
+	src/extract_annotated_defects.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}_extract_edges_canny
+	${PROJECT_NAME}
+)
+
 add_executable(${PROJECT_NAME}_visualize_markups
 	src/visualize_markups.cpp
 )
