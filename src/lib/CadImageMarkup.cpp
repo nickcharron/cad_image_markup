@@ -178,10 +178,10 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   std::filesystem::path output_img =
       output_dir_stamped / std::filesystem::path("img_with_edges.png");
 
-  image_buffer_.WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
+  utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
                              output_cad.string(), 255, 0, 0);
 
-  image_buffer_.WriteToImage(cad_points_CAMFRAME, output_cad.string(),
+  utils::WriteToImage(cad_points_CAMFRAME, output_cad.string(),
                              output_cad.string(), 0, 255, 255);
 
   // copy input data for easy comparison

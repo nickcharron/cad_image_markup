@@ -436,6 +436,37 @@ bool ReadPointsPNG(const std::string& filename,
   return true;
 }
 
+bool WriteToImage(const PointCloud::Ptr& points,
+                  const std::string& src_file_name,
+                  const std::string& target_file_name, uint8_t r,
+                  uint8_t g, uint8_t b) {
+  // [NOTE] opencv use BGR not RGB
+  cv::Vec3b color;
+  color[0] = b;
+  color[1] = g;
+  color[2] = r;
+
+  if (!boost::filesystem::exists(src_file_name)) {
+    LOG_ERROR("OUTPUT BUFFER: Invalid path to input image: %s",
+              src_file_name.c_str());
+    return false;
+  }
+  LOG_INFO("OUTPUT BUFFER: Reading image: %s", src_file_name.c_str());
+
+  cv::Mat image;
+  image = cv::imread(src_file_name, 1);
+  for (uint32_t i = 0; i < points->size(); i++) {
+    if (points->at(i).x >= 0 && points->at(i).x <= image.cols &&
+        points->at(i).y >= 0 && points->at(i).y <= image.rows)
+      image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
+  }
+
+  LOG_INFO("OUTPUT BUFFER: Saving image to: %s", target_file_name.c_str());
+  bool written = cv::imwrite(target_file_name, image);
+  if (!written) { LOG_ERROR("OUTPUT BUFFER: Unable to write image."); }
+  return written;
+}
+
 Eigen::Matrix4d PerturbTransformRadM(const Eigen::Matrix4d& T,
                                      const Eigen::VectorXd& perturbation) {
   Eigen::Vector3d r_perturb = perturbation.block(0, 0, 3, 1);

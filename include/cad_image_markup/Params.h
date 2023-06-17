@@ -7,6 +7,7 @@
 
 #include <cad_image_markup/Log.h>
 #include <cad_image_markup/nlohmann/json.h>
+#include <cad_image_markup/Utils.h>
 
 namespace cad_image_markup {
 

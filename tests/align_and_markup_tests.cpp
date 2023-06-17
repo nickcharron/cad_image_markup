@@ -174,20 +174,6 @@ TEST_CASE("Save results test.") {
   std::string solution_config_path = config_root + "SolutionParamsDefault.json";
   std::string ceres_config_path = config_root + "CeresParamsDefault.json";
 
-/*
-  std::string data_root = GetDataPathRoot();
-  std::string config_root = GetConfigPathRoot();
-  std::string image_label_path = data_root + "labelled_images/sim_view_1_feature_label.json";
-  std::string image_path = data_root + "images/sim_view_1_image.jpeg";
-  std::string cad_label_path = data_root + "labelled_images/sim_cad_feature_label.json";
-  std::string cad_image_path = data_root + "cad/sim_cad.jpg";
-  std::string defect_path = data_root + "marked_up_images/sim_view_1_image_markup.jpeg";
-  std::string intrinsics_path = data_root + "Radtan_intrinsics.json"; 
-  std::string initial_pose = data_root + "poses/initial_pose.json";
-  std::string solution_config_path = config_root + "SolutionParamsDefault.json";
-  std::string ceres_config_path = config_root + "CeresParamsDefault.json";
-*/
-
   std::string output_directory = GetOutputRoot();
 
   cad_image_markup::CadImageMarkup::Inputs inputs{

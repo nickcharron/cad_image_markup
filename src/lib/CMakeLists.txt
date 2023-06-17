@@ -10,7 +10,6 @@ add_library(${PROJECT_NAME}
   EdgeExtractorCanny.cpp
   MarkupVisualizer.cpp
   Gflags.cpp
-  ImageBuffer.cpp
   Utils.cpp
   Solver.cpp
   Visualizer.cpp

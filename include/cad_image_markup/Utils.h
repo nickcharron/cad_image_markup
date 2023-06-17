@@ -166,6 +166,25 @@ bool ReadPointsPNG(const std::string& filename, PointCloud::Ptr points,
                     std::string color, int rate = 1);
 
 /**
+ * @brief Method for writing 2D point set data to an image by setting
+ * corresponding pixels to a specified color
+ * @param points 2D point set
+ * @param src_file_name absolute name of unannotated image
+ * @param target_file_name absolute path of image annotated image to create
+ * (unnanotated image with written data overlayed)
+ * @param r red uint8_t
+ * @param g green uint8_t
+ * @param b blue uint8_t
+ * @return write success
+ * @todo update to interpolate pixels (lines? splines?) to color between
+ * points
+ */
+bool WriteToImage(const PointCloud::Ptr& points,
+                const std::string& src_file_name,
+                const std::string& target_file_name, uint8_t r = 0,
+                uint8_t g = 0, uint8_t b = 0);
+
+/**
  * @brief Method to apply perturbations to a transform in radians
  * @param T unperturbed transform
  * @param perturbation perturbations (euler angles and translations) to

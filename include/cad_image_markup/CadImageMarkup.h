@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cad_image_markup/ImageBuffer.h>
 #include <cad_image_markup/Params.h>
 #include <cad_image_markup/Solver.h>
 #include <cad_image_markup/Utils.h>
@@ -73,7 +72,7 @@ private:
 
   pcl::PointXYZ cad_centroid_;
 
-  ImageBuffer image_buffer_;
+  //ImageBuffer image_buffer_;
 
   std::unique_ptr<Solver> solver_;
 
