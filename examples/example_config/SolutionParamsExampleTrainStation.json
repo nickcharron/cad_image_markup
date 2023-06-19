@@ -17,21 +17,11 @@
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
     "converged_differential_translation_m": 0.1,
-    "converged_differential_rotation_deg": 3
+    "converged_differential_rotation_deg": 1
   },
   "output_options": {
     "output_image": true
   },
   "misc_options": {
-    "defect_color": "red",
-    "feature_label_type": "AUTOMATIC",
-    "cannny_low_threshold_cad": 100,
-    "canny_ratio_cad": 3,
-    "canny_kernel_size_cad": 7,
-    "cannny_low_threshold_image": 100,
-    "canny_ratio_image": 3,
-    "canny_kernel_size_image": 7,
-    "downsample_image_cloud": true,
-    "downsample_grid_size": 20
   }
 }

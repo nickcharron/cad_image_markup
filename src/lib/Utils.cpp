@@ -255,9 +255,9 @@ void CannyEdgeDetectToCloud(const std::string& src_filename,
   src.copyTo(dst, detected_edges);
 
   // get all non-black pixels
-  for (int i = 0; i < dst.rows; i++) {
-    for (int j = 0; j < dst.cols; j++) {
-      int pixel_val = (int)dst.at<u_char>(i, j);
+  for (int i = 0; i < src.rows; i++) {
+    for (int j = 0; j < src.cols; j++) {
+      int pixel_val = (int)dst.at<int>(i, j);
 
       pcl::PointXYZ point_pcl(j, i, 0);
 

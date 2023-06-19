@@ -19,7 +19,7 @@ fi
 
 EXECUTABLE_PATH_EXDEFECTS="$1/cad_image_markup_extract_annotated_defects"
 if [ -f "$EXECUTABLE_PATH_EXDEFECTS" ]; then
-    echo "found exact defects executable"
+    echo "found extract defects executable"
 else 
     echo "Invalid Build path, this path must contain cad_image_markup_extract_annotated_defects"
     echo "Usage: bash /path_to/cad_image_markup/examples/run_example_train_station.sh [BUILD_PATH] [OUTPUT_DIR]"
