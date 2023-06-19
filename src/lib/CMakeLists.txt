@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME}
   camera_models/Radtan.cpp
   CadImageMarkup.cpp
   EdgeExtractorCanny.cpp
+  ImageDefectExtractor.cpp
   MarkupVisualizer.cpp
   Gflags.cpp
   Utils.cpp
