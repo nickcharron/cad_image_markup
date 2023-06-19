@@ -103,8 +103,7 @@ bool CadImageMarkup::LoadData() {
   // attempt to read defect data
   LOG_INFO("MARKUP: Loading defect data");
 
-  if (!utils::ReadPointsPNG(inputs_.defect_path, defect_points_CAMFRAME_,
-                                   params_.defect_color)) {
+  if (!utils::ReadPoints(inputs_.defect_path, defect_points_CAMFRAME_)) {
     LOG_WARN("MARKUP: Cannot read defect file at: %s",
              inputs_.defect_path.c_str());
   }
@@ -177,12 +176,19 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
       output_dir_stamped / std::filesystem::path("cad_with_defects.png");
   std::filesystem::path output_img =
       output_dir_stamped / std::filesystem::path("img_with_edges.png");
+                      
+  if(!utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
+                            output_cad.string(), 255, 0, 0)) {
+    LOG_INFO("MARKUP: Failed to write defect points correctly");
+    return false;
+  }
+    
 
-  utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
-                             output_cad.string(), 255, 0, 0);
-
-  utils::WriteToImage(cad_points_CAMFRAME, output_cad.string(),
-                             output_cad.string(), 0, 255, 255);
+  if(!utils::WriteToImage(cad_points_CAMFRAME, output_cad.string(),
+                            output_cad.string(), 0, 255, 255)) {
+    LOG_INFO("MARKUP: Failed to write edge points correctly");
+    return false;
+  }
 
   // copy input data for easy comparison
   std::string extension_cad =

@@ -7,14 +7,14 @@ DEFINE_validator(image_label_path,
                  &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(image_path, "", "Full path to image file (Required).");
 DEFINE_validator(image_path,
-                 &cad_image_markup::gflags::ValidateJsonFileMustExist);
+                 &cad_image_markup::gflags::ValidateFileMustExist);
 DEFINE_string(cad_label_path, "", "Full path to cad labels json (Required).");
 DEFINE_validator(cad_label_path,
                  &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(cad_image_path, "", "Full path to cad section (in image format) (Required).");
 DEFINE_validator(cad_image_path,
-                 &cad_image_markup::gflags::ValidateJsonFileMustExist);
-DEFINE_string(defect_path, "", "Full path to annotated defect image (Required).");
+                 &cad_image_markup::gflags::ValidateFileMustExist);
+DEFINE_string(defect_path, "", "Full path to defect labels json (Required).");
 DEFINE_validator(defect_path,
                  &cad_image_markup::gflags::ValidateJsonFileMustExist);
 DEFINE_string(intrinsics_path, "",
@@ -66,7 +66,8 @@ int main(int argc, char** argv) {
   cad_image_markup::CadImageMarkup markup(inputs);
   if (markup.Run()) {
     LOG_INFO("Success completed CAD markup!");
-    markup.SaveResults(FLAGS_output_directory);
+    if(!markup.SaveResults(FLAGS_output_directory));
+      LOG_ERROR("Failed to Save Results!");
   } else {
     LOG_ERROR("Failed CAD markup!");
   }

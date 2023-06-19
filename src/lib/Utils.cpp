@@ -375,7 +375,7 @@ bool ReadPointsPNG(const std::string& filename,
                                 int rate) {
   if (!boost::filesystem::exists(filename)) return false;
 
-  int threshold = 200;
+  int threshold = 150;
   int whitethreshold = 25;
 
   int pixel_point_count = 0;
@@ -458,7 +458,7 @@ bool WriteToImage(const PointCloud::Ptr& points,
   for (uint32_t i = 0; i < points->size(); i++) {
     if (points->at(i).x >= 0 && points->at(i).x <= image.cols &&
         points->at(i).y >= 0 && points->at(i).y <= image.rows)
-      image.at<cv::Vec3b>(points->at(i).y, points->at(i).x) = color;
+      image.at<cv::Vec3b>((int)points->at(i).y, (int)points->at(i).x) = color;
   }
 
   LOG_INFO("OUTPUT BUFFER: Saving image to: %s", target_file_name.c_str());

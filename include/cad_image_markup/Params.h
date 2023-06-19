@@ -174,7 +174,6 @@ struct Params {
   // MISC OPTIONS
 
   int min_num_points_to_densify{50};
-  std::string defect_color{"red"};
 
   // CANNY OPTIONS
 

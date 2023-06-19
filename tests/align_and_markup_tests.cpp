@@ -29,6 +29,7 @@ std::string GetOutputRoot() {
   return file_location + "test_outputs/";
 }
 
+std::string defect_file_path = GetOutputRoot() + "defect_extractor_test_output.json";
 
 TEST_CASE("Build test.") {
 
@@ -38,7 +39,7 @@ TEST_CASE("Build test.") {
   std::string image_path = data_root + "images/real_view_1_image.png";
   std::string cad_label_path = data_root + "labelled_images/real_view_1_feature_label.json";
   std::string cad_image_path = data_root + "cad/real_cad.png";
-  std::string defect_path = data_root + "marked_up_images/real_view_1_image.png";
+  std::string defect_path = defect_file_path;
   std::string intrinsics_path = data_root + "Radtan_intrinsics_phone.json"; 
   std::string initial_pose = data_root + "poses/initial_pose.json";
   std::string solution_config_path = config_root + "SolutionParamsDefault.json";
@@ -72,7 +73,7 @@ TEST_CASE("Setup Test.") {
   std::string image_path = data_root + "images/real_view_1_image.png";
   std::string cad_label_path = data_root + "labelled_images/real_cad_feature_label.json";
   std::string cad_image_path = data_root + "cad/real_cad.png";
-  std::string defect_path = data_root + "marked_up_images/real_view_1_image.png";
+  std::string defect_path = defect_file_path;
   std::string intrinsics_path = data_root + "Radtan_intrinsics_phone.json"; 
   std::string initial_pose = data_root + "poses/initial_pose.json";
   std::string solution_config_path = config_root + "SolutionParamsDefault.json";
@@ -105,7 +106,7 @@ TEST_CASE("Setup and load data test.") {
   std::string image_path = data_root + "images/real_view_1_image.png";
   std::string cad_label_path = data_root + "labelled_images/real_cad_feature_label.json";
   std::string cad_image_path = data_root + "cad/real_cad.png";
-  std::string defect_path = data_root + "marked_up_images/real_view_1_image.png";
+  std::string defect_path = defect_file_path;
   std::string intrinsics_path = data_root + "Radtan_intrinsics_phone.json"; 
   std::string initial_pose = data_root + "poses/initial_pose.json";
   std::string solution_config_path = config_root + "SolutionParamsDefault.json";
@@ -138,7 +139,7 @@ TEST_CASE("Run test.") {
   std::string image_path = data_root + "images/real_view_1_image.png";
   std::string cad_label_path = data_root + "labelled_images/real_cad_feature_label.json";
   std::string cad_image_path = data_root + "cad/real_cad.png";
-  std::string defect_path = data_root + "marked_up_images/real_view_1_image.png";
+  std::string defect_path = defect_file_path;
   std::string intrinsics_path = data_root + "Radtan_intrinsics_phone.json"; 
   std::string initial_pose = data_root + "poses/initial_pose.json";
   std::string solution_config_path = config_root + "SolutionParamsDefault.json";
@@ -168,7 +169,7 @@ TEST_CASE("Save results test.") {
   std::string image_path = data_root + "images/real_view_1_image.png";
   std::string cad_label_path = data_root + "labelled_images/real_cad_feature_label.json";
   std::string cad_image_path = data_root + "cad/real_cad.png";
-  std::string defect_path = data_root + "images/real_view_1_image.png";
+  std::string defect_path = defect_file_path;
   std::string intrinsics_path = data_root + "Radtan_intrinsics_phone.json"; 
   std::string initial_pose = data_root + "poses/initial_pose.json";
   std::string solution_config_path = config_root + "SolutionParamsDefault.json";

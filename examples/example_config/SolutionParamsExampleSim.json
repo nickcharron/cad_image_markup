@@ -2,7 +2,7 @@
   "solution_options": {
     "cad_cloud_scale": 0.003,
     "max_solution_iterations": 30,
-    "visualize": true,
+    "visualize": false,
     "output_results": false,
     "align_centroids": true,
     "correspondence_type": "P2POINT",
@@ -23,15 +23,5 @@
     "output_image": true
   },
   "misc_options": {
-    "defect_color": "red",
-    "feature_label_type": "MANUAL",
-    "cannny_low_threshold_cad": 100,
-    "canny_ratio_cad": 3,
-    "canny_kernel_size_cad": 7,
-    "cannny_low_threshold_image": 100,
-    "canny_ratio_image": 3,
-    "canny_kernel_size_image": 7,
-    "downsample_image_cloud": true,
-    "downsample_grid_size": 20
   }
 }
