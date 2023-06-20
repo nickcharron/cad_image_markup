@@ -243,21 +243,15 @@ void CannyEdgeDetectToCloud(const std::string& src_filename,
 
   src = cv::imread(src_filename, cv::IMREAD_COLOR);
 
-  dst.create(src.size(), src.type());
-
   // detect edges
   cv::cvtColor(src, src_gray, cv::COLOR_BGR2GRAY);
   cv::blur(src_gray, detected_edges, cv::Size(5, 5));
-  cv::Canny(detected_edges, detected_edges, lowThreshold, lowThreshold * ratio,
+  cv::Canny(detected_edges, dst, lowThreshold, lowThreshold * ratio,
             kernel_size);
 
-  dst = cv::Scalar::all(0);
-  src.copyTo(dst, detected_edges);
-
-  // get all non-black pixels
-  for (int i = 0; i < src.rows; i++) {
-    for (int j = 0; j < src.cols; j++) {
-      int pixel_val = (int)dst.at<int>(i, j);
+  for (int i = 0; i < dst.rows; i++) {
+    for (int j = 0; j < dst.cols; j++) {
+      int pixel_val = (int)dst.at<u_char>(i, j);
 
       pcl::PointXYZ point_pcl(j, i, 0);
 
