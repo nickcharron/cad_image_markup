@@ -66,8 +66,8 @@ int main(int argc, char** argv) {
   cad_image_markup::CadImageMarkup markup(inputs);
   if (markup.Run()) {
     LOG_INFO("Success completed CAD markup!");
-    if(!markup.SaveResults(FLAGS_output_directory));
-      LOG_ERROR("Failed to Save Results!");
+    if(markup.SaveResults(FLAGS_output_directory));
+      LOG_INFO("Saved CAD markup results!");
   } else {
     LOG_ERROR("Failed CAD markup!");
   }

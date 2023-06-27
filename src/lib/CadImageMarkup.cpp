@@ -176,6 +176,9 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
       output_dir_stamped / std::filesystem::path("cad_with_defects.png");
   std::filesystem::path output_img =
       output_dir_stamped / std::filesystem::path("img_with_edges.png");
+
+  std::cout << "Defect cloud size: " << defect_points_CADFRAME->size() << std::endl;
+  std::cout << "Sample defect point: " << defect_points_CADFRAME->at(100) << std::endl;
                       
   if(!utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
                             output_cad.string(), 255, 0, 0)) {
