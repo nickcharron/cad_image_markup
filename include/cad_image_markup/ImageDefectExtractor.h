@@ -7,33 +7,30 @@
 
 namespace cad_image_markup {
 
-class EdgeExtractorCanny {
+class ImageDefectExtractor {
 public:
 
   /**
    * @brief constructor
    */
-  EdgeExtractorCanny(const std::string& image_path, const std::string& config_path);
+  ImageDefectExtractor(const std::string& image_path, const std::string& defect_color);
 
   /**
    * @brief default deconstructor
    */
-  ~EdgeExtractorCanny() = default;
+  ~ImageDefectExtractor() = default;
 
-  void ExtractEdges();
+  bool ExtractDefects();
 
   bool SaveResults(const std::string& output_json);
 
-  PointCloud::Ptr GetEdgesCloud();
-
 private:
 
-  Params params_;
   std::string image_path_;
-  PointCloud::Ptr edges_cloud_;
+  std::string defect_color_;
+  PointCloud::Ptr defect_cloud_;
 
-  bool LoadConfig(const std::string& config);
-  nlohmann::json CreateEdgesJSON();
+  nlohmann::json CreateDefectJSON();
 
 };
 

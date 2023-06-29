@@ -1,24 +1,27 @@
-#include <cad_image_markup/EdgeExtractorCanny.h>
+#include <cad_image_markup/ImageDefectExtractor.h>
 #include <cad_image_markup/Gflags.h>
 #include <cad_image_markup/Log.h>
 
 DEFINE_string(image_path, "", "Full path to image (Required)");
 DEFINE_validator(image_path, &cad_image_markup::gflags::ValidateFileMustExist);
 DEFINE_string(output_json, "", "Full path to output json (Required)");
-DEFINE_string(config, "", "Full path to json config file (Optional)");
+DEFINE_string(defect_color, "", "Defect annotation color (red, blue, or green)");
 
 int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  cad_image_markup::EdgeExtractorCanny extractor(FLAGS_image_path,
-                                                 FLAGS_config);
+  cad_image_markup::ImageDefectExtractor extractor(FLAGS_image_path,FLAGS_defect_color);
 
-  extractor.ExtractEdges();
+  if (extractor.ExtractDefects()) {
+    LOG_INFO("Successfully extracted defects!");
+  } else {
+    LOG_ERROR("Failed extracting defects!");
+  }
 
   if (extractor.SaveResults(FLAGS_output_json)) {
-    LOG_INFO("Successfully extracted edges!");
+    LOG_INFO("Successfully saved defects!");
   } else {
-    LOG_ERROR("Failed extracting edges!");
+    LOG_ERROR("Failed saving defects!");
   }
   return 0;
 }

@@ -52,33 +52,5 @@ TEST_CASE("Convergence Testing - Manual Labels") {
 
   int num_trial = 20;
 
-  // TODO define max perturbations
-
-  for (int view = 1; view <= 4; view++) {
-    std::string data_root = GetDataPathRoot();
-    std::string config_root = GetConfigPathRoot();
-    cad_image_markup::CadImageMarkup::Inputs inputs{
-        .cad_path = data_root + "labelled_images/real_cad_feature_label.json",
-        .cad_image_path = data_root + "cad/real_cad.png",
-        .image_path = data_root + "labelled_images/real_view_" +
-                      std::to_string(view) + "_feature_label.json",
-        .canny_edge_image_path = data_root + "canny_edge/canny_edges.png",
-        .defect_path = data_root + "marked_up_images/real_view_" +
-                       std::to_string(view) + "_image.png",
-        .intrinsics_path = data_root + "Radtan_intrinsics_phone.json",
-        .config_path = config_root + "SolutionParamsDefault.json",
-        .ceres_config_path = config_root + "CeresParamsDefault.json",
-        .initial_pose_path = data_root + "poses/initial_pose.json"};
-
-    float level_count_t[4] = {0, 0, 0, 0};
-    float level_count_r[4] = {0, 0, 0, 0};
-    float level_count_c[4] = {0, 0, 0, 0};
-    for (int level = 1; level <= 4; level++) {
-      // TODO run trials and log results as percent convergence
-    }
-
-    cad_image_markup::CadImageMarkup markup(inputs);
-  }
-
   REQUIRE(1);
 }

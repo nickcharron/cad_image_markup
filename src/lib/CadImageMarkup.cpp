@@ -7,14 +7,13 @@ namespace cad_image_markup {
 
 void CadImageMarkup::Inputs::Print() {
   std::cout << "\nCadImageMarkup Inputs:\n"
-            << "cad_path: " << cad_path << "\n"
-            << "cad_image_path: " << cad_image_path << "\n"
-            << "canny_edge_cad_path: " << canny_edge_cad_path << "\n"
+            << "image_label_path: " << image_label_path << "\n"
             << "image_path: " << image_path << "\n"
-            << "canny_edge_image_path: " << canny_edge_image_path << "\n"
+            << "cad_label_path: " << cad_label_path << "\n"
+            << "cad_image_path: " << cad_image_path << "\n"
             << "defect_path: " << defect_path << "\n"
             << "intrinsics_path: " << intrinsics_path << "\n"
-            << "config_path: " << config_path << "\n"
+            << "config_path: " << solution_config_path << "\n"
             << "ceres_config_path: " << ceres_config_path << "\n"
             << "initial_pose_path: " << initial_pose_path << "\n\n";
 }
@@ -43,13 +42,12 @@ bool CadImageMarkup::Run() {
 
 bool CadImageMarkup::Setup() {
   LOG_INFO("MARKUP: Setting up problem");
-  camera_points_CAMFRAME_raw_ = std::make_shared<PointCloud>();
   camera_points_CAMFRAME_ = std::make_shared<PointCloud>();
   cad_points_CADFRAME_ = std::make_shared<PointCloud>();
   defect_points_CAMFRAME_ = std::make_shared<PointCloud>();
 
-  if (!params_.LoadFromJson(inputs_.config_path)) {
-    LOG_ERROR("MARKUP: MARKUP: Could not load params. Exiting ...");
+  if (!params_.LoadSolutionParamsFromJSON(inputs_.solution_config_path)) {
+    LOG_ERROR("MARKUP: MARKUP: Could not load solution params. Exiting ...");
     return false;
   }
 
@@ -67,87 +65,42 @@ bool CadImageMarkup::Setup() {
 bool CadImageMarkup::LoadData() {
   LOG_INFO("MARKUP: Loading camera data");
   // read image points
-  if (params_.feature_label_type == "MANUAL") {
-    if (!image_buffer_.ReadPoints(inputs_.image_path,
-                                  camera_points_CAMFRAME_raw_)) {
-      LOG_ERROR("MARKUP: Cannot read image file at: %s",
-                inputs_.image_path.c_str());
-      return false;
-    }
-
-    LOG_INFO("MARKUP: Densifying feature points");
-    image_buffer_.DensifyPoints(camera_points_CAMFRAME_raw_,
-                                params_.cam_density_index);
-
-  } else if (params_.feature_label_type == "AUTOMATIC") {
-    // run Canny edge detection on input image
-    if (!image_buffer_.CannyEdgeDetect(
-            inputs_.image_path, inputs_.canny_edge_image_path,
-            params_.cannny_low_threshold_image, params_.canny_ratio_image,
-            params_.canny_kernel_size_image)) {
-      LOG_ERROR("MARKUP: Canny Edge Detection Failed");
-      return false;
-    }
-    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_image_path,
-                                     camera_points_CAMFRAME_raw_, "white",
-                                     10)) {
-      LOG_WARN("MARKUP: Cannot read canny edge image file at: %s",
-               inputs_.canny_edge_image_path.c_str());
-    }
-  } else {
-    LOG_ERROR("MARKUP: Invalid feature_label_type value provided.");
+  if (!utils::ReadPoints(inputs_.image_label_path, camera_points_CAMFRAME_)) {
+    LOG_ERROR("MARKUP: Cannot read image file at: %s",
+              inputs_.image_label_path.c_str());
+    return false;
   }
 
-  // Downsample image points if configured
-  if (params_.downsample_image_cloud)
-    camera_points_CAMFRAME_ = utils::DownSampleCloud(
-        camera_points_CAMFRAME_raw_, params_.downsample_grid_size);
-  else
-    camera_points_CAMFRAME_ = camera_points_CAMFRAME_raw_;
+  if (camera_points_CAMFRAME_->size() < params_.min_num_points_to_densify) {
+    LOG_INFO("MARKUP: Densifying feature points");
+    utils::DensifyPoints(camera_points_CAMFRAME_, params_.cam_density_index);
+  }
 
   // read cad model points
   LOG_INFO("MARKUP: Loading CAD model data");
 
-  if (params_.feature_label_type == "MANUAL") {
-    if (!image_buffer_.ReadPoints(inputs_.cad_path, cad_points_CADFRAME_)) {
-      LOG_ERROR("MARKUP: Cannot read CAD file at: %s",
-                inputs_.cad_path.c_str());
-      return false;
-    }
+  if (!utils::ReadPoints(inputs_.cad_label_path, cad_points_CADFRAME_)) {
+    LOG_ERROR("MARKUP: Cannot read CAD file at: %s",
+              inputs_.cad_label_path.c_str());
+    return false;
+  }
 
+  if (cad_points_CADFRAME_->size() < params_.min_num_points_to_densify) {
     LOG_INFO("MARKUP: Densifying cad points");
-    image_buffer_.DensifyPoints(cad_points_CADFRAME_,
-                                params_.cad_density_index);
-
-  } else if (params_.feature_label_type == "AUTOMATIC") {
-    // run Canny edge detection on input cad image
-    if (!image_buffer_.CannyEdgeDetect(
-            inputs_.cad_image_path, inputs_.canny_edge_cad_path,
-            params_.cannny_low_threshold_cad, params_.canny_ratio_cad,
-            params_.canny_kernel_size_cad)) {
-      LOG_ERROR("MARKUP: Canny Edge Detection Failed");
-      return false;
-    }
-
-    if (!image_buffer_.ReadPointsPNG(inputs_.canny_edge_cad_path,
-                                     cad_points_CADFRAME_, "white", 3)) {
-      LOG_WARN("MARKUP: Cannot read canny edge cad file at: %s",
-               inputs_.canny_edge_cad_path.c_str());
-    }
-
-  } else
-    LOG_ERROR("MARKUP: Invalid feature_label_type value provided.");
+    utils::DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
+  }
 
   LOG_INFO("MARKUP: Adjusting CAD data");
   cad_centroid_ = utils::GetCloudCentroid(cad_points_CADFRAME_);
   utils::OriginCloudxy(cad_points_CADFRAME_, cad_centroid_);
   utils::ScaleCloud(cad_points_CADFRAME_, params_.cad_cloud_scale);
+
   LOG_INFO("MARKUP: Done loading CAD dimension data");
 
   // attempt to read defect data
   LOG_INFO("MARKUP: Loading defect data");
-  if (!image_buffer_.ReadPointsPNG(inputs_.defect_path, defect_points_CAMFRAME_,
-                                   params_.defect_color)) {
+
+  if (!utils::ReadPoints(inputs_.defect_path, defect_points_CAMFRAME_)) {
     LOG_WARN("MARKUP: Cannot read defect file at: %s",
              inputs_.defect_path.c_str());
   }
@@ -188,22 +141,25 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   // Generate output
   PointCloud::Ptr cad_points_CAMFRAME = std::make_shared<PointCloud>();
   LOG_INFO("MARKUP: transforming cad points to camera frame...");
-  pcl::transformPointCloud(*cad_points_CADFRAME_, *cad_points_CAMFRAME, T_WORLD_CAMERA);
+  pcl::transformPointCloud(*cad_points_CADFRAME_, *cad_points_CAMFRAME,
+                           T_WORLD_CAMERA);
 
   LOG_INFO("MARKUP: back projecting defect points into cad plane");
   PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(
       T_WORLD_CAMERA, defect_points_CAMFRAME_, camera_model_);
 
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
-  pcl::transformPointCloud(*defect_points_CADFRAME, *defect_points_CADFRAME, T_CAMERA_WORLD);
+  pcl::transformPointCloud(*defect_points_CADFRAME, *defect_points_CADFRAME,
+                           T_CAMERA_WORLD);
 
   // [NOTE] Add an offset here if the target drawing was cropped from the
   // labelled drawing
   pcl::PointXYZ centroid_offset(-cad_centroid_.x, -cad_centroid_.y, 0);
-  centroid_offset.x -= params_.cad_crop_offset_x;
-  centroid_offset.y -= params_.cad_crop_offset_y;
+  centroid_offset.x -= 0;
+  centroid_offset.y -= 0;
 
-  pcl::transformPointCloud(*cad_points_CAMFRAME, *cad_points_CAMFRAME, T_CAMERA_WORLD);
+  pcl::transformPointCloud(*cad_points_CAMFRAME, *cad_points_CAMFRAME,
+                           T_CAMERA_WORLD);
   utils::ScaleCloud(cad_points_CAMFRAME, 1.0 / params_.cad_cloud_scale);
   utils::OriginCloudxy(cad_points_CAMFRAME, centroid_offset);
 
@@ -211,34 +167,42 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   utils::ScaleCloud(defect_points_CADFRAME, 1.0 / params_.cad_cloud_scale);
   utils::OriginCloudxy(defect_points_CADFRAME, centroid_offset);
 
-  std::string date_and_time = cad_image_markup::utils::ConvertTimeToDate(
-      std::chrono::system_clock::now());
-  std::filesystem::path output_dir_stamped =
-      std::filesystem::path(output_directory) / date_and_time;
-  std::filesystem::create_directory(output_dir_stamped);
   std::filesystem::path output_cad =
-      output_dir_stamped / std::filesystem::path("cad_with_defects.png");
+      output_directory / std::filesystem::path("cad_with_defects.png");
   std::filesystem::path output_img =
-      output_dir_stamped / std::filesystem::path("img_with_edges.png");
+      output_directory / std::filesystem::path("img_with_edges.png");
 
-  image_buffer_.WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
-                             output_cad.string(), 255, 0, 0);
+  std::cout << "Defect cloud size: " << defect_points_CADFRAME->size()
+            << std::endl;
+  std::cout << "Sample defect point: " << defect_points_CADFRAME->at(100)
+            << std::endl;
 
-  image_buffer_.WriteToImage(cad_points_CAMFRAME, inputs_.image_path,
-                             output_img.string(), 50, 200, 100);
+  if (!utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
+                           output_cad.string(), 255, 0, 0)) {
+    LOG_INFO("MARKUP: Failed to write defect points correctly");
+    return false;
+  }
+
+  if (!utils::WriteToImage(cad_points_CAMFRAME, output_cad.string(),
+                           output_cad.string(), 0, 255, 255)) {
+    LOG_INFO("MARKUP: Failed to write edge points correctly");
+    return false;
+  }
 
   // copy input data for easy comparison
   std::string extension_cad =
       std::filesystem::path(inputs_.cad_image_path).extension();
   std::filesystem::path output_cad_orig =
-      output_dir_stamped / std::filesystem::path("cad_original" + extension_cad);
-  std::filesystem::copy(inputs_.cad_image_path, output_cad_orig);
+      output_directory / std::filesystem::path("cad_original" + extension_cad);
+  std::filesystem::copy(inputs_.cad_image_path, output_cad_orig,
+                        std::filesystem::copy_options::overwrite_existing);
 
   std::string extension_img =
       std::filesystem::path(inputs_.cad_image_path).extension();
   std::filesystem::path output_img_orig =
-      output_dir_stamped / std::filesystem::path("img_original" + extension_img);
-  std::filesystem::copy(inputs_.image_path, output_img_orig);
+      output_directory / std::filesystem::path("img_original" + extension_img);
+  std::filesystem::copy(inputs_.image_path, output_img_orig,
+                        std::filesystem::copy_options::overwrite_existing);
 
   return true;
 }

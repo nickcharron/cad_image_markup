@@ -7,6 +7,7 @@
 
 #include <cad_image_markup/Log.h>
 #include <cad_image_markup/nlohmann/json.h>
+#include <cad_image_markup/Utils.h>
 
 namespace cad_image_markup {
 
@@ -172,25 +173,17 @@ struct Params {
 
   // MISC OPTIONS
 
-  std::string defect_color{"red"};
+  int min_num_points_to_densify{50};
 
-  double cad_crop_offset_x{0};
-  double cad_crop_offset_y{0};
-
-  /** how the reference features are provided to the solver, options are:
-   * MANUAL: a .json file is provided with manually labeled features in the form
-   * of polygons AUTOMATIC: only an image file is provided and the system
-   * performs Canny edge detection to extract the features to match
-   */
-  std::string feature_label_type{"MANUAL"};
+  // CANNY OPTIONS
 
   /** Canny algorithm parameters for automatic edge detection
    * lowThreshold:  Canny low threshold
    * ratio:  Canny upper to lower threshold ratio
    * kernel_size: Canny kernel size for internal Sobel convolution operations
    */
-  int cannny_low_threshold_cad, canny_ratio_cad, canny_kernel_size_cad;
-  int cannny_low_threshold_image, canny_ratio_image, canny_kernel_size_image;
+  int cannny_low_threshold, canny_ratio, canny_kernel_size;
+
 
   /** Option to downsample image cloud, useful with automatic line detection */
   bool downsample_image_cloud{false};
@@ -200,10 +193,10 @@ struct Params {
   double downsample_grid_size{10};
 
   /**
-   * @brief Loads params from a json file
+   * @brief Loads solution params from a json file
    * @param path full path to json
    */
-  inline bool LoadFromJson(const std::string& path) {
+  inline bool LoadSolutionParamsFromJSON(const std::string& path) {
     if (path.empty()) { return true; }
 
     if (!std::filesystem::exists(path)) {
@@ -211,7 +204,7 @@ struct Params {
       return false;
     }
 
-    LOG_INFO("Loading config file from: %s", path.c_str());
+    LOG_INFO("Loading solution config file from: %s", path.c_str());
 
     nlohmann::json J;
     std::ifstream file(path);
@@ -243,22 +236,6 @@ struct Params {
     nlohmann::json J_output_options = J["output_options"];
 
     output_image = J_output_options["output_image"];
-
-    nlohmann::json J_misc_options = J["misc_options"];
-
-    defect_color = J_misc_options["defect_color"];
-
-    feature_label_type = J_misc_options["feature_label_type"];
-
-    cannny_low_threshold_cad = J_misc_options["cannny_low_threshold_cad"];
-    canny_ratio_cad = J_misc_options["canny_ratio_cad"];
-    canny_kernel_size_cad = J_misc_options["canny_kernel_size_cad"];
-    cannny_low_threshold_image = J_misc_options["cannny_low_threshold_image"];
-    canny_ratio_image = J_misc_options["canny_ratio_image"];
-    canny_kernel_size_image = J_misc_options["canny_kernel_size_image"];
-
-    downsample_image_cloud = J_misc_options["downsample_image_cloud"];
-    downsample_grid_size = J_misc_options["downsample_grid_size"];
 
     // this shouldn't ever change, even when adding new types
     auto ct_iter = CorrespondenceTypeStringMap.find(
@@ -306,6 +283,38 @@ struct Params {
 
     return true;
   }
+
+
+/**
+   * @brief Loads canny edge detection params from a json file
+   * @param path full path to json
+   */
+  inline bool LoadCannyParamsFromJSON(const std::string& path) {
+    if (path.empty()) { return true; }
+
+    if (!std::filesystem::exists(path)) {
+      LOG_ERROR("Invalid path to config file: %s", path.c_str());
+      return false;
+    }
+
+    LOG_INFO("Loading canny config file from: %s", path.c_str());
+
+    nlohmann::json J;
+    std::ifstream file(path);
+    file >> J;
+
+    nlohmann::json J_canny_options = J["canny_options"];
+
+    cannny_low_threshold = J_canny_options["cannny_low_threshold"];
+    canny_ratio = J_canny_options["canny_ratio"];
+    canny_kernel_size = J_canny_options["canny_kernel_size"];
+
+    downsample_image_cloud = J_canny_options["downsample_image_cloud"];
+    downsample_grid_size = J_canny_options["downsample_grid_size"];
+
+    return true;
+  }
+
 };
 
 } // namespace cad_image_markup

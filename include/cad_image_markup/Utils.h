@@ -118,6 +118,21 @@ PointCloud::Ptr BackProject(
 pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
 
 /**
+ * @brief Method to perform Canny edge detection on the input images and CAD
+ * drawings and store the result in a mat type
+ * @param src_filename path to source file, supported types: .png
+ * @param target pcl cloud datatype to write detected edges to
+ * @param lowThreshold Canny low threshold
+ * @param ratio Canny upper to lower threshold ratio
+ * @param kernel_size Canny kernel size for internal Sobel convolution
+ * operations
+ */
+void CannyEdgeDetectToCloud(const std::string& src_filename,
+                    PointCloud::Ptr target,
+                    const int lowThreshold = 50, const int ratio = 3,
+                    const int kernel_size = 3);
+
+/**
  * @brief Method to downsample the points in a cloud
  *        a grid filter is passed over the cloud and the points
  *        in each grid volume are replaced with their centroid in
@@ -129,6 +144,45 @@ pcl::PointXYZ GetCloudCentroid(PointCloud::ConstPtr cloud);
  */
 PointCloud::Ptr DownSampleCloud(PointCloud::ConstPtr cloud,
                                 const double grid_size);
+
+/**
+ * @brief Method for interpolating points for a more
+ * dense outline of a feature - helps to converge minimization solution
+ * @param points feature points
+ * @param density_index number of points to add for every ten pixels
+ */
+void DensifyPoints(PointCloud::Ptr points, uint8_t density_index);
+
+/**
+ * @brief Method for reading labelled data from a png file
+ * @param filename_ absolute path to the png file to read the data from
+ * @param points pointcloud of points to fill in
+ * @param color pixel color to extract, options: "red", "green", "blue",
+ * "white", "black"
+ * @param rate rate at which to convert pixels to points in the cloud
+ * @return read success
+ */
+bool ReadPointsPNG(const std::string& filename, PointCloud::Ptr points,
+                    std::string color, int rate = 1);
+
+/**
+ * @brief Method for writing 2D point set data to an image by setting
+ * corresponding pixels to a specified color
+ * @param points 2D point set
+ * @param src_file_name absolute name of unannotated image
+ * @param target_file_name absolute path of image annotated image to create
+ * (unnanotated image with written data overlayed)
+ * @param r red uint8_t
+ * @param g green uint8_t
+ * @param b blue uint8_t
+ * @return write success
+ * @todo update to interpolate pixels (lines? splines?) to color between
+ * points
+ */
+bool WriteToImage(const PointCloud::Ptr& points,
+                const std::string& src_file_name,
+                const std::string& target_file_name, uint8_t r = 0,
+                uint8_t g = 0, uint8_t b = 0);
 
 /**
  * @brief Method to apply perturbations to a transform in radians
@@ -150,6 +204,14 @@ Eigen::Matrix4d PerturbTransformRadM(const Eigen::Matrix4d& T,
 Eigen::Matrix4d PerturbTransformDegM(const Eigen::Matrix4d& T,
                                      const Eigen::VectorXd& perturbation);
 
+/**
+ * @brief Method for reading labelled image feature data from a json file
+ * @param filename_ absolute path to the json file to read data from
+ * @param points pointcloud of points to fill in
+ * @return read success
+ */
+bool ReadPoints(const std::string& filename, PointCloud::Ptr points);
+
 Eigen::Matrix3d LieAlgebraToR(const Eigen::Vector3d& eps);
 
 Eigen::Matrix3d SkewTransform(const Eigen::Vector3d& V);
@@ -159,6 +221,8 @@ double DegToRad(double d);
 double RadToDeg(double d);
 
 std::string ConvertTimeToDate(std::chrono::system_clock::time_point time);
+
+
 
 } // namespace utils
 

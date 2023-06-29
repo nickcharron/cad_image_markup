@@ -1,2 +1,4 @@
 build/
 .vscode/
+examples/example_output/
+tests/test_outputs/
