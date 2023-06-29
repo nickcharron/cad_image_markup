@@ -53,7 +53,7 @@ bool EdgeExtractorCanny::SaveResults(const std::string& output_json) {
   nlohmann::json J = CreateEdgesJSON();
 
   std::ofstream file(output_json);
-  file << J;
+  file << std::setw(4) << J;
   
   return true;
 }

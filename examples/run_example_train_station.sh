@@ -39,11 +39,10 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 DATA_ROOT="$SCRIPT_DIR/example_data"
 CONFIG_ROOT="$SCRIPT_DIR/example_config"
-TEMP_ROOT="$SCRIPT_DIR/example_TEMP"
 
 # setup the defect extractor
 DEFECT_IMG="$DATA_ROOT/marked_up_images/real_view_1_image.png"
-DEFECT_PATH="$TEMP_ROOT/defect_labels_interim.json"
+DEFECT_PATH="$2/defect_labels_output.json"
 DEFECT_COLOR="red"
 
 cmd1="$EXECUTABLE_PATH_EXDEFECTS --image_path $DEFECT_IMG"
@@ -51,7 +50,7 @@ cmd1="$cmd1 --output_json $DEFECT_PATH --defect_color $DEFECT_COLOR"
 
 # setup the edge extractor
 IMAGE_IMG="$DATA_ROOT/images/real_view_1_mask.png"
-IMAGE_LABEL="$TEMP_ROOT/image_labels_interim.json"
+IMAGE_LABEL="$2/image_labels_output.json"
 CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleTrainStation.json"
 
 cmd2="$EXECUTABLE_PATH_EXEDGES --image_path $IMAGE_IMG --output_json $IMAGE_LABEL"
@@ -61,7 +60,7 @@ cmd2="$cmd2 --config $CANNY_CONFIG"
 CAD_LABEL="$DATA_ROOT/labelled_images/real_cad_feature_label.json"
 CAD_IMG="$DATA_ROOT/cad/real_cad.png"
 INTRINSICS="$DATA_ROOT/Radtan_intrinsics_phone.json"
-POSE="$DATA_ROOT/poses/initial_pose.json"
+POSE="$DATA_ROOT/poses/initial_pose_train_station.json"
 
 SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleTrainStation.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"

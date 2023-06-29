@@ -30,11 +30,10 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 DATA_ROOT="$SCRIPT_DIR/example_data"
 CONFIG_ROOT="$SCRIPT_DIR/example_config"
-TEMP_ROOT="$SCRIPT_DIR/example_TEMP"
 
 # setup the defect extractor
 DEFECT_IMG="$DATA_ROOT/marked_up_cad/sim_cad_view_2_markup.png"
-DEFECT_PATH="$TEMP_ROOT/defect_labels_interim.json"
+DEFECT_PATH="$2/defect_labels_output.json"
 DEFECT_COLOR="red"
 
 cmd1="$EXECUTABLE_PATH_EXDEFECTS --image_path $DEFECT_IMG"
@@ -46,7 +45,7 @@ CAD_IMG="$DATA_ROOT/cad/sim_cad.png"
 IMAGE_LABEL="$DATA_ROOT/labelled_images/sim_view_2_feature_label.json"
 IMAGE_IMG="$DATA_ROOT/marked_up_images/sim_view_2_image_markup.png"
 INTRINSICS="$DATA_ROOT/Radtan_intrinsics.json"
-POSE="$DATA_ROOT/poses/initial_pose.json"
+POSE="$DATA_ROOT/poses/initial_pose_sim.json"
 
 SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleSim.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"

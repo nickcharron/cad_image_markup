@@ -65,17 +65,15 @@ bool CadImageMarkup::Setup() {
 bool CadImageMarkup::LoadData() {
   LOG_INFO("MARKUP: Loading camera data");
   // read image points
-  if (!utils::ReadPoints(inputs_.image_label_path,
-                                camera_points_CAMFRAME_)) {
+  if (!utils::ReadPoints(inputs_.image_label_path, camera_points_CAMFRAME_)) {
     LOG_ERROR("MARKUP: Cannot read image file at: %s",
               inputs_.image_label_path.c_str());
     return false;
   }
 
-  if(camera_points_CAMFRAME_->size() < params_.min_num_points_to_densify) {
+  if (camera_points_CAMFRAME_->size() < params_.min_num_points_to_densify) {
     LOG_INFO("MARKUP: Densifying feature points");
-    utils::DensifyPoints(camera_points_CAMFRAME_,
-                              params_.cam_density_index);
+    utils::DensifyPoints(camera_points_CAMFRAME_, params_.cam_density_index);
   }
 
   // read cad model points
@@ -87,10 +85,9 @@ bool CadImageMarkup::LoadData() {
     return false;
   }
 
-  if(cad_points_CADFRAME_->size() < params_.min_num_points_to_densify) {
+  if (cad_points_CADFRAME_->size() < params_.min_num_points_to_densify) {
     LOG_INFO("MARKUP: Densifying cad points");
-    utils::DensifyPoints(cad_points_CADFRAME_,
-                                params_.cad_density_index);
+    utils::DensifyPoints(cad_points_CADFRAME_, params_.cad_density_index);
   }
 
   LOG_INFO("MARKUP: Adjusting CAD data");
@@ -144,14 +141,16 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   // Generate output
   PointCloud::Ptr cad_points_CAMFRAME = std::make_shared<PointCloud>();
   LOG_INFO("MARKUP: transforming cad points to camera frame...");
-  pcl::transformPointCloud(*cad_points_CADFRAME_, *cad_points_CAMFRAME, T_WORLD_CAMERA);
+  pcl::transformPointCloud(*cad_points_CADFRAME_, *cad_points_CAMFRAME,
+                           T_WORLD_CAMERA);
 
   LOG_INFO("MARKUP: back projecting defect points into cad plane");
   PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(
       T_WORLD_CAMERA, defect_points_CAMFRAME_, camera_model_);
 
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
-  pcl::transformPointCloud(*defect_points_CADFRAME, *defect_points_CADFRAME, T_CAMERA_WORLD);
+  pcl::transformPointCloud(*defect_points_CADFRAME, *defect_points_CADFRAME,
+                           T_CAMERA_WORLD);
 
   // [NOTE] Add an offset here if the target drawing was cropped from the
   // labelled drawing
@@ -159,7 +158,8 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   centroid_offset.x -= 0;
   centroid_offset.y -= 0;
 
-  pcl::transformPointCloud(*cad_points_CAMFRAME, *cad_points_CAMFRAME, T_CAMERA_WORLD);
+  pcl::transformPointCloud(*cad_points_CAMFRAME, *cad_points_CAMFRAME,
+                           T_CAMERA_WORLD);
   utils::ScaleCloud(cad_points_CAMFRAME, 1.0 / params_.cad_cloud_scale);
   utils::OriginCloudxy(cad_points_CAMFRAME, centroid_offset);
 
@@ -167,28 +167,24 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   utils::ScaleCloud(defect_points_CADFRAME, 1.0 / params_.cad_cloud_scale);
   utils::OriginCloudxy(defect_points_CADFRAME, centroid_offset);
 
-  std::string date_and_time = cad_image_markup::utils::ConvertTimeToDate(
-      std::chrono::system_clock::now());
-  std::filesystem::path output_dir_stamped =
-      std::filesystem::path(output_directory) / date_and_time;
-  std::filesystem::create_directory(output_dir_stamped);
   std::filesystem::path output_cad =
-      output_dir_stamped / std::filesystem::path("cad_with_defects.png");
+      output_directory / std::filesystem::path("cad_with_defects.png");
   std::filesystem::path output_img =
-      output_dir_stamped / std::filesystem::path("img_with_edges.png");
+      output_directory / std::filesystem::path("img_with_edges.png");
 
-  std::cout << "Defect cloud size: " << defect_points_CADFRAME->size() << std::endl;
-  std::cout << "Sample defect point: " << defect_points_CADFRAME->at(100) << std::endl;
-                      
-  if(!utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
-                            output_cad.string(), 255, 0, 0)) {
+  std::cout << "Defect cloud size: " << defect_points_CADFRAME->size()
+            << std::endl;
+  std::cout << "Sample defect point: " << defect_points_CADFRAME->at(100)
+            << std::endl;
+
+  if (!utils::WriteToImage(defect_points_CADFRAME, inputs_.cad_image_path,
+                           output_cad.string(), 255, 0, 0)) {
     LOG_INFO("MARKUP: Failed to write defect points correctly");
     return false;
   }
-    
 
-  if(!utils::WriteToImage(cad_points_CAMFRAME, output_cad.string(),
-                            output_cad.string(), 0, 255, 255)) {
+  if (!utils::WriteToImage(cad_points_CAMFRAME, output_cad.string(),
+                           output_cad.string(), 0, 255, 255)) {
     LOG_INFO("MARKUP: Failed to write edge points correctly");
     return false;
   }
@@ -197,14 +193,16 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   std::string extension_cad =
       std::filesystem::path(inputs_.cad_image_path).extension();
   std::filesystem::path output_cad_orig =
-      output_dir_stamped / std::filesystem::path("cad_original" + extension_cad);
-  std::filesystem::copy(inputs_.cad_image_path, output_cad_orig);
+      output_directory / std::filesystem::path("cad_original" + extension_cad);
+  std::filesystem::copy(inputs_.cad_image_path, output_cad_orig,
+                        std::filesystem::copy_options::overwrite_existing);
 
   std::string extension_img =
       std::filesystem::path(inputs_.cad_image_path).extension();
   std::filesystem::path output_img_orig =
-      output_dir_stamped / std::filesystem::path("img_original" + extension_img);
-  std::filesystem::copy(inputs_.image_path, output_img_orig);
+      output_directory / std::filesystem::path("img_original" + extension_img);
+  std::filesystem::copy(inputs_.image_path, output_img_orig,
+                        std::filesystem::copy_options::overwrite_existing);
 
   return true;
 }
