@@ -32,7 +32,7 @@ DATA_ROOT="$SCRIPT_DIR/example_data"
 CONFIG_ROOT="$SCRIPT_DIR/example_config"
 
 # setup the defect extractor
-DEFECT_IMG="$DATA_ROOT/marked_up_cad/sim_cad_view_2_markup.png"
+DEFECT_IMG="$DATA_ROOT/marked_up_images/sim_view_2_image_markup.png"
 DEFECT_PATH="$2/defect_labels_output.json"
 DEFECT_COLOR="red"
 

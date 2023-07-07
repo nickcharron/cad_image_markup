@@ -154,7 +154,7 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   visualizer_bp = std::make_shared<Visualizer>("back projection visualizer");
   if (params_.visualize) {
     visualizer_bp->StartVis();
-    visualizer_bp->DisplayClouds(cad_points_CADFRAME_, cad_points_CAMFRAME, defect_points_CADFRAME,
+    visualizer_bp->DisplayClouds(cad_points_CAMFRAME, defect_points_CAMFRAME_, cad_points_CADFRAME_,
                              0, "camera_cloud", "transformed_cloud",
                              "projected_cloud", "projected");
     char end = ' ';
