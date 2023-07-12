@@ -28,11 +28,11 @@ fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-DATA_ROOT="$SCRIPT_DIR/example_data"
+DATA_ROOT="$SCRIPT_DIR/example_data/sim"
 CONFIG_ROOT="$SCRIPT_DIR/example_config"
 
 # setup the defect extractor
-DEFECT_IMG="$DATA_ROOT/marked_up_cad/sim_cad_view_2_markup.png"
+DEFECT_IMG="$DATA_ROOT/img_with_defects.png"
 DEFECT_PATH="$2/defect_labels_output.json"
 DEFECT_COLOR="red"
 
@@ -40,12 +40,12 @@ cmd1="$EXECUTABLE_PATH_EXDEFECTS --image_path $DEFECT_IMG"
 cmd1="$cmd1 --output_json $DEFECT_PATH --defect_color $DEFECT_COLOR"
 
 # setup the aligment and markup tool
-CAD_LABEL="$DATA_ROOT/labelled_images/sim_cad_feature_label.json"
-CAD_IMG="$DATA_ROOT/cad/sim_cad.png"
-IMAGE_LABEL="$DATA_ROOT/labelled_images/sim_view_2_feature_label.json"
-IMAGE_IMG="$DATA_ROOT/marked_up_images/sim_view_2_image_markup.png"
-INTRINSICS="$DATA_ROOT/Radtan_intrinsics.json"
-POSE="$DATA_ROOT/poses/initial_pose_sim.json"
+CAD_LABEL="$DATA_ROOT/cad_labels.json"
+CAD_IMG="$DATA_ROOT/cad_img.jpg"
+IMAGE_LABEL="$DATA_ROOT/img_labels.json"
+IMAGE_IMG="$DATA_ROOT/img.jpg"
+INTRINSICS="$DATA_ROOT/intrinsics.json"
+POSE="$DATA_ROOT/initial_pose.json"
 
 SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleSim.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"
