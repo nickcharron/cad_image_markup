@@ -49,14 +49,15 @@ cmd1="$EXECUTABLE_PATH_EXDEFECTS --image_path $DEFECT_IMG"
 cmd1="$cmd1 --output_json $DEFECT_LABELS --defect_color $DEFECT_COLOR"
 
 # setup the edge extractor
-IMAGE_IMG="$DATA_ROOT/img_edges.png"
+IMAGE_EDGES="$DATA_ROOT/img_edges.png"
 IMAGE_LABEL="$2/image_labels.json"
 CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleTrainStation.json"
 
-cmd2="$EXECUTABLE_PATH_EXEDGES --image_path $IMAGE_IMG --output_json $IMAGE_LABEL"
+cmd2="$EXECUTABLE_PATH_EXEDGES --image_path $IMAGE_EDGES --output_json $IMAGE_LABEL"
 cmd2="$cmd2 --config $CANNY_CONFIG"
 
 # setup the aligment and markup tool
+IMAGE_IMG="$DATA_ROOT/img.png"
 CAD_LABEL="$DATA_ROOT/cad_labels.json"
 CAD_IMG="$DATA_ROOT/cad_img.png"
 INTRINSICS="$DATA_ROOT/intrinsics.json"

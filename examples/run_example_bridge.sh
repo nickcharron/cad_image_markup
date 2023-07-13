@@ -51,14 +51,18 @@ cmd1="$cmd1 --output_json $DEFECT_LABELS --defect_color $DEFECT_COLOR"
 # setup the edge extractor
 IMAGE_IMG="$DATA_ROOT/img_edges.png"
 IMAGE_LABEL="$2/image_labels.json"
-CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleTrainStation.json"
+EDGES_COLOR="black"
 
-cmd2="$EXECUTABLE_PATH_EXEDGES --image_path $IMAGE_IMG --output_json $IMAGE_LABEL"
-cmd2="$cmd2 --config $CANNY_CONFIG"
+cmd2="$EXECUTABLE_PATH_EXDEFECTS --image_path $IMAGE_IMG --output_json $IMAGE_LABEL --defect_color $EDGES_COLOR"
+
+# setup the cad edge extractor
+CAD_IMG="$DATA_ROOT/cad_img.png"
+CAD_LABEL="$2/cad_labels.json"
+EDGES_COLOR="black"
+
+cmd3="$EXECUTABLE_PATH_EXDEFECTS --image_path $CAD_IMG --output_json $CAD_LABEL --defect_color $EDGES_COLOR"
 
 # setup the aligment and markup tool
-CAD_LABEL="$DATA_ROOT/cad_labels.json"
-CAD_IMG="$DATA_ROOT/cad_img.png"
 INTRINSICS="$DATA_ROOT/intrinsics.json"
 POSE="$DATA_ROOT/initial_pose.json"
 
@@ -66,10 +70,10 @@ SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleTrainStation.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"
 
 # combine into one command
-cmd3="$EXECUTABLE_PATH_ALIGN --cad_label_path $CAD_LABEL --cad_image_path $CAD_IMG"
-cmd3="$cmd3 --image_label_path $IMAGE_LABEL --image_path $IMAGE_IMG --intrinsics_path $INTRINSICS"
-cmd3="$cmd3 --defect_path $DEFECT_LABELS --output_directory $2 --initial_pose_path $POSE"
-cmd3="$cmd3 --solution_config_path $SOLUTION_CONFIG --ceres_config_path $CERES_CONFIG"
+cmd4="$EXECUTABLE_PATH_ALIGN --cad_label_path $CAD_LABEL --cad_image_path $CAD_IMG"
+cmd4="$cmd4 --image_label_path $IMAGE_LABEL --image_path $IMAGE_IMG --intrinsics_path $INTRINSICS"
+cmd4="$cmd4 --defect_path $DEFECT_LABELS --output_directory $2 --initial_pose_path $POSE"
+cmd4="$cmd4 --solution_config_path $SOLUTION_CONFIG --ceres_config_path $CERES_CONFIG"
 
 # display commands to user and run
 echo "Running command to extract defects from provided image: "
@@ -80,7 +84,11 @@ echo "Running command to extract edges from provided image: "
 echo $cmd2
 $cmd2
 
-echo "Running command to perform alignment and markup: "
+echo "Running command to extract edges from cad: "
 echo $cmd3
 $cmd3
+
+echo "Running command to perform alignment and markup: "
+echo $cmd4
+$cmd4
 
