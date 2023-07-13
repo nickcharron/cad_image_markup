@@ -24,7 +24,6 @@ void Visualizer::StartVis(uint16_t coord_size) {
   point_cloud_display_ =
       std::make_shared<pcl::visualization::PCLVisualizer>(display_name_);
   point_cloud_display_->setBackgroundColor(255, 255, 255); // white
-  point_cloud_display_->addCoordinateSystem(coord_size);
   point_cloud_display_->initCameraParameters();
 
   // align the visualizer camera with the image source when the visualizer first
@@ -51,8 +50,6 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
   // get mutex for visulalizer spinning in vis thread and
   // either create a new cloud or update the existing one
   mtx_.lock();
-
-  LOG_INFO("Visualizer: Displaying Clouds");
 
   pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> image_color(
       image_cloud, 125, 0, 125);
@@ -92,27 +89,30 @@ void Visualizer::DisplayClouds(PointCloud::ConstPtr image_cloud,
   uint16_t line_id = 0;
 
   // illustrate correspondences
-  for (uint16_t i = 0; i < corrs->size(); i++) {
-    uint16_t proj_point_index, cam_point_index;
+  if(corrs) {
+    for (uint16_t i = 0; i < corrs->size(); i++) {
+      uint16_t proj_point_index, cam_point_index;
 
-    // source camera
-    if (source == "camera") {
-      proj_point_index = corrs->at(i).index_match;
-      cam_point_index = corrs->at(i).index_query;
+      // source camera
+      if (source == "camera") {
+        proj_point_index = corrs->at(i).index_match;
+        cam_point_index = corrs->at(i).index_query;
+      }
+
+      // source CAD
+      if (source == "projected") {
+        proj_point_index = corrs->at(i).index_query;
+        cam_point_index = corrs->at(i).index_match;
+      }
+
+      point_cloud_display_->addLine(projected_cloud->at(proj_point_index),
+                                    image_cloud->at(cam_point_index), 0, 255, 0,
+                                    std::to_string(line_id));
+      line_start_index += 2;
+      line_end_index += 2;
+      line_id++;
     }
 
-    // source CAD
-    if (source == "projected") {
-      proj_point_index = corrs->at(i).index_query;
-      cam_point_index = corrs->at(i).index_match;
-    }
-
-    point_cloud_display_->addLine(projected_cloud->at(proj_point_index),
-                                  image_cloud->at(cam_point_index), 0, 255, 0,
-                                  std::to_string(line_id));
-    line_start_index += 2;
-    line_end_index += 2;
-    line_id++;
   }
 
   display_called_ = true;

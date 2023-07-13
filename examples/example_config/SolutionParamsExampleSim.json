@@ -17,7 +17,7 @@
     "converged_differential_cost": 10,
     "converged_absolute_cost": 5000,
     "converged_differential_translation_m": 0.1,
-    "converged_differential_rotation_deg": 3
+    "converged_differential_rotation_deg": 1
   },
   "output_options": {
     "output_image": true

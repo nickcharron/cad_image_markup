@@ -53,7 +53,7 @@ public:
    * @param cad_cloud CAD cloud
    * @param projected_cloud projected CAD point cloud
    * @param corrs correspondences between projected point cloud and labelled
-   * image cloud
+   * image cloud (pass a null pointer if not needed)
    * @param id_image unique cloud id for display
    * @param id_cad unique cloud id for display
    * @param id_projected unique cloud id for display

@@ -1,4 +1,5 @@
 #include <cad_image_markup/CadImageMarkup.h>
+#include <cad_image_markup/Visualizer.h>
 
 #include <X11/Xlib.h>
 #include <filesystem>
@@ -148,6 +149,20 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
   PointCloud::Ptr defect_points_CADFRAME = utils::BackProject(
       T_WORLD_CAMERA, defect_points_CAMFRAME_, camera_model_);
 
+  // Visualize back projection
+  std::shared_ptr<Visualizer> visualizer_bp;
+  visualizer_bp = std::make_shared<Visualizer>("back projection visualizer");
+  if (params_.visualize) {
+    visualizer_bp->StartVis();
+    visualizer_bp->DisplayClouds(cad_points_CAMFRAME, defect_points_CAMFRAME_, cad_points_CADFRAME_,
+                             0, "camera_cloud", "transformed_cloud",
+                             "projected_cloud", "projected");
+    char end = ' ';
+    std::cout << "Enter 'n' to continue\n";
+    while (end != 'n') { cin >> end; }
+    visualizer_bp->EndVis();
+  } 
+                          
   Eigen::Matrix4d T_CAMERA_WORLD = utils::InvertTransformMatrix(T_WORLD_CAMERA);
   pcl::transformPointCloud(*defect_points_CADFRAME, *defect_points_CADFRAME,
                            T_CAMERA_WORLD);
@@ -169,8 +184,6 @@ bool CadImageMarkup::SaveResults(const std::string& output_directory) const {
 
   std::filesystem::path output_cad =
       output_directory / std::filesystem::path("cad_with_defects.png");
-  std::filesystem::path output_img =
-      output_directory / std::filesystem::path("img_with_edges.png");
 
   std::cout << "Defect cloud size: " << defect_points_CADFRAME->size()
             << std::endl;

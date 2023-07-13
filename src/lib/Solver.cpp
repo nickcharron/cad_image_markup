@@ -279,11 +279,6 @@ bool Solver::UpdateVisualizer(PointCloud::Ptr CAD_cloud_scaled,
   PointCloud::Ptr cloud_in_world = std::make_shared<PointCloud>();
   pcl::transformPointCloud(*CAD_cloud_scaled, *cloud_in_world, T_WORLD_CAMERA);
 
-  LOG_INFO("SOLVER: Sample CAD cloud point in camera frame (for "
-           "visualization): %f,%f,%f",
-           cloud_in_world->at(100).x, cloud_in_world->at(100).y,
-           cloud_in_world->at(100).z);
-
   // project cloud for visualizer
   PointCloud::Ptr proj_cloud =
       utils::ProjectCloud(cloud_in_world, camera_model_);
