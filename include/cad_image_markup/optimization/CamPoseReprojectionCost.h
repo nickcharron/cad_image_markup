@@ -42,12 +42,12 @@ struct CameraProjectionFunctor {
       // if the projection failed, set the projected point to
       // be the nearest edge point to the detected point
       int near_u =
-          (width - pixel_detected_[0]) < pixel_detected_[0] ? width : 0;
+          (width - pixel_detected_[0]) < pixel_detected_[0] ? (width + 200) : -200;
       int dist_u = (width - pixel_detected_[0]) < pixel_detected_[0]
                        ? (width - pixel_detected_[0])
                        : pixel_detected_[0];
       int near_v =
-          (height - pixel_detected_[1]) < pixel_detected_[1] ? height : 0;
+          (height - pixel_detected_[1]) < pixel_detected_[1] ? (height + 200) : -200;
       int dist_v = (height - pixel_detected_[1]) < pixel_detected_[1]
                        ? (height - pixel_detected_[1])
                        : pixel_detected_[1];

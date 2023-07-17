@@ -43,7 +43,7 @@ cmd1="$cmd1 --output_json $DEFECT_PATH --defect_color $DEFECT_COLOR"
 CAD_LABEL="$DATA_ROOT/cad_labels.json"
 CAD_IMG="$DATA_ROOT/cad_img.jpg"
 IMAGE_LABEL="$DATA_ROOT/img_labels.json"
-IMAGE_IMG="$DATA_ROOT/img.jpg"
+IMAGE_IMG="$DATA_ROOT/img_with_defects.png"
 INTRINSICS="$DATA_ROOT/intrinsics.json"
 POSE="$DATA_ROOT/initial_pose.json"
 

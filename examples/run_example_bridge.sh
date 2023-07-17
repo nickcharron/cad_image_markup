@@ -51,22 +51,22 @@ cmd1="$cmd1 --output_json $DEFECT_LABELS --defect_color $DEFECT_COLOR"
 # setup the edge extractor
 IMAGE_IMG="$DATA_ROOT/img_edges.png"
 IMAGE_LABEL="$2/image_labels.json"
-EDGES_COLOR="black"
+CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleBridge.json"
 
-cmd2="$EXECUTABLE_PATH_EXDEFECTS --image_path $IMAGE_IMG --output_json $IMAGE_LABEL --defect_color $EDGES_COLOR"
+cmd2="$EXECUTABLE_PATH_EXEDGES --image_path $IMAGE_IMG --output_json $IMAGE_LABEL --config $CANNY_CONFIG"
 
 # setup the cad edge extractor
 CAD_IMG="$DATA_ROOT/cad_img.png"
 CAD_LABEL="$2/cad_labels.json"
-EDGES_COLOR="black"
+CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleBridge.json"
 
-cmd3="$EXECUTABLE_PATH_EXDEFECTS --image_path $CAD_IMG --output_json $CAD_LABEL --defect_color $EDGES_COLOR"
+cmd3="$EXECUTABLE_PATH_EXEDGES --image_path $CAD_IMG --output_json $CAD_LABEL --config $CANNY_CONFIG"
 
 # setup the aligment and markup tool
 INTRINSICS="$DATA_ROOT/intrinsics.json"
 POSE="$DATA_ROOT/initial_pose.json"
 
-SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleTrainStation.json"
+SOLUTION_CONFIG="$CONFIG_ROOT/SolutionParamsExampleBridge.json"
 CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"
 
 # combine into one command
