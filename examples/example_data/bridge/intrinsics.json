@@ -1,0 +1,18 @@
+{
+    "date": "2023-07-10",
+    "method": "opencv",
+    "camera_type": "RADTAN",
+    "image_width": 2268,
+    "image_height": 4032,
+    "frame_id": "pixel",
+    "intrinsics": [
+        2268,
+        4032,
+        1134,
+        2016,
+        0,
+        0,
+        0,
+        0
+    ]
+  }
