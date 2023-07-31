@@ -56,7 +56,7 @@ CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleBridge.json"
 cmd2="$EXECUTABLE_PATH_EXEDGES --image_path $IMAGE_IMG --output_json $IMAGE_LABEL --config $CANNY_CONFIG"
 
 # setup the cad edge extractor
-CAD_IMG="$DATA_ROOT/cad_img.png"
+CAD_IMG="$DATA_ROOT/cad_img_edited.png"
 CAD_LABEL="$2/cad_labels.json"
 CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleBridge.json"
 
