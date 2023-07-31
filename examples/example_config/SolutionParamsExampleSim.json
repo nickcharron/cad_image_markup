@@ -9,7 +9,8 @@
     "max_corr_distance": 100000,
     "attenuate_corr_distance": true,
     "corr_bound_low": 2000,
-    "attenuation_rate": 0.5
+    "attenuation_rate": 0.5,
+    "prior_information_weight": 0
   },
   "convergence_options": {
     "convergence_type": "GEOMETRIC",

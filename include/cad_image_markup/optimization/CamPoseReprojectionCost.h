@@ -4,7 +4,6 @@
 
 #include <ceres/autodiff_cost_function.h>
 #include <ceres/cost_function_to_functor.h>
-#include <ceres/numeric_diff_cost_function.h>
 #include <ceres/rotation.h>
 
 #include <cad_image_markup/Optional.h>
@@ -21,7 +20,7 @@
 struct CameraProjectionFunctor {
   CameraProjectionFunctor(
       const std::shared_ptr<cad_image_markup::CameraModel>& camera_model,
-      Eigen::Vector2d pixel_detected)
+      const Eigen::Vector2d& pixel_detected)
       : camera_model_(camera_model), pixel_detected_(pixel_detected) {}
 
   bool operator()(const double* P, double* pixel) const {

@@ -1,9 +1,7 @@
 #include <cad_image_markup/Solver.h>
 
-#include <ceres/autodiff_cost_function.h>
-#include <ceres/rotation.h>
-
 #include <cad_image_markup/optimization/CamPoseReprojectionCost.h>
+#include <cad_image_markup/optimization/OrientationPriorCost.h>
 #include <cad_image_markup/optimization/PointToLineCost.h>
 
 namespace cad_image_markup {
@@ -149,40 +147,43 @@ std::shared_ptr<ceres::Problem> Solver::BuildCeresProblem(
   std::unique_ptr<ceres::LossFunction> loss_function =
       ceres_params_.LossFunction();
 
+  // add pose prior
+  if (params_.prior_information_weight != 0) {
+    Eigen::Vector4d q(results_[0], results_[1], results_[2], results_[3]);
+    Eigen::Matrix3d sqrt_inv_cov =
+        params_.prior_information_weight * Eigen::Matrix3d::Identity();
+    std::unique_ptr<ceres::CostFunction> cost_function(
+        OrientationPriorFunctor::Create(sqrt_inv_cov, q));
+    problem->AddResidualBlock(cost_function.release(), loss_function.get(),
+                              &(results_[0]));
+  }
+
   // add residuals
   for (int i = 0; i < proj_corrs->size(); i++) {
     Eigen::Vector2d pixel(camera_cloud->at(proj_corrs->at(i).index_query).x,
                           camera_cloud->at(proj_corrs->at(i).index_query).y);
 
-    Eigen::Vector3d P_STRUCT1(cad_cloud->at(proj_corrs->at(i).index_match).x,
-                              cad_cloud->at(proj_corrs->at(i).index_match).y,
-                              cad_cloud->at(proj_corrs->at(i).index_match).z);
-
-    Eigen::Vector3d P_STRUCT2;
-
-    // If two correspondences have been specified, every second correspondence
-    // should be the second correspondence for the same source point
-    if (params_.correspondence_type == CorrespondenceType::P2LINE) {
-      i++;
-      P_STRUCT2(0) = cad_cloud->at(proj_corrs->at(i).index_match).x;
-      P_STRUCT2(1) = cad_cloud->at(proj_corrs->at(i).index_match).y;
-      P_STRUCT2(2) = cad_cloud->at(proj_corrs->at(i).index_match).z;
-    }
+    Eigen::Vector3d p1(cad_cloud->at(proj_corrs->at(i).index_match).x,
+                       cad_cloud->at(proj_corrs->at(i).index_match).y,
+                       cad_cloud->at(proj_corrs->at(i).index_match).z);
 
     // Add the appropriate cost function and loss function
-    std::unique_ptr<ceres::CostFunction> cost_function1(
-        CeresReprojectionCostFunction::Create(pixel, P_STRUCT1, camera_model_));
-
-    std::unique_ptr<ceres::CostFunction> cost_function2(
-        point_to_line_cost::CeresReprojectionCostFunction::Create(
-            pixel, P_STRUCT1, P_STRUCT2, camera_model_));
-
     if (params_.correspondence_type == CorrespondenceType::P2POINT) {
-      problem->AddResidualBlock(cost_function1.release(), loss_function.get(),
+      std::unique_ptr<ceres::CostFunction> cost_function(
+          CeresReprojectionCostFunction::Create(pixel, p1, camera_model_));
+      problem->AddResidualBlock(cost_function.release(), loss_function.get(),
                                 &(results_[0]));
-    } else if (params_.correspondence_type == CorrespondenceType::P2LINE)
-      problem->AddResidualBlock(cost_function2.release(), loss_function.get(),
+    } else if (params_.correspondence_type == CorrespondenceType::P2LINE) {
+      i++;
+      Eigen::Vector3d p2(cad_cloud->at(proj_corrs->at(i).index_match).x,
+                         cad_cloud->at(proj_corrs->at(i).index_match).y,
+                         cad_cloud->at(proj_corrs->at(i).index_match).z);
+      std::unique_ptr<ceres::CostFunction> cost_function(
+          point_to_line_cost::CeresReprojectionCostFunction::Create(
+              pixel, p1, p2, camera_model_));
+      problem->AddResidualBlock(cost_function.release(), loss_function.get(),
                                 &(results_[0]));
+    }
   }
 
   LOG_INFO("SOLVER: Finished Building Ceres Problem");
