@@ -1,6 +1,6 @@
 {
   "solution_options": {
-    "cad_cloud_scale": 0.003,
+    "cad_cloud_scale": 0.0048,
     "max_solution_iterations": 30,
     "visualize": true,
     "output_results": false,
