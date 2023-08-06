@@ -6,8 +6,8 @@
 #include <string>
 
 #include <cad_image_markup/Log.h>
-#include <cad_image_markup/nlohmann/json.h>
 #include <cad_image_markup/Utils.h>
+#include <cad_image_markup/nlohmann/json.h>
 
 namespace cad_image_markup {
 
@@ -129,6 +129,15 @@ struct Params {
    */
   double attenuation_rate{0.8};
 
+  /** Wight on the orientaition priors. If this is not set to zero, then a prior
+   * will be added on the orientation. The prior's residual are weighted based
+   * on the following equation:
+   *
+   * Residuals = w * Identity * error
+   *
+   * Higher weight means we trust the prior more */
+  double prior_information_weight{1.0};
+
   // CONVERGENCE OPTIONS
 
   /**  convergence based on problem loss or transform geometry - options are
@@ -184,7 +193,6 @@ struct Params {
    */
   int cannny_low_threshold, canny_ratio, canny_kernel_size;
 
-
   /** Option to downsample image cloud, useful with automatic line detection */
   bool downsample_image_cloud{false};
 
@@ -222,6 +230,7 @@ struct Params {
     attenuate_corr_distance = J_solution_options["attenuate_corr_distance"];
     corr_bound_low = J_solution_options["corr_bound_low"];
     attenuation_rate = J_solution_options["attenuation_rate"];
+    prior_information_weight = J_solution_options["prior_information_weight"];
 
     nlohmann::json J_convergence_options = J["convergence_options"];
 
@@ -284,8 +293,7 @@ struct Params {
     return true;
   }
 
-
-/**
+  /**
    * @brief Loads canny edge detection params from a json file
    * @param path full path to json
    */
@@ -314,7 +322,6 @@ struct Params {
 
     return true;
   }
-
 };
 
 } // namespace cad_image_markup
