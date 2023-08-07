@@ -37,8 +37,8 @@ fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-DATA_ROOT="$SCRIPT_DIR/../examples/example_data/train_station"
-CONFIG_ROOT="$SCRIPT_DIR/../example_config"
+DATA_ROOT="/home/cam/cad_image_markup/examples/example_data/train_station"
+CONFIG_ROOT="/home/cam/cad_image_markup/examples/example_config"
 
 # setup the defect extractor
 DEFECT_IMG="$DATA_ROOT/img_with_defects.png"
@@ -49,7 +49,7 @@ cmd1="$EXECUTABLE_PATH_EXDEFECTS --image_path $DEFECT_IMG"
 cmd1="$cmd1 --output_json $DEFECT_LABELS --defect_color $DEFECT_COLOR"
 
 # setup the edge extractor
-IMAGE_EDGES="$DATA_ROOT/img_edges.png" # Change this for different edge labelling techniques
+IMAGE_EDGES="$DATA_ROOT/cad_img.png" # Change this for different edge labelling techniques
 IMAGE_LABEL="$2/image_labels.json"
 CANNY_CONFIG="$CONFIG_ROOT/CannyParamsExampleTrainStation.json"
 

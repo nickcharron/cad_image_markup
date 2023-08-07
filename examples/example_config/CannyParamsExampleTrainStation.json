@@ -2,7 +2,7 @@
   "canny_options": {
     "cannny_low_threshold": 100,
     "canny_ratio": 3,
-    "canny_kernel_size": 7,
+    "canny_kernel_size": 3,
     "downsample_image_cloud": true,
     "downsample_grid_size": 20
   }

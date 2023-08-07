@@ -1,0 +1,43 @@
+{
+  "flags": {},
+  "shapes": [
+    {
+      "label": "structure",
+      "line_color": null,
+      "fill_color": null,
+      "points": [
+        [
+          467,
+          639
+        ],
+        [
+          450,
+          2892
+        ],
+        [
+          1485,
+          2902
+        ],
+        [
+          893,
+          633
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "lineColor": [
+    0,
+    255,
+    0,
+    128
+  ],
+  "fillColor": [
+    255,
+    0,
+    0,
+    128
+  ],
+  "imagePath": "image_view_1.png",
+  "imageData": null
+}
