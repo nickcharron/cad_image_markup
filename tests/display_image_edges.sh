@@ -68,7 +68,7 @@ CERES_CONFIG="$CONFIG_ROOT/CeresParamsExample.json"
 
 # combine into one command
 cmd3="$EXECUTABLE_PATH_ALIGN --cad_label_path $CAD_LABEL --cad_image_path $CAD_IMG"
-cmd3="$cmd3 --image_label_path $IMAGE_LABEL --image_path $IMAGE_IMG --intrinsics_path $INTRINSICS"
+cmd3="$cmd3 --image_label_path /home/cam/cad_image_markup/tests/image_view_1.json --image_path $IMAGE_IMG --intrinsics_path $INTRINSICS"
 cmd3="$cmd3 --defect_path $DEFECT_LABELS --output_directory $2 --initial_pose_path $POSE"
 cmd3="$cmd3 --solution_config_path $SOLUTION_CONFIG --ceres_config_path $CERES_CONFIG"
 
