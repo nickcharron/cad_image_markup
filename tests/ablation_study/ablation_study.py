@@ -3,8 +3,11 @@
 #        poses
 ###########################################################################
 
+import random
 import subprocess
 import os
+import numpy as np
+import json
 
 ########################################
 # Define ground truth poses            #
@@ -34,10 +37,12 @@ T_CAMERA_WORLD_base4 = [0.998358, 0.00461789, -0.0570924, -0.103161,
 # Define test parameters               #
 ########################################
 NUM_TRIALS = 20
+EPSILON = 0.3
 
 SCRIPT_DIR = os.getcwd()
 DATA_ROOT = os.path.join(SCRIPT_DIR, "examples/example_data/train_station")
 CONFIG_ROOT = os.path.join(SCRIPT_DIR, "examples/example_config")
+DEFECT_FILE = os.path.join(SCRIPT_DIR, "tests/ablation_study/dummy_defect_labels.json")
 
 print("DATA ROOT: ", DATA_ROOT)
 print("CONFIG ROOT : ", CONFIG_ROOT)
@@ -64,31 +69,124 @@ IMAGE_IMG = os.path.join(DATA_ROOT, "img.png")
 CAD_LABEL = os.path.join(DATA_ROOT, "cad_labels.json")
 CAD_IMG = os.path.join(DATA_ROOT, "cad_img.png")
 INTRINSICS = os.path.join(SCRIPT_DIR, "tests/ablation_study/intrinsics.json") # use a local copy since it will change
-POSE = os.path.join(DATA_ROOT, "initial_pose.json")
+TRUE_POSE = os.path.join(SCRIPT_DIR, "tests/ablation_study/true_pose_1_train_station.json")
+TEST_POSE = os.path.join(SCRIPT_DIR, "tests/ablation_study/test_pose.json")
 
-SOLUTION_CONFIG = os.path.join(CONFIG_ROOT, "SolutionParamsExampleTrainStation.json")
+SOLUTION_CONFIG = os.path.join(SCRIPT_DIR, "tests/ablation_study/SolutionParamsTrainStationAblation.json")
 CERES_CONFIG = os.path.join(CONFIG_ROOT, "CeresParamsExample.json")
+
+########################################
+# Helper Functions                     #
+########################################
+
+def get_pose_result(proc):
+
+    if not "MARKUP: Solver successful" in str(proc.stdout): 
+        return []
+
+    pose_start_index = str(proc.stdout).find('T_WORLD_CAMERA')
+    proc_slice_1 = str(proc.stdout)[pose_start_index:]
+    pose_end_index = proc_slice_1.find('[INFO]')
+    proc_slice_2 = proc_slice_1[:pose_end_index]
+    proc_no_newlines = proc_slice_2.replace('\\n', '')
+    proc_values_only = proc_no_newlines.replace('T_WORLD_CAMERA:', '')
+    proc_values_list = proc_values_only.split(' ')
+
+    transform_result = []
+    for value in proc_values_list: 
+        if value != '':
+            try:
+                transform_result.append(float(value))
+            except: 
+                return []
+
+    return transform_result
+
+def compare_transforms(ground_truth, solution, epsilon):
+
+    if len(ground_truth) != len(solution): 
+        return False
+    
+    all_components_correct = True
+
+    for i in range(len(ground_truth)):
+        if np.abs(ground_truth[i] - solution[i]) > epsilon: 
+            all_components_correct = False
+
+    return all_components_correct
+
+def perturb_pose(initial_pose, max_pos_offset, max_angle_offset): 
+    perturbed_pose = []
+    for pos_value in initial_pose[:3]:
+        perturbed_pose.append(
+            pos_value + random.uniform(max_pos_offset, 
+                                       -max_pos_offset))
+        
+    for angle_value in initial_pose[3:]: 
+        perturbed_pose.append(
+            angle_value + random.uniform(max_angle_offset, 
+                                       -max_angle_offset)) 
+        
+    return perturbed_pose
+
 
 ########################################
 # Run trial                            #
 ########################################
 
+# exclude the solutions that just fail to parse
+success_count = 0
+failed_count = 0
 
-print("----------------------RUNNING EDGE EXTRACTOR--------------------")
-subprocess.run([EDGE_EXTRACTOR_EXE, 
-                "--image_path", IMAGE_EDGES, 
-                "--output_json", IMAGE_LABEL,
-                "--config", CANNY_CONFIG])
+for trial in range(NUM_TRIALS):
 
-print("------------------------RUNNING MARKUP--------------------------")
-subprocess.run([MARKUP_EXE, 
-                "--cad_label_path", , 
-                "--cad_image_path", , 
-                "--image_label_path", , 
-                "--image_path", , 
-                "--intrinsics_path", , 
-                "--defect_path", , 
-                "--output_directory", , 
-                "initial_pose_path", , 
-                "--solution_config_path", , 
-                "--ceres_config_path", ])
+    # perturb the true camera pose
+    max_pos_offset = 0.1
+    max_angle_offset = 10  # (degrees)
+
+    with open(TRUE_POSE) as f: 
+        d = json.load(f)
+        pose = d['pose']
+
+    perturbed_init = perturb_pose(pose, max_pos_offset, max_angle_offset)
+
+    d['pose'] = perturbed_init
+
+    with open(TEST_POSE, 'w') as f: 
+        json.dump(d, f)
+
+    print("----------------------RUNNING EDGE EXTRACTOR--------------------")
+    subprocess.run([EDGE_EXTRACTOR_EXE, 
+                    "--image_path", IMAGE_EDGES, 
+                    "--output_json", IMAGE_LABEL,
+                    "--config", CANNY_CONFIG])
+
+    print("------------------------RUNNING MARKUP--------------------------")
+    proc = subprocess.run([MARKUP_EXE, 
+                    "--cad_label_path", CAD_LABEL, 
+                    "--cad_image_path", CAD_IMG, 
+                    "--image_label_path", IMAGE_LABEL, 
+                    "--image_path", IMAGE_IMG, 
+                    "--intrinsics_path", INTRINSICS, 
+                    "--defect_path", DEFECT_FILE, 
+                    "--output_directory", OUTPUT_DIR, 
+                    "--initial_pose_path", TEST_POSE, 
+                    "--solution_config_path", SOLUTION_CONFIG, 
+                    "--ceres_config_path", CERES_CONFIG], capture_output=True)
+
+    solved_transform = get_pose_result(proc)
+
+    print(solved_transform)
+
+    result = compare_transforms(T_CAMERA_WORLD_base1, solved_transform, EPSILON)
+    print(result)
+
+    if result: 
+        success_count += 1
+    if not result and len(solved_transform) > 0: 
+        failed_count += 1
+
+print("------------------------TEST FINISHED--------------------------")
+print("Number of successful solutions: ", success_count)
+print("Number of failed solutions: ", failed_count)
+
